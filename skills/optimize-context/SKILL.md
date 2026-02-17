@@ -163,9 +163,11 @@ Check CLAUDE.md against codebase reality:
 
 Categorize as `Stale (must fix)`, `Gaps (must add)`, `Redundant (can reduce)`, `Noise (should remove)`, `OK`.
 
-**Gate:** User confirms report before proceeding.
+**Gate:** User confirms report before proceeding. Do NOT skip this gate — Phase 4 must be a separate, visible step.
 
 ### 4. Generate Update
+
+**This phase must produce visible output before any edits.** Do not merge it into Phase 3 or skip ahead to editing.
 
 Apply changes following these priorities:
 
@@ -180,7 +182,21 @@ For templates by project type: [references/templates.md](references/templates.md
 **Size targets:** <8KB optimal, 8-15KB acceptable, >15KB needs compression.
 **Size measurement:** Exclude auto-generated sections (`<claude-mem-context>`, plugin-injected blocks) from byte count — score only human-authored content.
 
-Show each change with reason and size impact before applying. **Every finding from phase 3 must map to a proposed change** — if a finding has no action, explicitly state why (e.g. "Finding #3: no change needed — already addressed by #1").
+**Output format** (must show before editing):
+
+```
+### Proposed Changes
+
+| # | Finding | Action | Size Impact |
+| --- | --- | --- | --- |
+| 1 | Finding #1: <summary> | <what will change> | +/- XX bytes |
+| 2 | Finding #2: <summary> | <what will change> | +/- XX bytes |
+| 3 | Finding #5: OK | No action needed | — |
+
+Projected: Score XX → XX | Size: XX KB → XX KB
+```
+
+Every finding from phase 3 must appear in this table — if no action needed, state why.
 
 **Gate:** User reviews preview before applying.
 
@@ -188,8 +204,8 @@ Show each change with reason and size impact before applying. **Every finding fr
 
 1. Edit CLAUDE.md files using Edit tool
 2. **Completeness check:** Verify all proposed changes from phase 4 were applied — list each change with ✅/❌ status
-3. Verify size: `wc -c` each file
-4. Verify all sections still intact
+3. **Size verification:** Run `wc -c <file>` for each edited file — report actual byte count
+4. **Section integrity:** Read the final file and confirm all original sections are present (list them)
 5. **Command & path validation:**
    - Run 2-3 commands documented in CLAUDE.md → confirm they still work
    - Verify file paths referenced → `ls` each critical path
