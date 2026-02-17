@@ -32,6 +32,27 @@ Even with explicit instructions achieving 95%+ skill invocation rate, pass rate 
 Compressed context (8KB) performs identically to verbose (40KB).
 Passive context wins because: (1) no decision point about when to retrieve, (2) consistent availability every turn, (3) no sequencing issues.
 
+**Target expectations:**
+
+| Vercel's 100% pass rate | Skill's quality score |
+| --- | --- |
+| Agent completes tasks (build/lint/test) successfully | CLAUDE.md quality measured against 8-criterion rubric |
+| Achieved by having good passive context | Scores depend on project type and complexity |
+
+- **Grade B (70+) + no critical criterion below 10** = good baseline
+- **Grade A (90+)** = ideal for framework-heavy or complex projects
+- 100/100 is not always possible (e.g. no framework → retrieval readiness scores lower by design)
+- Not fully autonomous — workflow has 2 user-confirmation gates (phases 3 and 4)
+
+Critical minimum thresholds (score below these → must fix before passing):
+
+| Criterion | Min | Why |
+| --- | --- | --- |
+| Commands | 10/15 | Agent must know how to build/test |
+| Architecture | 10/15 | Agent must understand project structure |
+| Retrieval readiness | 10/15 | Key Vercel finding (framework projects only) |
+| Conciseness | 10/15 | Noise actively hurts agent performance |
+
 ## Workflow
 
 1. **Discovery** — Find all CLAUDE.md files, identify types
