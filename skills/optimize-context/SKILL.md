@@ -55,11 +55,16 @@ Critical minimum thresholds (score below these → must fix before passing):
 
 ## Workflow
 
-1. **Discovery** — Find all CLAUDE.md files, identify types
-2. **Quality Assessment** — Score each file against rubric
-3. **Audit** — Check alignment with actual codebase
-4. **Generate Update** — Plan changes with size impact
-5. **Apply & Verify** — Edit, verify structure, spot-check
+Copy this checklist and check off items as you complete each phase:
+
+```
+Progress:
+- [ ] Phase 1: Discovery & Classification
+- [ ] Phase 2: Quality Assessment
+- [ ] Phase 3: Audit
+- [ ] Phase 4: Generate Update
+- [ ] Phase 5: Apply & Verify
+```
 
 > `--dry-run` → run phases 1-3 only, output report, skip phases 4-5.
 
