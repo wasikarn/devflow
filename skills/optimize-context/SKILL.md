@@ -42,7 +42,7 @@ Passive context wins because: (1) no decision point about when to retrieve, (2) 
 - **Grade B (70+) + no critical criterion below 10** = good baseline
 - **Grade A (90+)** = ideal for framework-heavy or complex projects
 - 100/100 is not always possible (e.g. no framework → retrieval readiness scores lower by design)
-- Not fully autonomous — workflow has 2 user-confirmation gates (phases 3 and 4)
+- Fully autonomous — all 5 phases run without user-confirmation gates
 
 Critical minimum thresholds (score below these → must fix before passing):
 
@@ -163,11 +163,9 @@ Check CLAUDE.md against codebase reality:
 
 Categorize as `Stale (must fix)`, `Gaps (must add)`, `Redundant (can reduce)`, `Noise (should remove)`, `OK`.
 
-**Gate:** User confirms report before proceeding. Do NOT skip this gate — Phase 4 must be a separate, visible step.
+Proceed directly to phase 4 after outputting the report.
 
 ### 4. Generate Update
-
-**This phase must produce visible output before any edits.** Do not merge it into Phase 3 or skip ahead to editing.
 
 Apply changes following these priorities:
 
@@ -198,7 +196,7 @@ Projected: Score XX → XX | Size: XX KB → XX KB
 
 Every finding from phase 3 must appear in this table — if no action needed, state why.
 
-**Gate:** User reviews preview before applying. Do NOT apply changes in the same message — stop after showing the table and wait for explicit user approval.
+Proceed directly to phase 5 after outputting the proposed changes table.
 
 ### 5. Apply & Verify
 
