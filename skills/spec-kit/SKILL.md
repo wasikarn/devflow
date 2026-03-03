@@ -131,6 +131,18 @@ After `/speckit.plan` generates artifacts and before running `/speckit.tasks`, p
 
 **Optional before implement:** Create a PR from the feature branch to main with a detailed description. Useful for tracking progress and getting early feedback.
 
+### 6. Review & Acceptance Checklist Validation
+
+After `/speckit.clarify` (or after `/speckit.specify` if skipping clarify), validate the spec against the auto-generated `checklists/requirements.md` before recommending `/speckit.plan`.
+
+Use this prompt:
+
+> "Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not."
+
+The checklist (`checklists/requirements.md`) is auto-created by `/speckit.specify`. Items include: no implementation details, requirements testable, success criteria measurable, no [NEEDS CLARIFICATION] markers remain, all acceptance scenarios defined.
+
+Proceed to `/speckit.plan` only after all checklist items pass (or user explicitly accepts remaining gaps).
+
 ---
 
 ## File Format Reference
