@@ -4,6 +4,7 @@ description: "PR review skill for tathep-admin (Next.js 14 Pages Router + Tailwi
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
 context: fork
 disable-model-invocation: true
+compatibility: "Requires gh CLI and git. Run from within the tathep-admin repo."
 ---
 
 # PR Review — tathep-admin

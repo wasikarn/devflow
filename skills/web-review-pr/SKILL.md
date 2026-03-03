@@ -4,6 +4,7 @@ description: "PR review skill for tathep-website (Next.js 14 Pages Router + Chak
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
 context: fork
 disable-model-invocation: true
+compatibility: "Requires gh CLI and git. Run from within the tathep-website repo."
 ---
 
 # PR Review — tathep-website

@@ -4,6 +4,7 @@ description: "PR review skill for tathep-platform-api (AdonisJS 5.9 + Effect-TS 
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
 context: fork
 disable-model-invocation: true
+compatibility: "Requires gh CLI and git. Run from within the tathep-platform-api repo."
 ---
 
 # PR Review — tathep-platform-api
