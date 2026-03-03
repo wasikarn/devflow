@@ -11,12 +11,13 @@ SDD inverts the coding workflow: specifications are the primary artifact; code i
 
 | Step | Command | Output | Key Rule |
 |------|---------|--------|----------|
-| 1 | `/speckit.constitution` | `.specify/memory/constitution.md` | Do once per project |
-| 2 | `/speckit.specify <what>` | `spec.md` + `checklists/requirements.md` + git branch | WHAT/WHY only, no tech |
-| 3 | `/speckit.clarify` | Updates `spec.md` Clarifications | Max 5 questions; optional but recommended |
+| 1 | `/speckit.constitution` | `.specify/memory/constitution.md` | Do once; cover code quality, testing, UX, performance + decision governance |
+| 2 | `/speckit.specify <what>` | `spec.md` + `checklists/requirements.md` + git branch | WHAT/WHY only, no tech; be explicit about flows and out-of-scope |
+| 3 | `/speckit.clarify` | Updates `spec.md` Clarifications | Structured first → free-form after; validate Review & Acceptance Checklist; explicitly skip for spikes |
 | 4 | `/speckit.plan <tech stack>` | `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, `contracts/` | NOW specify tech |
+| 4.5 | *(plan validation)* | *(refined plan files)* | Audit for missing sequences + over-engineering; research rapidly-changing tech with parallel tasks |
 | 5 | `/speckit.tasks` | `tasks.md` | Requires `plan.md` to exist |
-| 6 | `/speckit.implement` | Marked `[X]` tasks, working code | Pauses on incomplete checklists |
+| 6 | `/speckit.implement` | Marked `[X]` tasks, working code | Pauses on incomplete checklists; local CLI tools must be installed |
 
 **Optional quality gates** (run between steps 5 and 6):
 
@@ -63,10 +64,15 @@ CLAUDE.md            # Agent instructions (varies by --ai flag)
 
 - **Specifying tech stack in step 2** — wait until `/speckit.plan` (step 4)
 - **Expecting `/speckit.clarify` to ask unlimited questions** — it's capped at 5 questions per session
-- **Skipping `/speckit.clarify`** — ambiguities compound into plan/task errors
+- **Skipping `/speckit.clarify` without saying so** — ambiguities compound into plan/task errors; if intentionally skipping for a spike/prototype, explicitly state it so the agent doesn't block
+- **Using free-form clarification before `/speckit.clarify`** — run structured clarify first (sequential, coverage-based, answers recorded in Clarifications); free-form refinement is a follow-up, not a replacement
+- **Skipping plan validation (step 4.5)** — generated plans often include sequences or components not explicitly requested; audit before generating tasks
+- **Not checking for over-engineering in the plan** — Claude can add unrequested components; always ask for rationale when something wasn't in the spec
 - **Running `/speckit.tasks` without `plan.md`** — it will fail; run `/speckit.plan` first
 - **Ignoring `[P]` markers in tasks.md** — tasks marked `[P]` are safe to parallelize
 - **Re-running `/speckit.constitution`** — silently overwrites the existing constitution.md; only run once per project
+- **Missing local CLI tools for `/speckit.implement`** — the agent runs tool commands (npm, dotnet, etc.); have them installed and at the correct version before starting
+- **Only checking CLI output after implement** — runtime errors (e.g., browser console errors) may not appear in the terminal; test the running app and paste any errors back to the agent
 
 ## Intelligence Features
 
@@ -101,6 +107,22 @@ Before recommending any `/speckit.*` command, consult [references/prerequisites.
 When user asks to "review my spec", "check the spec", or before recommending `/speckit.plan`:
 
 Read `spec.md` and apply the quality criteria in [references/spec-quality.md](references/spec-quality.md). Report findings grouped by severity: CRITICAL → HIGH → MEDIUM → LOW.
+
+### 5. Plan Validation (Step 4.5)
+
+After `/speckit.plan` generates artifacts and before running `/speckit.tasks`, prompt the user to validate the plan. This is the official "Step 5" in the spec-kit workflow — audit the generated artifacts for gaps, over-engineering, and constitution alignment.
+
+**Audit prompts to suggest:**
+
+1. **Sequence audit** — "Read through the implementation plan and determine whether there is a sequence of tasks that are obvious from reading it. For each step in core implementation, reference where in the implementation detail files the information can be found."
+
+2. **Over-engineering check** — "Cross-check the plan for components not in the spec. If over-engineered pieces exist, ask for rationale and resolve them. Ensure the plan follows the constitution."
+
+3. **Rapidly-changing tech research** — When the tech stack includes fast-moving frameworks (e.g., Next.js App Router, .NET Aspire, new LLM SDKs): "Identify specific unknowns in the implementation plan that would benefit from research, then spawn parallel research tasks — one per targeted question, not general framework research."
+
+4. **Constitution alignment check** — Re-read `.specify/memory/constitution.md` against the plan and flag any violations before tasks are generated.
+
+**Optional before implement:** Create a PR from the feature branch to main with a detailed description. Useful for tracking progress and getting early feedback.
 
 ---
 
