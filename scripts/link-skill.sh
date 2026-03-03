@@ -14,6 +14,12 @@ CLAUDE_SKILLS="$HOME/.claude/skills"
 mkdir -p "$CLAUDE_SKILLS"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+each_skill_name() {
+  for skill_dir in "$SKILLS_DIR"/*/; do
+    basename "$skill_dir"
+  done
+}
+
 link_skill() {
   local name="$1"
   local src="$SKILLS_DIR/$name"
@@ -43,15 +49,13 @@ link_skill() {
 
 list_status() {
   echo "Skills in repo:"
-  for skill_dir in "$SKILLS_DIR"/*/; do
-    local name; name=$(basename "$skill_dir")
+  while IFS= read -r name; do
     local dst="$CLAUDE_SKILLS/$name"
-    if [[ -L "$dst" ]]; then
-      echo "  ✓ $name → $(readlink "$dst")"
-    else
-      echo "  ✗ $name (not linked)"
-    fi
-  done
+    local target
+    target=$(readlink "$dst" 2>/dev/null) \
+      && echo "  ✓ $name → $target" \
+      || echo "  ✗ $name (not linked)"
+  done < <(each_skill_name)
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -61,9 +65,9 @@ case "${1:-}" in
     ;;
   "")
     echo "Linking all skills → $CLAUDE_SKILLS"
-    for skill_dir in "$SKILLS_DIR"/*/; do
-      link_skill "$(basename "$skill_dir")"
-    done
+    while IFS= read -r name; do
+      link_skill "$name"
+    done < <(each_skill_name)
     ;;
   *)
     link_skill "$1"
