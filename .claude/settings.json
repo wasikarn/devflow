@@ -9,6 +9,15 @@
             "command": "\"$CLAUDE_PROJECT_DIR\"/hooks/post-compact-context.sh"
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/hooks/session-start-context.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -18,6 +27,16 @@
           {
             "type": "command",
             "command": "FILE=$(cat | jq -r '.tool_input.file_path // empty'); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE '\\.md$'; then npx markdownlint-cli2 --fix \"$FILE\" 2>/dev/null; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if the assistant's response completed all tasks the user requested. Look at the todo list if present — are there pending or in-progress items? Did the assistant leave any work unfinished or promise to do something it didn't do? If everything is done, respond {\"ok\": true}. If work remains, respond {\"ok\": false, \"reason\": \"Brief description of what's incomplete\"}."
           }
         ]
       }

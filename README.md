@@ -212,11 +212,13 @@ Custom subagents at `agents/<name>.md`. Symlinked to `~/.claude/agents/`.
 
 Lifecycle hooks configured in `.claude/settings.json`.
 
-| Hook | Event | What it does |
-| --- | --- | --- |
-| Post-compact | `SessionStart[compact]` | Re-injects project context after compaction |
-| Auto-lint | `PostToolUse[Edit\|Write]` | Runs markdownlint on `.md` files after edits |
-| Notification | `Notification` | macOS desktop alert when Claude needs input |
+| Hook | Event | Type | What it does |
+| --- | --- | --- | --- |
+| Session start | `SessionStart[startup]` | command | Injects git state + project detection |
+| Post-compact | `SessionStart[compact]` | command | Re-injects project context + git state after compaction |
+| Auto-lint | `PostToolUse[Edit\|Write]` | command | Runs markdownlint on `.md` files after edits |
+| Task guard | `Stop` | prompt | LLM check for incomplete work before stopping |
+| Notification | `Notification` | command | macOS desktop alert when Claude needs input |
 
 ---
 
