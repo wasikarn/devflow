@@ -140,7 +140,7 @@ Plugin manifest at `.claude-plugin/plugin.json` packages this skills collection 
 
 ## Gotchas
 
-- `context: fork` in SKILL.md frontmatter — officially supported; use with `agent` field to pick execution environment (`Explore`, `Plan`, `general-purpose`, or custom agent name)
+- `context: fork` + `agent` field runs skills in isolated subagent — available but not used in this repo (removed for real-time streaming visibility and follow-up interaction)
 - Pre-commit hook auto-fixes staged `.md` files — runs `scripts/fix-tables.py` + `markdownlint-cli2 --fix`; no manual fix needed before commit
 - `disable-model-invocation: true` removes description from context entirely (skill never auto-triggers); `user-invocable: false` hides from menu but keeps context — different effects
 - Run `/optimize-context` when this file feels stale
