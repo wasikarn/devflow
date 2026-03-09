@@ -103,7 +103,6 @@ Deduplicate → verify severity → remove false positives → proceed.
 1. Fix AC issues first (🔴 not implemented / partial)
 2. Fix: 🔴 → 🟡 → 🔵
 3. `npm run validate:all` — if fails → fix and re-validate
-4. Write `review-report.md`
 
 ### Reviewer Mode
 
