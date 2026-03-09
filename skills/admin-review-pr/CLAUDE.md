@@ -40,7 +40,7 @@ SKILL.md frontmatter controls how Claude invokes this skill:
 
 - `description:` — Claude matches user intent; prefer trigger-complete descriptions — wrong description = skill never auto-triggers
 - `name:` — the slash command name (`/admin-review-pr`)
-- `context: fork` + `disable-model-invocation: true` — isolates heavy 7-agent dispatch
+- `disable-model-invocation: true` — manual invocation only (heavy 7-agent dispatch)
 
 ## Project Context
 

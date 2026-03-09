@@ -2,8 +2,6 @@
 name: deep-research-workflow
 description: "Research → Plan → Implement workflow for complex features. Use when user says 'research first', 'plan before coding', 'understand the codebase', or starts a multi-file feature without a clear path. Produces research.md and plan.md before any code."
 argument-hint: "[feature-description]"
-context: fork
-agent: general-purpose
 ---
 
 # /deep-research-workflow

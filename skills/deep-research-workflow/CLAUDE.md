@@ -47,5 +47,5 @@ SKILL.md frontmatter controls how Claude invokes this skill:
 
 - This CLAUDE.md is **tracked in git** — changes here are shared with the team
 - Artifacts (`research.md`, `plan.md`) are written at the **project root** of the target project, not inside this skills repo
-- The skill uses `context: fork` semantics conceptually but the frontmatter attribute isn't supported — the skill is heavy and long-running; expect it to consume significant context
+- The skill is heavy and long-running; expect it to consume significant context
 - If context is compacted mid-workflow, the agent should re-read `research.md` Summary + `plan.md` Annotations to resume

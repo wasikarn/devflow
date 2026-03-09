@@ -45,7 +45,7 @@ SKILL.md frontmatter controls how Claude invokes this skill:
 
 - `description:` — Claude matches user intent; prefer trigger-complete descriptions — wrong description = skill never fires; include trigger phrases like "start a spec", "speckit"
 - `name:` — the slash command name (`/spec-kit`)
-- `context: fork` — isolates skill in a fork context (add for agent-heavy skills)
+- Runs inline (no `context: fork`) for real-time progress visibility
 
 ## Validate After Changes
 
