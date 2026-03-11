@@ -92,6 +92,10 @@ Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Pass each agent: H
 
 **Actionable Only:** Every finding must include: (1) what's wrong + evidence (file:line), (2) why it matters, (3) concrete fix or pattern to follow. Vague advice like "consider improving" is not acceptable.
 
+**Scope Guard:** Review ONLY files in `git diff develop...HEAD`. Do not flag issues in unchanged files — out-of-scope concerns belong in separate tasks, not this PR.
+
+**Confidence Floor:** Non-Hard-Rule findings require confidence ≥80 (scale 0-100). Hard Rules bypass this filter — always report. Below 80 = do not report.
+
 | Agent |
 | ------- |
 | `pr-review-toolkit:code-reviewer` |
@@ -102,7 +106,7 @@ Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Pass each agent: H
 | `pr-review-toolkit:code-simplifier` |
 | `feature-dev:code-reviewer` |
 
-`feature-dev:code-reviewer` applies TypeScript advanced type principles (generics, branded types, discriminated unions, type guards — NO `as any`) and Clean Code principles (SRP, early returns, naming intent, function size). Confidence scoring maps: 90–100 → 🔴, 80–89 → 🟡.
+`feature-dev:code-reviewer` applies TypeScript advanced type principles (generics, branded types, discriminated unions, type guards — NO `as any`) and Clean Code principles (SRP, early returns, naming intent, function size). All agents use confidence scoring: 90–100 → 🔴, 80–89 → 🟡. Hard Rules bypass — always 🔴.
 
 **⛔ CHECKPOINT** — collect ALL 7 results before proceeding. Do NOT fix until all complete.
 

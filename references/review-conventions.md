@@ -44,11 +44,12 @@ Examples:
 After CHECKPOINT (all 7 agents collected):
 
 1. **Dedup** by `file:line` — 2+ agents flag same spot → keep highest severity, merge evidence, record agreement count (e.g. "3/7")
-2. **Verify** — re-read flagged code before confirming severity. Drop any finding where the code doesn't match the claim — if an agent didn't read the file or misread it, discard the finding entirely.
-3. **Remove false positives** — documented patterns, project exceptions, intentional code
-4. **Actionable check** — every remaining finding must have: evidence (file:line), rationale (why), and fix (how). Drop findings that only state the problem without a concrete solution.
-5. **Sort** — 🔴 → 🟡 → 🔵
-6. **Signal check** — if (🔴+🟡)/Total < 60%, likely too noisy — re-review findings
+2. **Pattern cap** — same rule violation repeated in >3 files → consolidate into 1 finding + "and N more locations". List max 3 representative file:line references.
+3. **Verify** — re-read flagged code before confirming severity. Drop any finding where the code doesn't match the claim — if an agent didn't read the file or misread it, discard the finding entirely.
+4. **Remove false positives** — documented patterns, project exceptions, intentional code
+5. **Actionable check** — every remaining finding must have: evidence (file:line), rationale (why), and fix (how). Drop findings that only state the problem without a concrete solution.
+6. **Sort** — 🔴 → 🟡 → 🔵
+7. **Signal check** — if (🔴+🟡)/Total < 60%, likely too noisy — re-review findings
 
 ## Strengths
 
