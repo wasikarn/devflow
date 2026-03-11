@@ -1,6 +1,6 @@
-# video-review-pr skill
+# tathep-admin-review-pr skill
 
-PR review skill for tathep-video-processing (TypeScript 5.9 + Bun + Hono + Effect-TS + Drizzle ORM + Vitest + Clean Architecture DDD).
+PR review skill for tathep-admin (Next.js 14 Pages Router + Tailwind + Headless UI + Vitest).
 SKILL.md is the agent entry point; references/ provides supporting detail.
 
 ## Docs Index
@@ -22,16 +22,16 @@ Prefer reading before editing — key references:
 
 ```bash
 # Lint all markdown in this skill
-npx markdownlint-cli2 "skills/video-review-pr/**/*.md"
+npx markdownlint-cli2 "skills/tathep-admin-review-pr/**/*.md"
 
 # Verify skill symlink exists
-ls -la ~/.claude/skills/video-review-pr
+ls -la ~/.claude/skills/tathep-admin-review-pr
 
-# Invoke skill (run in tathep-video-processing repo):
-# /video-review-pr <pr-number> [jira-key?] [Author|Reviewer]
+# Invoke skill (run in tathep-admin repo):
+# /tathep-admin-review-pr <pr-number> [jira-key?] [Author|Reviewer]
 
-# Project validate (run in tathep-video-processing repo):
-# bun run check && bun run test
+# Project validate (run in tathep-admin repo):
+# npm run ts-check && npm run lint@fix && npm run test
 ```
 
 ## Skill System
@@ -39,28 +39,21 @@ ls -la ~/.claude/skills/video-review-pr
 SKILL.md frontmatter controls how Claude invokes this skill:
 
 - `description:` — Claude matches user intent; prefer trigger-complete descriptions — wrong description = skill never auto-triggers
-- `name:` — the slash command name (`/video-review-pr`)
+- `name:` — the slash command name (`/tathep-admin-review-pr`)
 - `disable-model-invocation: true` — manual invocation only (heavy 7-agent dispatch)
 
 ## Project Context
 
-- **GitHub repo:** `100-Stars-Co/tathep-video-processing`
+- **GitHub repo:** `100-Stars-Co/bluedragon-eye-admin`
 - **Jira key format:** `BEP-XXXX`
-- **Validate command:** `bun run check && bun run test`
+- **Validate command:** `npm run ts-check && npm run lint@fix && npm run test`
 - **Scope:** `git diff develop...HEAD` — changed files only
-- **Default branch:** `develop` (NOT `main`)
 
 ## Gotchas
 
 - This CLAUDE.md is **tracked in git** — changes here are shared with the team
-- **Default branch is `develop`** — PRs target `develop`, not `main`; diff scope is `develop...HEAD`
-- **Bun runtime** — `bun run test` (NEVER `bun test`), `import.meta.dir` (not `__dirname`)
-- **Biome linter** — replaces ESLint/Prettier; `bun run fix` before commit; `biome-ignore` is forbidden
-- **DDD/Hexagonal architecture** — domain layer has zero external dependencies; ports in domain, adapters in infrastructure
-- **Effect-TS** — `Effect.gen`, `Layer` for DI, `pipe` for composition; no raw try-catch where Effect fits
-- **Drizzle ORM** — type-safe at compile time; no raw SQL
-- **3 services** — HTTP server (Hono), Redis consumer (Streams), BullMQ worker; review must consider which service is affected
-- **85% coverage threshold** — enforced by Vitest config
+- **`lint@fix` uses `@` not `:`** — `npm run lint@fix` (NOT `lint:fix`) — easy to confuse with web skill
+- **Pages Router project** — App Router patterns (RSC, Server Components, `React.cache()`) do NOT apply
 - Reviewer comments must be in Thai mixed with English technical terms (casual Slack/PR tone)
 - Submit all inline comments + decision in ONE `gh api` call — not one-by-one
 - Phase 3 agents are READ-ONLY — code edits only happen in Phase 4 (Author mode)

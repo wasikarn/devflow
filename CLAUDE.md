@@ -57,12 +57,12 @@ Full field reference: [references/skills-best-practices.md](references/skills-be
 | `optimize-context` |
 | `deep-research-workflow` |
 | `spec-kit` |
-| `api-review-pr` |
-| `web-review-pr` |
-| `admin-review-pr` |
+| `tathep-api-review-pr` |
+| `tathep-web-review-pr` |
+| `tathep-admin-review-pr` |
+| `tathep-agent-review-pr` |
+| `tathep-video-review-pr` |
 | `auto-pr-review` |
-| `agent-review-pr` |
-| `video-review-pr` |
 | `env-check` |
 | `env-heal` |
 

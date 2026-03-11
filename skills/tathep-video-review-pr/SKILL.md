@@ -1,6 +1,6 @@
 ---
-name: video-review-pr
-description: "PR review skill for tathep-video-processing (TypeScript 5.9 + Bun + Hono + Effect-TS + Drizzle ORM + Vitest + Clean Architecture DDD). Dispatches 7 parallel specialized agents, verifies Jira AC, then fixes issues (Author) or submits inline comments (Reviewer). Triggers: review PR, check PR, code review, /video-review-pr."
+name: tathep-video-review-pr
+description: "PR review skill for tathep-video-processing (TypeScript 5.9 + Bun + Hono + Effect-TS + Drizzle ORM + Vitest + Clean Architecture DDD). Dispatches 7 parallel specialized agents, verifies Jira AC, then fixes issues (Author) or submits inline comments (Reviewer). Triggers: review PR, check PR, code review, /tathep-video-review-pr."
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *)
@@ -9,7 +9,7 @@ compatibility: "Requires gh CLI and git. Run from within the tathep-video-proces
 
 # PR Review — tathep-video-processing
 
-Invoke as `/video-review-pr [pr-number] [jira-key?] [Author|Reviewer]`
+Invoke as `/tathep-video-review-pr [pr-number] [jira-key?] [Author|Reviewer]`
 
 ## References
 

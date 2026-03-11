@@ -1,6 +1,6 @@
-# agent-review-pr skill
+# tathep-api-review-pr skill
 
-PR review skill for tathep-ai-agent-python (Python 3.12 + FastAPI + LangGraph + SQLAlchemy QB + mypy strict).
+PR review skill for tathep-platform-api (AdonisJS 5.9 + Effect-TS + Clean Architecture + Japa tests).
 SKILL.md is the agent entry point; references/ provides supporting detail.
 
 ## Docs Index
@@ -22,16 +22,16 @@ Prefer reading before editing — key references:
 
 ```bash
 # Lint all markdown in this skill
-npx markdownlint-cli2 "skills/agent-review-pr/**/*.md"
+npx markdownlint-cli2 "skills/tathep-api-review-pr/**/*.md"
 
 # Verify skill symlink exists
-ls -la ~/.claude/skills/agent-review-pr
+ls -la ~/.claude/skills/tathep-api-review-pr
 
-# Invoke skill (run in tathep-ai-agent-python repo):
-# /agent-review-pr <pr-number> [jira-key?] [Author|Reviewer]
+# Invoke skill (run in tathep-platform-api repo):
+# /tathep-api-review-pr <pr-number> [jira-key?] [Author|Reviewer]
 
-# Project validate (run in tathep-ai-agent-python repo):
-# uv run black --check . && uv run mypy .
+# Project validate (run in tathep-platform-api repo):
+# npm run validate:all
 ```
 
 ## Skill System
@@ -39,25 +39,20 @@ ls -la ~/.claude/skills/agent-review-pr
 SKILL.md frontmatter controls how Claude invokes this skill:
 
 - `description:` — Claude matches user intent; prefer trigger-complete descriptions — wrong description = skill never auto-triggers
-- `name:` — the slash command name (`/agent-review-pr`)
+- `name:` — the slash command name (`/tathep-api-review-pr`)
 - `disable-model-invocation: true` — manual invocation only (heavy 7-agent dispatch)
 
 ## Project Context
 
-- **GitHub repo:** `100-Stars-Co/tathep-ai-agent-python`
+- **GitHub repo:** `100-Stars-Co/bd-eye-platform-api`
 - **Jira key format:** `BEP-XXXX`
-- **Validate command:** `uv run black --check . && uv run mypy .`
-- **Reference modules:** `modules/conversation/` (CQRS + repository pattern), `shared/libs/invoke_with_fallback.py` (LLM resilience)
+- **Validate command:** `npm run validate:all`
+- **Reference modules:** `Questionnaire/` (simple pattern), `Sms/` (gold standard)
 - **Scope:** `git diff develop...HEAD` — changed files only
 
 ## Gotchas
 
 - This CLAUDE.md is **tracked in git** — changes here are shared with the team
-- **Python project** — all code patterns, type hints, and tooling are Python-specific (not TypeScript)
-- **mypy strict mode** — `disallow_untyped_defs=True`, `no_implicit_optional=True`; missing type hints = build failure
-- **Black formatting** — 88-char line width, enforced; `uv run black --check .` must pass
-- **LangGraph patterns** — agents use `StateGraph`, `Command`, `Send()` for orchestration
-- **LLM calls require fallback** — production agents must use `invoke_with_fallback()`, not raw `model.invoke()`
 - Reviewer comments must be in Thai mixed with English technical terms (casual Slack/PR tone)
 - Submit all inline comments + decision in ONE `gh api` call — not one-by-one
 - Phase 3 agents are READ-ONLY — code edits only happen in Phase 4 (Author mode)

@@ -1,15 +1,15 @@
 ---
-name: admin-review-pr
-description: "PR review skill for tathep-admin (Next.js 14 Pages Router + Tailwind + Headless UI + Vitest). Dispatches 7 parallel specialized agents, verifies Jira AC, then fixes issues (Author) or submits inline comments (Reviewer). Triggers: review PR, check PR, code review, /admin-review-pr."
+name: tathep-agent-review-pr
+description: "PR review skill for tathep-ai-agent-python (Python 3.12 + FastAPI + LangGraph + SQLAlchemy QB + mypy strict). Dispatches 7 parallel specialized agents, verifies Jira AC, then fixes issues (Author) or submits inline comments (Reviewer). Triggers: review PR, check PR, code review, /tathep-agent-review-pr."
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *)
-compatibility: "Requires gh CLI and git. Run from within the tathep-admin repo."
+compatibility: "Requires gh CLI and git. Run from within the tathep-ai-agent-python repo."
 ---
 
-# PR Review — tathep-admin
+# PR Review — tathep-ai-agent-python
 
-Invoke as `/admin-review-pr [pr-number] [jira-key?] [Author|Reviewer]`
+Invoke as `/tathep-agent-review-pr [pr-number] [jira-key?] [Author|Reviewer]`
 
 ## References
 
@@ -68,15 +68,15 @@ Map each AC to file(s) in `git diff develop...HEAD`:
 
 Flag unconditionally — no confidence filter, always report:
 
-- `as any` / `as unknown as T` → 🔴 (destroys type safety — runtime errors slip past the compiler)
-- `result.data` accessed without checking `result.isOk` first → 🔴 (crashes on error responses — always guard the success path)
-- hardcoded route strings (`/manage/...`, `/ad/...`) → 🔴 (use `ROUTE_PATHS` — breaks silently on route rename, no type checking)
-- hardcoded Thai status text → 🔴 (use `*_STATUS_TEXT` constants — duplicated strings diverge over time and miss future i18n)
-- empty `catch {}` / swallowed errors → 🔴 (silent failures hide production bugs — errors vanish with no trace)
-- nesting > 1 level → 🔴 (use early return — deep nesting buries the happy path and makes tracing hard)
-- `import { useQuery } from '@tanstack/react-query'` → 🔴 (must be `'react-query'` v3 — tanstack v5 API is incompatible with this codebase)
-- query/fetch inside loop → 🔴 (N+1 — exponential network load; batch or preload instead)
-- `console.log` in non-test code → 🟡 (leaks debug output to production; use structured logger)
+- `Any` type annotation → 🔴 (destroys type safety — mypy strict mode forbids it; use specific types or generics)
+- bare `except:` or `except Exception:` without re-raise → 🔴 (swallows all errors including KeyboardInterrupt — always specify exception type)
+- `print()` statement → 🔴 (use `logger` from `shared.libs.logging.logger` — print output vanishes in production)
+- missing type hints on function signature → 🔴 (mypy `disallow_untyped_defs=True` — will fail type check)
+- `model.invoke()` without fallback in production agent → 🔴 (use `invoke_with_fallback()` — single model failure takes down the agent)
+- hardcoded model name string outside `get_model()` → 🔴 (use `get_model("provider/model")` — centralizes model config)
+- raw `try/except` in Effect-TS style code → 🔴 (use structured error handling patterns — breaks error channel)
+- `import *` (wildcard import) → 🔴 (pollutes namespace — always import specific names)
+- query inside loop (N+1) → 🔴 (batch or preload — exponential DB load)
 
 Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Pass each agent: Hard Rules above (verbatim) + AC context from Phase 2 + criteria from [references/checklist.md](references/checklist.md) + project-specific examples from [references/examples.md](references/examples.md).
 
@@ -90,7 +90,7 @@ Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Pass each agent: H
 | `pr-review-toolkit:code-simplifier` |
 | `feature-dev:code-reviewer` |
 
-`feature-dev:code-reviewer` applies TypeScript advanced type principles (generics, branded types, discriminated unions, type guards — NO `as any`) and Clean Code principles (SRP, early returns, naming intent, function size). Confidence scoring maps: 90–100 → 🔴, 80–89 → 🟡.
+`feature-dev:code-reviewer` applies Python type hint best practices (generics, Protocol, TypedDict, dataclasses — NO `Any`), Clean Code principles (SRP, early returns, naming intent, function size), and LangGraph patterns (StateGraph, Command/Send, structured output). Confidence scoring maps: 90–100 → 🔴, 80–89 → 🟡.
 
 **⛔ CHECKPOINT** — collect ALL 7 results before proceeding. Do NOT fix until all complete.
 
@@ -104,7 +104,7 @@ Deduplicate → verify severity → remove false positives → proceed.
 
 1. Fix AC issues first (🔴 not implemented / partial)
 2. Fix: 🔴 → 🟡 → 🔵
-3. `npm run ts-check && npm run lint@fix && npm run test` — if fails → fix and re-validate
+3. `uv run black --check . && uv run mypy .` — if fails → fix and re-validate
 
 ### Reviewer Mode
 
@@ -117,14 +117,14 @@ For each issue, explain *why* it matters, not just *what* to change.
 4. Show: AC Checklist · Strengths · all findings
 
 **Comment language:** Thai mixed with English technical terms — as natural as possible, like a Thai dev writing to teammates on Slack/PR. Short, direct, no stiff formal phrases.
-Examples: "ใช้ ROUTE_PATHS ด้วยนะ ไม่งั้น hardcode", "logic ซ้ำกัน extract เป็น util ไว้เลยดีกว่าครับ", "ตรงนี้ N+1 อยู่ ลอง preload ดูครับ"
+Examples: "ใช้ `invoke_with_fallback()` แทน `model.invoke()` ตรงนี้ด้วยนะครับ", "ขาด type hint ตรงนี้ mypy จะ fail", "N+1 อยู่ ลอง batch query ดูครับ"
 
 #### Submit to GitHub
 
 **Step 1 — get line numbers from diff:**
 
 ```bash
-gh pr diff $0 --repo 100-Stars-Co/bluedragon-eye-admin
+gh pr diff $0 --repo 100-Stars-Co/tathep-ai-agent-python
 ```
 
 Use the diff output to map each finding to the correct `path` and `line` (right-side line number in the file).
@@ -134,14 +134,14 @@ Use the diff output to map each finding to the correct `path` and `line` (right-
 If 🔴 exists → Request Changes:
 
 ```bash
-gh api repos/100-Stars-Co/bluedragon-eye-admin/pulls/$0/reviews \
+gh api repos/100-Stars-Co/tathep-ai-agent-python/pulls/$0/reviews \
   --method POST --input - <<'JSON'
 {
   "body": "<overall summary in Thai>",
   "event": "REQUEST_CHANGES",
   "comments": [
-    {"path": "src/modules/foo/foo.service.ts", "line": 42, "side": "RIGHT", "body": "..."},
-    {"path": "src/pages/bar.page.tsx", "line": 15, "side": "RIGHT", "body": "..."}
+    {"path": "modules/assistant_agent/agents/foo.py", "line": 42, "side": "RIGHT", "body": "..."},
+    {"path": "shared/libs/bar.py", "line": 15, "side": "RIGHT", "body": "..."}
   ]
 }
 JSON
@@ -150,7 +150,7 @@ JSON
 If no 🔴 → Approve:
 
 ```bash
-gh pr review $0 --repo 100-Stars-Co/bluedragon-eye-admin \
+gh pr review $0 --repo 100-Stars-Co/tathep-ai-agent-python \
   --approve --body "<summary in Thai>"
 ```
 
@@ -159,17 +159,16 @@ gh pr review $0 --repo 100-Stars-Co/bluedragon-eye-admin \
 ## Constraints
 
 - Investigate: read files before making claims. Never speculate about code you haven't opened — speculation without evidence becomes false positives that erode review credibility.
-- Flag changed files <80% coverage (🔴 Critical)
-- #13 React/Next.js performance rules are embedded in checklist — see `references/checklist.md` #13 section
-- Pages Router project — App Router patterns (RSC, Server Components, `React.cache()`) do NOT apply
+- Flag changed files with missing tests (🔴 Critical)
 - Reviewer comment style: see "Comment language" in Reviewer Mode above
-- **NOTE:** `lint@fix` uses `@` not `:` — `npm run lint@fix` (NOT `lint:fix`)
+- Reference modules for patterns: `modules/conversation/` (CQRS + repository), `shared/libs/invoke_with_fallback.py` (LLM resilience)
+- **Python project** — all code examples and patterns are Python, not TypeScript
 
 ## Success Criteria
 
 - [ ] CHECKPOINT: all 7 agent results collected
 - [ ] Phase 1-2 complete (if Jira provided)
 - [ ] 🔴 issues: zero (Author) or documented (Reviewer)
-- [ ] Author: `npm run ts-check && npm run lint@fix && npm run test` pass
+- [ ] Author: `uv run black --check . && uv run mypy .` pass
 - [ ] Reviewer: review submitted
 - [ ] AC Checklist shown in output (if Jira)
