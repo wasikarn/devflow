@@ -67,6 +67,7 @@ Full field reference: [references/skills-best-practices.md](references/skills-be
 | `env-heal` |
 | `team-review-pr` |
 | `team-dev-loop` |
+| `team-debug` |
 
 Commands live at `commands/<name>.md` (symlinked to `~/.claude/commands/`). Current: `analyze-claude-features`.
 
