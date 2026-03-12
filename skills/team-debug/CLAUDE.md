@@ -1,0 +1,58 @@
+# team-debug skill
+
+Systematic debugging with Agent Teams: parallel Investigator + DX Analyst, then Fixer.
+Combines systematic-debugging methodology with DX analysis to fix bugs and harden the affected area.
+
+## How It Differs from Other Skills
+
+| Aspect | systematic-debugging | team-dev-loop | team-debug |
+| --- | --- | --- | --- |
+| Scope | Debug only (single agent) | Full dev loop | Debug + DX harden |
+| Agents | Solo (no teammates) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
+| DX | None | None | Parallel DX audit + improvements |
+| Loop | None | Implement-Review (max 3 iter) | Fix-only (max 3 attempts) |
+| Artifacts | None | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md |
+
+## Docs Index
+
+| Reference | When to use |
+| --- | --- |
+| `references/teammate-prompts.md` | Modifying Investigator, DX Analyst, or Fixer prompts |
+| `references/dx-checklist.md` | Modifying DX audit categories, severity criteria, or Quick mode checklist |
+| `references/phase-gates.md` | Modifying gate conditions or escalation protocol |
+| `../../references/review-conventions.md` | Shared review conventions (if adding review phase later) |
+
+## Skill Architecture
+
+- `SKILL.md` — lead orchestration playbook; phases, team creation, fix flow
+- `references/teammate-prompts.md` — prompt templates for Investigator, DX Analyst, Fixer (Full + Quick)
+- `references/dx-checklist.md` — DX audit categories with severity criteria
+- `references/phase-gates.md` — gate conditions for every phase transition
+- Project-specific Hard Rules loaded dynamically from `tathep-*-review-pr` skills
+
+## Validate After Changes
+
+```bash
+# Lint all markdown in this skill
+npx markdownlint-cli2 "skills/team-debug/**/*.md"
+
+# Verify skill symlink exists
+ls -la ~/.claude/skills/team-debug
+
+# Test invocation (requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1):
+# /team-debug "NullPointerException in UserService.findById"
+# /team-debug "API returns 500 on empty payload" --quick
+```
+
+## Gotchas
+
+- Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` — degrades gracefully to subagent or solo mode
+- Agent Teams have no session resumption — if lead crashes, `debug-context.md` + `investigation.md` enable manual recovery
+- Investigator and DX Analyst are never alive simultaneously with Fixer — Phase 1 teammates shut down before Phase 2
+- Max 2 teammates concurrent (Investigator + DX Analyst), then 1 (Fixer)
+- DX scope = affected area only — not codebase-wide improvements
+- 3 fix attempts max — beyond that is an architectural problem, escalate to user
+- Artifacts written to **target project root** (not this skills repo): `debug-context.md`, `investigation.md`
+- Team cleanup must be done by lead in Phase 3 — teammates don't self-terminate
+- One team per session — cannot run multiple team-debug in parallel
+- Quick mode still has DX awareness via condensed checklist — not zero DX
