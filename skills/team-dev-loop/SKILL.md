@@ -26,8 +26,8 @@ Invoke as `/team-dev-loop [task-description-or-jira-key] [--quick?]`
 
 **Task:** $ARGUMENTS | **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
-**Git remote:** !`git remote get-url origin 2>/dev/null | sed 's/.*[:/]\([^/]*\/[^.]*\).*/\1/'`
 **Recent commits:** !`git log --oneline -5 2>/dev/null`
+**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null`
 
 **Args:** `$0`=task description or Jira key (required) · `$1`=`--quick` (optional, skip research)
 
@@ -51,18 +51,9 @@ If TeamCreate tool is not available → check graceful degradation:
 
 ### Step 1: Detect Project
 
-Auto-detect from git remote, CLAUDE.md, and directory structure:
+Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `review_skill`, `base_branch`, `branch`.
 
-| Project | Repo pattern | Hard Rules source | Validate command |
-| --- | --- | --- | --- |
-| tathep-platform-api | `bd-eye-platform-api` | AdonisJS + Effect-TS rules | `npm run validate:all` |
-| tathep-website | `bluedragon-eye-website` | Next.js Pages Router rules | `npm run ts-check && npm run lint:fix && npm test` |
-| tathep-admin | `bluedragon-eye-admin` | Next.js + Tailwind rules | `npm run ts-check && npm run lint@fix && npm run test` |
-| tathep-ai-agent | `tathep-ai-agent-python` | Python + FastAPI rules | `uv run black --check . && uv run mypy .` |
-| tathep-video | `tathep-video-processing` | Bun + Hono + Effect rules | `bun run check && bun run test` |
-| Unknown | — | Generic TypeScript/Python | Project's test command |
-
-Load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill if available.
+If `review_skill` is non-empty, load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill.
 
 ### Step 2: Classify Mode
 

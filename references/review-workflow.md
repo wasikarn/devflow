@@ -39,12 +39,14 @@ Map each AC to file(s) in the PR diff:
 
 **Scope:** PR diff — changed files only.
 
-Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Pass each agent:
+Dispatch 7 agents in **foreground parallel** (all READ-ONLY). Each agent prompt must include:
 
-1. **Hard Rules** from the skill's SKILL.md (verbatim)
-2. **AC context** from Phase 2
-3. **Criteria** from the skill's `references/checklist.md`
-4. **Examples** from the skill's `references/examples.md`
+1. **Hard Rules** from the skill's SKILL.md (verbatim — always inline, ~10-15 lines)
+2. **AC context** from Phase 2 (inline summary)
+3. **Criteria path** — tell the agent to read the skill's `references/checklist.md` at its absolute path
+4. **Examples path** — tell the agent to read the skill's `references/examples.md` at its absolute path
+
+Do NOT inline checklist or examples content in the agent prompt. Let each agent read the files itself — this avoids 7× duplication of reference files in the lead's output context.
 
 | Agent |
 | --- |

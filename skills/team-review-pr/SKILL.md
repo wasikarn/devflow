@@ -16,6 +16,7 @@ Invoke as `/team-review-pr [pr-number] [Author|Reviewer]`
 | File |
 | --- |
 | [debate-protocol.md](references/debate-protocol.md) |
+| [teammate-prompts.md](references/teammate-prompts.md) |
 | [review-output-format.md](../../references/review-output-format.md) |
 | [review-conventions.md](../../references/review-conventions.md) |
 
@@ -24,7 +25,7 @@ Invoke as `/team-review-pr [pr-number] [Author|Reviewer]`
 **PR:** #$0 | **Mode:** $1 (default: Author)
 **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
-**Git remote:** !`git remote get-url origin 2>/dev/null | sed 's/.*[:/]\([^/]*\/[^.]*\).*/\1/'`
+**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null`
 **Diff stat:** !`git diff HEAD~1...HEAD --stat 2>/dev/null || git diff main...HEAD --stat 2>/dev/null | tail -10`
 **PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null`
 **Changed files:** !`gh pr diff $0 --name-only 2>/dev/null`
@@ -66,18 +67,9 @@ If Massive: skip to simplified single-session review (debate overhead not worth 
 
 ## Phase 1: Project Detection
 
-Auto-detect project from repo context (remote URL, CLAUDE.md, directory name):
+Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `review_skill`, `base_branch`, `branch`.
 
-| Project | Repo pattern | Hard Rules source | Validate command |
-| --- | --- | --- | --- |
-| tathep-platform-api | `bd-eye-platform-api` | AdonisJS + Effect-TS rules | `npm run validate:all` |
-| tathep-website | `bluedragon-eye-website` | Next.js Pages Router rules | `npm run ts-check && npm run lint:fix && npm test` |
-| tathep-admin | `bluedragon-eye-admin` | Next.js + Tailwind rules | `npm run ts-check && npm run lint@fix && npm run test` |
-| tathep-ai-agent | `tathep-ai-agent-python` | Python + FastAPI rules | `uv run black --check . && uv run mypy .` |
-| tathep-video | `tathep-video-processing` | Bun + Hono + Effect rules | `bun run check && bun run test` |
-| Unknown | — | Generic TypeScript/Python | Project's test command |
-
-Load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill's SKILL.md if available. Otherwise use generic rules:
+If `review_skill` is non-empty, load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill's SKILL.md. Otherwise use generic rules:
 
 **Generic Hard Rules** (flag unconditionally):
 
@@ -93,73 +85,13 @@ Load project-specific Hard Rules from the corresponding `tathep-*-review-pr` ski
 
 ### Step 1: Create the team
 
-Create an agent team named `review-pr-$0` with 3 reviewer teammates:
+Create an agent team named `review-pr-$0` with 3 reviewer teammates using prompts from [teammate-prompts.md](references/teammate-prompts.md):
 
-**Teammate 1 — Correctness & Security:**
+- **Teammate 1 — Correctness & Security:** Focus on correctness (#1, #2), type safety (#10), error handling (#12)
+- **Teammate 2 — Architecture & Performance:** Focus on N+1 (#3), DRY (#4), flatten (#5), SOLID (#6), elegance (#7)
+- **Teammate 3 — DX & Testing:** Focus on naming (#8), docs (#9), testability (#11), debugging (#12)
 
-```text
-You are reviewing PR #$0 for correctness and security issues.
-
-YOUR FOCUS: Functional correctness (#1, #2), type safety (#10), error handling (#12), and all Hard Rules.
-
-SCOPE: Only review files in the PR diff. Do NOT flag issues in unchanged files.
-
-RULES:
-- READ-ONLY — do not modify any files
-- Every finding MUST cite file:line with actual code evidence
-- Hard Rules: [insert project Hard Rules here]
-- Non-Hard-Rule findings require confidence >= 80 (scale 0-100)
-
-OUTPUT FORMAT: For each finding, provide:
-1. Severity: Critical/Warning/Info
-2. Rule: checklist item number
-3. File and line
-4. What's wrong + evidence (quote the code)
-5. Why it matters
-6. Concrete fix
-
-After review, message your findings to the team lead.
-```
-
-**Teammate 2 — Architecture & Performance:**
-
-```text
-You are reviewing PR #$0 for architecture and performance issues.
-
-YOUR FOCUS: N+1 prevention (#3), DRY & simplicity (#4), flatten structure (#5), small functions & SOLID (#6), elegance (#7), and all Hard Rules.
-
-SCOPE: Only review files in the PR diff. Do NOT flag issues in unchanged files.
-
-RULES:
-- READ-ONLY — do not modify any files
-- Every finding MUST cite file:line with actual code evidence
-- Hard Rules: [insert project Hard Rules here]
-- Non-Hard-Rule findings require confidence >= 80 (scale 0-100)
-
-OUTPUT FORMAT: [same as above]
-
-After review, message your findings to the team lead.
-```
-
-**Teammate 3 — DX & Testing:**
-
-```text
-You are reviewing PR #$0 for developer experience and test quality.
-
-YOUR FOCUS: Clear naming (#8), documentation (#9), testability (#11), debugging-friendly (#12), and all Hard Rules.
-
-SCOPE: Only review files in the PR diff. Do NOT flag issues in unchanged files.
-
-RULES:
-- READ-ONLY — do not modify any files
-- Every finding MUST cite file:line with actual code evidence
-- Hard Rules: [insert project Hard Rules here]
-- Non-Hard-Rule findings require confidence >= 80 (scale 0-100)
-
-OUTPUT FORMAT: [same as above]
-
-After review, message your findings to the team lead.
-```
+Insert project Hard Rules (from Phase 1) and PR number into each prompt. All teammates are READ-ONLY.
 
 ### Step 2: Wait for all reviews
 

@@ -18,46 +18,26 @@ Check `$ARGUMENTS` for `--quick`:
 - **`--quick` mode:** Skip Phase 1 (full codebase scan) and Phase 4 (classify required vs optional). Go directly to Phase 2 → Phase 3 → Phase 5 → Phase 6 → Phase 7. This provides a fast schema-vs-example consistency check without scanning the entire codebase.
 - **Full mode (default):** Run all phases (1 through 7).
 
-## Phase 1: Discover All Env Var References
+## Phases 1-3: Discover, Read Schema, Gap Analysis
 
-> **Skipped in `--quick` mode.**
-
-Run the scan script to collect all env var references:
+Run the consolidated scan script:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/scan-env-refs.sh [project-root]
+bash ${CLAUDE_SKILL_DIR}/scripts/classify-env-gaps.sh [project-root] [schema-file] [example-file]
 ```
 
-The script searches for `process.env.*`, `Env.get()`, and `env()` patterns across `.ts`, `.tsx`, `.js`, `.jsx` files (excluding `node_modules`, `dist`, `build`, `.next`).
+Defaults: `schema-file` = `env.ts`, `example-file` = `.env.example`. In `--quick` mode, `code_vars` will be empty (no codebase scan).
 
-Parse the JSON output (`{"vars": [...], "count": N}`) for the master variable list. If count is 0, stop and report that no env var references were found.
+Parse the JSON output. Key fields:
 
-## Phase 2: Read Schema and Example Files
+- `schema_vars`, `example_vars`, `code_vars` — discovered variable lists
+- `gaps.in_code_not_schema` → needs validation added to env.ts
+- `gaps.in_code_not_example` → needs entry added to .env.example
+- `gaps.in_schema_not_code` → potentially stale, flag for review
+- `gaps.in_example_not_code` → potentially stale, flag for review
+- `gap_count` — total gaps found
 
-1. **Read `env.ts`** (or equivalent schema file) — extract all declared/validated env var keys.
-2. **Read `.env.example`** — extract all documented env var keys.
-
-Produce sets:
-
-- `schema_vars`: vars declared in env.ts schema
-- `example_vars`: vars listed in .env.example
-- `code_vars`: vars referenced in application code (only in full mode; empty in `--quick` mode)
-
-## Phase 3: Gap Analysis
-
-Compute:
-
-**Full mode:**
-
-- **In code but not in schema** → needs validation added to env.ts
-- **In code but not in example** → needs entry added to .env.example
-- **In schema but not in code** → potentially stale, flag for review
-- **In example but not in code** → potentially stale, flag for review
-
-**`--quick` mode** (schema vs example only):
-
-- **In schema but not in example** → needs entry added to .env.example
-- **In example but not in schema** → needs validation added to env.ts
+If `gap_count` is 0, skip to Phase 7 (summary report with zero gaps).
 
 ## Phase 4: Determine Required vs Optional
 
