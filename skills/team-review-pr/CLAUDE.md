@@ -3,15 +3,15 @@
 Experimental Agent Teams-based PR review with adversarial debate.
 Uses 3 reviewer teammates that challenge each other's findings instead of 7 parallel subagents.
 
-## How It Differs from tathep-*-review-pr
+## How It Differs from Other Skills
 
-| Aspect | tathep-*-review-pr | team-review-pr |
-| --- | --- | --- |
-| Execution | 7 subagents (report back only) | 3 teammates (debate each other) |
-| False positive handling | Lead consolidation (Phase 3.5) | Adversarial debate + lead convergence |
-| Project scope | Project-specific | Auto-detects project |
-| Token cost | Lower (subagent results summarized) | Higher (each teammate = full session) |
-| Feature status | Stable, production | Experimental |
+| Aspect | tathep-*-review-pr | team-review-pr | team-dev-loop | team-debug |
+| --- | --- | --- | --- | --- |
+| Scope | PR review only | PR review + debate | Full dev loop | Debug + DX harden |
+| Execution | 7 subagents (report only) | 3 teammates (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
+| False positives | Lead consolidation | Adversarial debate | Embedded (reuses team-review-pr) | N/A (no review phase) |
+| Project scope | Project-specific | Auto-detects project | Auto-detects project | Auto-detects project |
+| Feature status | Stable, production | Experimental | Experimental | Experimental |
 
 ## Docs Index
 
@@ -43,7 +43,7 @@ ls -la ~/.claude/skills/team-review-pr
 
 ## Gotchas
 
-- Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` — skill aborts gracefully if not set
+- Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` — degrades gracefully to subagent or solo mode
 - Agent teams have no session resumption for in-process teammates — recommend tmux mode
 - Teammates are READ-ONLY during review and debate — code changes only in action phase
 - Hard Rules cannot be dropped via debate — only reclassified with evidence

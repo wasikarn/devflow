@@ -23,6 +23,8 @@ Invoke as `/team-review-pr [pr-number] [Author|Reviewer]`
 
 **PR:** #$0 | **Mode:** $1 (default: Author)
 **Today:** !`date +%Y-%m-%d`
+**Git branch:** !`git branch --show-current`
+**Git remote:** !`git remote get-url origin 2>/dev/null | sed 's/.*[:/]\([^/]*\/[^.]*\).*/\1/'`
 **Diff stat:** !`git diff HEAD~1...HEAD --stat 2>/dev/null || git diff main...HEAD --stat 2>/dev/null | tail -10`
 **PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null`
 **Changed files:** !`gh pr diff $0 --name-only 2>/dev/null`
@@ -41,9 +43,9 @@ Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
 Before anything, verify agent teams are available:
 
 ```text
-If TeamCreate tool is not available → ABORT with message:
-"⚠️ Agent Teams not enabled. Set CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 in settings.
-Alternatively, use project-specific review skills: /tathep-api-review-pr, /tathep-web-review-pr, etc."
+If TeamCreate tool is not available → check graceful degradation:
+- If Task (subagent) tool is available → "Agent Teams not enabled. Running in subagent mode (no debate, parallel subagent review)."
+- If neither → "Running in solo mode. Use project-specific review skills instead: /tathep-api-review-pr, /tathep-web-review-pr, etc."
 ```
 
 ---
@@ -281,6 +283,28 @@ After action phase completes:
 2. Clean up the team
 
 Output final verdict per [review-output-format.md](../../references/review-output-format.md).
+
+---
+
+## Graceful Degradation
+
+| Level | Available tools | Behavior |
+| --- | --- | --- |
+| **Agent Teams** | TeamCreate, SendMessage | Full workflow — 3 teammates with adversarial debate |
+| **Subagent** | Task (Agent tool) | Same phases, but: reviewers as parallel subagents (existing tathep-*-review-pr pattern). No debate (can't message). Lead consolidation only. |
+| **Solo** | None (lead only) | Recommend project-specific review skills (`/tathep-*-review-pr`). If none available, lead does sequential checklist-based review. |
+
+Detect at Prerequisite Check and inform user of mode.
+
+---
+
+## Context Compression Recovery
+
+If session compacts mid-workflow, re-read in order:
+
+1. PR diff (`gh pr diff $0`) — what's being reviewed
+2. Debate summary (if in Phase 3+) — findings and consensus status
+3. Progress tracker in conversation — current phase
 
 ---
 

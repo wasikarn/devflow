@@ -4,6 +4,7 @@ description: "Full development loop with Agent Teams — Research → Plan → I
 argument-hint: "[task-description-or-jira-key] [--quick?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
+allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *)
 ---
 
 # Team Dev Loop — Full Development Workflow
@@ -26,6 +27,7 @@ Invoke as `/team-dev-loop [task-description-or-jira-key] [--quick?]`
 **Task:** $ARGUMENTS | **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
 **Git remote:** !`git remote get-url origin 2>/dev/null | sed 's/.*[:/]\([^/]*\/[^.]*\).*/\1/'`
+**Recent commits:** !`git log --oneline -5 2>/dev/null`
 
 **Args:** `$0`=task description or Jira key (required) · `$1`=`--quick` (optional, skip research)
 
@@ -334,6 +336,17 @@ Detect at Phase 0 and inform user of mode.
 
 ---
 
+## Context Compression Recovery
+
+If session compacts mid-workflow, re-read in order:
+
+1. `dev-loop-context.md` — task, mode, project, Hard Rules
+2. `plan.md` — task list with checkmarks showing progress
+3. Latest `review-findings-*.md` — current iteration findings (if in loop)
+4. Progress tracker in conversation — iteration count and phase
+
+---
+
 ## Constraints
 
 - **Max 3 teammates concurrent** — more adds coordination overhead without proportional value
@@ -345,11 +358,16 @@ Detect at Phase 0 and inform user of mode.
 - **Commit per task** — enables clean revert if fix introduces regressions
 - **Artifacts persist on disk** — `dev-loop-context.md`, `plan.md`, `research.md`, `review-findings-*.md` survive context compression
 
-## Context Compression Recovery
+## Success Criteria
 
-If session compacts mid-workflow, re-read in order:
-
-1. `dev-loop-context.md` — task, mode, project, Hard Rules
-2. `plan.md` — task list with checkmarks showing progress
-3. Latest `review-findings-*.md` — current iteration findings (if in loop)
-4. Progress tracker in conversation — iteration count and phase
+- [ ] Prerequisite check completed (Agent Teams / subagent / solo detected)
+- [ ] Project detected and conventions loaded
+- [ ] Mode classified (Full/Quick) and confirmed by user
+- [ ] Research completed with file:line evidence (Full mode only)
+- [ ] Plan approved by user (annotation cycle done)
+- [ ] All plan tasks implemented with commits
+- [ ] Validate command passes after implementation
+- [ ] Review completed with findings consolidated
+- [ ] Critical findings resolved (zero remaining or user-accepted)
+- [ ] Summary presented to user with completion options
+- [ ] Team cleaned up (all teammates shut down)

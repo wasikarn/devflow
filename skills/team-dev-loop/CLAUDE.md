@@ -5,13 +5,13 @@ Uses dynamic team roster (explorers, workers, reviewers) with iterative implemen
 
 ## How It Differs from Other Skills
 
-| Aspect | deep-research-workflow | team-review-pr | team-dev-loop |
+| Aspect | team-review-pr | team-dev-loop | team-debug |
 | --- | --- | --- | --- |
-| Scope | Research + Plan + Implement | Review only | Full loop (all phases) |
-| Agents | Subagents (no messaging) | 3 teammates (debate) | Dynamic roster per phase |
-| Review | None | Adversarial debate | Embedded (reuses team-review-pr) |
-| Loop | None | None | Implement-Review loop (max 3 iter) |
-| Artifacts | research.md, plan.md | Findings in output | All + review-findings-N.md |
+| Scope | PR review + debate | Full dev loop | Debug + DX harden |
+| Execution | 3 teammates (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
+| Review | Adversarial debate | Embedded (reuses team-review-pr) | N/A (no review phase) |
+| Loop | None | Implement-Review (max 3 iter) | Fix-only (max 3 attempts) |
+| Artifacts | Findings in output | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md |
 
 ## Docs Index
 

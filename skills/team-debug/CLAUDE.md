@@ -5,13 +5,13 @@ Combines systematic-debugging methodology with DX analysis to fix bugs and harde
 
 ## How It Differs from Other Skills
 
-| Aspect | systematic-debugging | team-dev-loop | team-debug |
+| Aspect | team-review-pr | team-dev-loop | team-debug |
 | --- | --- | --- | --- |
-| Scope | Debug only (single agent) | Full dev loop | Debug + DX harden |
-| Agents | Solo (no teammates) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
-| DX | None | None | Parallel DX audit + improvements |
+| Scope | PR review + debate | Full dev loop | Debug + DX harden |
+| Execution | 3 teammates (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
+| Review | Adversarial debate | Embedded (reuses team-review-pr) | N/A (no review phase) |
 | Loop | None | Implement-Review (max 3 iter) | Fix-only (max 3 attempts) |
-| Artifacts | None | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md |
+| Artifacts | Findings in output | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md |
 
 ## Docs Index
 
