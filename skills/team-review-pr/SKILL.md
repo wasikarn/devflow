@@ -20,6 +20,7 @@ Invoke as `/team-review-pr [pr-number] [jira-key?] [Author|Reviewer]`
 | [review-output-format.md](../../references/review-output-format.md) |
 | [review-conventions.md](../../references/review-conventions.md) |
 | [jira-integration.md](../../references/jira-integration.md) — Jira detection, MCP fetch, AC verification (loaded when Jira key detected) |
+| [references/operational.md](references/operational.md) — Graceful Degradation, Context Compression Recovery, Success Criteria |
 
 ---
 
@@ -234,28 +235,6 @@ Output final verdict per [review-output-format.md](../../references/review-outpu
 
 ---
 
-## Graceful Degradation
-
-| Level | Available tools | Behavior |
-| --- | --- | --- |
-| **Agent Teams** | TeamCreate, SendMessage | Full workflow — 3 teammates with adversarial debate |
-| **Subagent** | Task (Agent tool) | Same phases, but: reviewers as parallel subagents (existing tathep-*-review-pr pattern). No debate (can't message). Lead consolidation only. |
-| **Solo** | None (lead only) | Recommend project-specific review skills (`/tathep-*-review-pr`). If none available, lead does sequential checklist-based review. |
-
-Detect at Prerequisite Check and inform user of mode.
-
----
-
-## Context Compression Recovery
-
-If session compacts mid-workflow, re-read in order:
-
-1. PR diff (`gh pr diff $0`) — what's being reviewed
-2. Debate summary (if in Phase 3+) — findings and consensus status
-3. Progress tracker in conversation — current phase
-
----
-
 ## Constraints
 
 - Investigate: read files before making claims — no speculation without evidence
@@ -265,12 +244,8 @@ If session compacts mid-workflow, re-read in order:
 - Max 2 debate rounds — prevents infinite discussion
 - Hard Rules cannot be dropped via debate (only reclassified with evidence)
 
-## Success Criteria
+---
 
-- [ ] Agent team created with 3 teammates
-- [ ] All 3 independent reviews completed (CHECKPOINT)
-- [ ] Debate round(s) completed with summary table
-- [ ] Findings consolidated with consensus indicators
-- [ ] Critical issues: zero (Author) or documented (Reviewer)
-- [ ] Author: validate passes / Reviewer: review submitted
-- [ ] Team cleaned up
+## Operational Reference
+
+See [references/operational.md](references/operational.md) for Graceful Degradation levels, Context Compression Recovery steps, and Success Criteria checklist.

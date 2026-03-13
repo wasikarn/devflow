@@ -17,30 +17,9 @@ Audit, score, and optimize CLAUDE.md files for maximum agent effectiveness. Invo
 | [compression-guide.md](references/compression-guide.md) | Compression techniques: tables, one-liners, pointer-to-docs patterns — load in Phase 4 |
 | [templates.md](references/templates.md) | CLAUDE.md templates by project type (horizontal/vertical/hybrid) — load in Phase 4 when creating from scratch |
 | `scripts/pre-scan.sh` | Detects framework, npm scripts, dir structure in ~30ms — run first in Phase 1 |
+| [key-rules.md](references/key-rules.md) | 12 operational rules — read before making changes in Phase 4 |
 
-**Why passive context wins** ([Vercel research](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals)):
-
-> Vercel uses `AGENTS.md`; Claude Code uses `CLAUDE.md` — same concept, same results.
-
-| Config | Overall | Build | Lint | Test |
-| --- | --- | --- | --- | --- |
-| Baseline (no docs) | 53% | 84% | 95% | 63% |
-| Skills (default) | 53% | 84% | 89% ↓ | 58% ↓ |
-| Skills (instructed) | 79% | 95% | 100% | 84% |
-| **AGENTS.md** | **100%** | **100%** | **100%** | **100%** |
-
-Compressed context (8KB) performs identically to verbose (40KB). Passive wins: no decision point about when to retrieve, consistent every turn, no sequencing issues.
-
-**Target expectations:**
-
-| Vercel's 100% pass rate |
-| ---------------------------------------------------- |
-| Agent completes tasks (build/lint/test) successfully |
-| Achieved by having good passive context |
-
-- **Grade B (70+) + no critical criterion below 10** = good baseline
-- **Grade A (90+)** = ideal for framework-heavy or complex projects
-- Fully autonomous — all 5 phases run without user-confirmation gates
+**Why passive context wins:** Compressed 8KB context = 100% task success vs 53% baseline. AGENTS.md outperforms skills by 2×. Full data and grade thresholds: [references/quality-criteria.md](references/quality-criteria.md#vercel-research).
 
 Critical minimum thresholds (score below these → must fix before passing):
 
@@ -220,15 +199,4 @@ Report: `CLAUDE.md Quality: XX → XX | Fixed N stale | Added N gaps | Removed N
 
 ## Key Rules
 
-- **Evidence-based** — Every change must trace to actual codebase (no guessing)
-- **Preserve intent** — Never remove sections user intentionally added — deliberate documentation encodes tribal knowledge the skill can't recover if deleted
-- **Compress, don't delete** — verbose → concise tables, not removal
-- **Index over embed** — Point to agent_docs for deep reference, keep CLAUDE.md as quick-ref index
-- **Project-specific only** — No generic advice, no obvious info, no standard framework behavior
-- **Idempotent** — Running repeatedly must not create duplicates — CLAUDE.md is loaded every session; duplicate content wastes context tokens on every future run
-- **Retrieval over pre-training** — Ensure CLAUDE.md includes retrieval directive for framework projects
-- **Explore-first wording** — Use "Prefer X" / "Check project first" over "You MUST" directives — absolute commands reduce the agent's ability to adapt; explore-first wording guides without over-constraining
-- **Prioritize novel content** — APIs/patterns outside training data get more space than well-known ones
-- **Noise reduction** — Remove content that doesn't aid decision-making; unused/irrelevant context may distract the agent (Vercel: skills ignored 56% of the time when not relevant)
-- **Passive over active** — For general framework knowledge, embed in CLAUDE.md (passive) rather than relying on skills (active retrieval). Skills are best for action-specific workflows users explicitly trigger
-- **Self-invocation** — Recommend adding staleness reminder in CLAUDE.md (e.g. "Run `/optimize-context` when CLAUDE.md feels outdated") — CLAUDE.md drifts as codebases evolve; a staleness trigger keeps context self-maintaining without requiring the user to remember
+See [references/key-rules.md](references/key-rules.md) for 12 operational rules (evidence-based, preserve intent, compress not delete, idempotent, passive over active, and more).

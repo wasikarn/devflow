@@ -11,6 +11,7 @@ Prefer reading before editing — key references:
 | --- | --- |
 | `references/quality-criteria.md` | Updating scoring rubric or grade thresholds |
 | `references/compression-guide.md` | Updating compression techniques |
+| `references/key-rules.md` | Updating operational rules for Phase 4 |
 | `references/templates.md` | Updating CLAUDE.md templates by project type |
 | `scripts/pre-scan.sh` | Updating framework detection or file discovery logic |
 

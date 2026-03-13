@@ -129,3 +129,29 @@ These patterns are now scored within the main rubric (Retrieval readiness + Nove
 6. **Eval-based validation:** Run 2-3 commands, verify paths, test docs index retrievability
 7. Calculate total, assign grade
 8. List specific issues with improvement suggestions
+
+## Vercel Research
+
+**Why passive context wins** ([Vercel research](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals)):
+
+> Vercel uses `AGENTS.md`; Claude Code uses `CLAUDE.md` — same concept, same results.
+
+| Config | Overall | Build | Lint | Test |
+| --- | --- | --- | --- | --- |
+| Baseline (no docs) | 53% | 84% | 95% | 63% |
+| Skills (default) | 53% | 84% | 89% ↓ | 58% ↓ |
+| Skills (instructed) | 79% | 95% | 100% | 84% |
+| **AGENTS.md** | **100%** | **100%** | **100%** | **100%** |
+
+Compressed context (8KB) performs identically to verbose (40KB). Passive wins: no decision point about when to retrieve, consistent every turn, no sequencing issues.
+
+**Target expectations:**
+
+| Vercel's 100% pass rate |
+| ---------------------------------------------------- |
+| Agent completes tasks (build/lint/test) successfully |
+| Achieved by having good passive context |
+
+- **Grade B (70+) + no critical criterion below 10** = good baseline
+- **Grade A (90+)** = ideal for framework-heavy or complex projects
+- Fully autonomous — all 5 phases run without user-confirmation gates

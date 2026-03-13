@@ -20,6 +20,7 @@ Uses 3 reviewer teammates that challenge each other's findings instead of 7 para
 | `references/debate-protocol.md` | Modifying debate rules, round structure, or consensus criteria |
 | `../../references/review-conventions.md` | Shared review conventions (labels, dedup, strengths) |
 | `../../references/review-output-format.md` | Output format template |
+| `references/operational.md` | Graceful Degradation, Context Compression Recovery, Success Criteria |
 
 ## Skill Architecture
 

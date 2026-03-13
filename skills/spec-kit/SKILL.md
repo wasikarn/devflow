@@ -69,18 +69,7 @@ CLAUDE.md            # Agent instructions (varies by --ai flag)
 
 ## Common Mistakes to Avoid
 
-- **Specifying tech stack in step 2** — wait until `/speckit.plan` (step 4); early commitment constrains architecture before research reveals the real constraints
-- **Expecting unlimited questions from `/speckit.clarify`** — capped at 5 per invocation and 10 total across the session; run it again if you need more coverage
-- **Skipping `/speckit.clarify` without saying so** — ambiguities compound into plan/task errors; if intentionally skipping for a spike/prototype, explicitly state it so the agent doesn't block
-- **Using free-form clarification before `/speckit.clarify`** — run structured clarify first (sequential, coverage-based, answers recorded in Clarifications); free-form refinement is a follow-up, not a replacement
-- **Skipping plan validation (step 4.5)** — generated plans often include sequences or components not explicitly requested; audit before generating tasks
-- **Not checking for over-engineering in the plan** — Claude can add unrequested components; always ask for rationale when something wasn't in the spec
-- **Running `/speckit.tasks` without `plan.md`** — the command reads plan.md to generate granular steps; it will fail without it
-- **Ignoring `[P]` markers in tasks.md** — tasks marked `[P]` have no sequential dependencies; running them serially wastes implementation time
-- **Re-running `/speckit.constitution` carelessly** — it silently overwrites existing principles; export content you want to keep before re-running, overwrites are irreversible
-- **Missing local CLI tools for `/speckit.implement`** — the agent runs tool commands (npm, dotnet, etc.); have them installed and at the correct version before starting
-- **Only checking CLI output after implement** — runtime errors (e.g., browser console errors) may not appear in the terminal; test the running app and paste any errors back to the agent
-- **Using spec-kit for throwaway spikes** — the workflow is designed for features worth keeping; for quick proof-of-concept experiments, skip spec-kit entirely and run `/speckit.specify` only after you decide to commit to the feature; forcing the full workflow on a spike wastes clarification budget on something you may discard
+See [references/common-mistakes.md](references/common-mistakes.md) for 12 common pitfalls (tech stack timing, clarification limits, plan validation, over-engineering, tools setup, and more).
 
 ## Intelligence Features
 
@@ -120,31 +109,13 @@ Read `spec.md` and apply the quality criteria in [references/spec-quality.md](re
 
 ### 5. Plan Validation (Step 4.5)
 
-After `/speckit.plan` generates artifacts and before running `/speckit.tasks`, prompt the user to validate the plan. This is the official "Step 5" in the spec-kit workflow — audit the generated artifacts for gaps, over-engineering, and constitution alignment.
+After `/speckit.plan` and before `/speckit.tasks`, prompt user to audit generated artifacts (sequence, over-engineering, tech research, constitution alignment). See [references/workflow.md](references/workflow.md) for the 4 audit prompts.
 
-**Audit prompts to suggest:**
-
-1. **Sequence audit** — "Read through the implementation plan and determine whether there is a sequence of tasks that are obvious from reading it. For each step in core implementation, reference where in the implementation detail files the information can be found."
-
-2. **Over-engineering check** — "Cross-check the plan for components not in the spec. If over-engineered pieces exist, ask for rationale and resolve them. Ensure the plan follows the constitution."
-
-3. **Rapidly-changing tech research** — When the tech stack includes fast-moving frameworks (e.g., Next.js App Router, .NET Aspire, new LLM SDKs): "Identify specific unknowns in the implementation plan that would benefit from research, then spawn parallel research tasks — one per targeted question, not general framework research."
-
-4. **Constitution alignment check** — Re-read `.specify/memory/constitution.md` against the plan and flag any violations before tasks are generated.
-
-**Optional before implement:** Create a PR from the feature branch to main with a detailed description. Useful for tracking progress and getting early feedback.
+**Optional before implement:** Create a PR from the feature branch to main with a detailed description.
 
 ### 6. Review & Acceptance Checklist Validation
 
-After `/speckit.clarify` (or after `/speckit.specify` if skipping clarify), validate the spec against the auto-generated `checklists/requirements.md` before recommending `/speckit.plan`.
-
-Use this prompt:
-
-> "Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not."
-
-The checklist (`checklists/requirements.md`) is auto-created by `/speckit.specify`. Items include: no implementation details, requirements testable, success criteria measurable, no [NEEDS CLARIFICATION] markers remain, all acceptance scenarios defined.
-
-Proceed to `/speckit.plan` only after all checklist items pass (or user explicitly accepts remaining gaps).
+After `/speckit.clarify` (or `/speckit.specify`), validate spec against `checklists/requirements.md` before recommending `/speckit.plan`. See [references/workflow.md](references/workflow.md) for the validation prompt and checklist items. All must pass (or user explicitly accepts gaps) before proceeding.
 
 ---
 

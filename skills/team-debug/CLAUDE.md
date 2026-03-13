@@ -21,6 +21,7 @@ Combines systematic-debugging methodology with DX analysis to fix bugs and harde
 | `references/dx-checklist.md` | Modifying DX audit categories, severity criteria, or Quick mode checklist |
 | `references/phase-gates.md` | Modifying gate conditions or escalation protocol |
 | `../../references/review-conventions.md` | Shared review conventions (if adding review phase later) |
+| `references/operational.md` | Graceful Degradation, Context Compression Recovery, Success Criteria |
 
 ## Skill Architecture
 

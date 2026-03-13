@@ -177,3 +177,27 @@ The constitution is referenced by every subsequent command as a compliance gate.
 
 - First time setting up spec-kit on a machine
 - Want the /speckit.* commands available as Claude Code skills (not just slash commands)
+
+## Plan Validation Audit Prompts (Step 4.5)
+
+After `/speckit.plan` generates artifacts and before running `/speckit.tasks`, suggest these 4 audit prompts to the user:
+
+1. **Sequence audit** — "Read through the implementation plan and determine whether there is a sequence of tasks that are obvious from reading it. For each step in core implementation, reference where in the implementation detail files the information can be found."
+
+2. **Over-engineering check** — "Cross-check the plan for components not in the spec. If over-engineered pieces exist, ask for rationale and resolve them. Ensure the plan follows the constitution."
+
+3. **Rapidly-changing tech research** — When the tech stack includes fast-moving frameworks (e.g., Next.js App Router, .NET Aspire, new LLM SDKs): "Identify specific unknowns in the implementation plan that would benefit from research, then spawn parallel research tasks — one per targeted question, not general framework research."
+
+4. **Constitution alignment check** — Re-read `.specify/memory/constitution.md` against the plan and flag any violations before tasks are generated.
+
+## Review & Acceptance Checklist Validation
+
+After `/speckit.clarify` (or after `/speckit.specify` if skipping clarify), validate the spec against the auto-generated `checklists/requirements.md` before recommending `/speckit.plan`.
+
+Use this prompt:
+
+> "Read the review and acceptance checklist, and check off each item in the checklist if the feature spec meets the criteria. Leave it empty if it does not."
+
+The checklist (`checklists/requirements.md`) is auto-created by `/speckit.specify`. Items include: no implementation details, requirements testable, success criteria measurable, no [NEEDS CLARIFICATION] markers remain, all acceptance scenarios defined.
+
+Proceed to `/speckit.plan` only after all checklist items pass (or user explicitly accepts remaining gaps).

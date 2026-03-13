@@ -9,6 +9,7 @@ Prefer reading before editing — key references:
 
 | Reference | When to use |
 | --- | --- |
+| `references/principles.md` | Updating anti-patterns or key rules |
 | `references/research-template.md` | Updating Phase 1 research output format |
 | `references/plan-template.md` | Updating Phase 2 plan output format |
 

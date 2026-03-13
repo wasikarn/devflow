@@ -21,6 +21,7 @@ Uses dynamic team roster (explorers, workers, reviewers) with iterative implemen
 | `references/teammate-prompts.md` | Modifying explorer, worker, reviewer, or fixer prompts |
 | `references/workflow-modes.md` | Modifying Full vs Quick classification criteria |
 | `../../references/review-conventions.md` | Shared review conventions (labels, dedup, strengths) |
+| `references/operational.md` | Graceful Degradation, Context Compression Recovery, Success Criteria |
 | `../../references/review-output-format.md` | Review output format template |
 | `../team-review-pr/references/debate-protocol.md` | Adversarial debate rules |
 
