@@ -77,7 +77,6 @@ create_dirs() {
   local dirs=(
     "$CLAUDE_DIR"
     "$CLAUDE_DIR/memory"
-    "$CLAUDE_DIR/docs"
     "$CLAUDE_DIR/skills"
     "$CLAUDE_DIR/agents"
     "$CLAUDE_DIR/hooks"
@@ -161,6 +160,5 @@ echo "╚═══════════════════════�
 echo ""
 echo "  Next steps:"
 echo "  • Restart Claude Code to pick up new settings"
-echo "  • Run 'bash scripts/sync-docs.sh' to fetch Claude Code docs cache"
 echo "  • Run 'qmd embed' in project directories to index local codebases"
 echo ""

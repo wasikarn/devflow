@@ -4,12 +4,7 @@ Read and analyze each documentation source below, then assess what can be concre
 
 **Goal:** Score how well this project uses Claude Code features relative to what's applicable. 100/100 means all relevant features are properly adopted — not that every feature is used. A simple script repo shouldn't need agent-teams to score 100.
 
-**Sources — cache-first loading:**
-
-Local cache: `~/.claude/docs/claude-code/` — read files from here first using the Read tool.
-If a cached file is missing, fetch from the fallback URL instead.
-If `~/.claude/docs/claude-code/.last-sync` is older than 14 days, warn: "Docs cache is stale. Run `bash scripts/sync-docs.sh` to refresh."
-If no cache exists at all, fetch all URLs below directly.
+**Sources — fetch directly from URLs using WebFetch:**
 
 Extensibility:
 
