@@ -37,22 +37,22 @@ tree -P "*.ts|*.tsx" --gitignore --prune     # specific types
 
 ## CLI Tools Available
 
-Prefer these over built-in alternatives when running Bash commands:
+RTK auto-rewrites common commands (git, ls, docker) via PreToolUse hook — no action needed.
+For tools RTK doesn't cover, use these directly:
 
 | Tool | Use instead of | When |
 | --- | --- | --- |
-| `ast-grep -p 'PATTERN' .` | regex grep for code patterns | structural code search/refactor (AST-aware, 20+ langs) |
+| `ast-grep -p 'PATTERN' .` | regex grep for code | structural code search/refactor (AST-aware, 20+ langs) |
 | `difft old new` | `diff` | comparing files (AST-based, ignores formatting noise) |
 | `shellcheck script.sh` | eyeballing shell scripts | validate shell scripts before running |
 | `yq '.key' file.yaml` | manual YAML parsing | query/update YAML, TOML, XML (preserves comments) |
 | `hyperfine 'cmd1' 'cmd2'` | `time` | benchmarking with statistical analysis |
 | `watchexec -e ts -- npm test` | manual re-runs | auto-run commands on file changes |
 | `fd pattern` | `find` | fast file search (respects .gitignore) |
-| `eza -la --git` | `ls` | file listing with git status |
 
 ## Bash Output
 
-Compact JSON only: pipe through `jq -c '.'` or use `--jq`. Pretty-print wastes tokens.
+RTK handles output compression for most commands. For raw JSON, pipe through `jq -c '.'`.
 
 ## Verify First
 
@@ -123,3 +123,5 @@ Never commit secrets/credentials, never skip tests, never suppress errors silent
 - Never re-read a diff file already analyzed in the same session
 
 Run `/optimize-context` when CLAUDE.md feels outdated.
+
+@RTK.md
