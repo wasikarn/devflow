@@ -1,232 +1,118 @@
-# claude-code-skills
+# dotclaude
 
-Personal collection of Claude Code skills (custom slash commands) for structured development workflows.
+Personal Claude Code configuration — skills, agents, hooks, output styles, and scripts. Symlinked to `~/.claude/` for immediate effect across all sessions.
 
-## Installation
-
-Skills are symlinked from `~/.claude/skills/` — changes here take effect immediately in all Claude Code sessions.
+## Quick Start
 
 ```bash
-bash scripts/link-skill.sh <name>   # link one skill
-bash scripts/link-skill.sh          # link all (skills, agents, hooks, output-styles)
-bash scripts/link-skill.sh --list   # check all symlinks
-```
+# New machine setup
+bash scripts/install.sh
 
----
+# Link all assets (skills, agents, hooks, output-styles, commands, scripts, dotfiles)
+bash scripts/link-skill.sh
 
-## Skills
+# Link one skill
+bash scripts/link-skill.sh <name>
 
-### PR Review Skills (`*-review-pr`)
-
-Three project-specific skills sharing the same architecture. Dispatch **7 parallel agents**, verify Jira AC, then fix code (Author) or submit inline GitHub review comments in Thai (Reviewer).
-
-| Skill | Project | Tech Stack |
-| ------- | --------- | ----------- |
-| `/api-review-pr` | tathep-platform-api | AdonisJS 5.9 + Effect-TS + Japa |
-| `/web-review-pr` | tathep-website | Next.js 14 Pages Router + Chakra UI + React Query |
-| `/admin-review-pr` | tathep-admin | Next.js 14 Pages Router + Tailwind + Vitest |
-
-**Usage:**
-
-```bash
-/api-review-pr 42              # PR #42, Author mode (fix code)
-/api-review-pr 42 BEP-123      # with Jira ticket
-/api-review-pr 42 Reviewer     # submit inline comments in Thai
-/api-review-pr 42 BEP-123 Reviewer
-```
-
-**7 Agents dispatched in parallel (foreground, READ-ONLY):**
-
-| Agent |
-| ------- |
-| `pr-review-toolkit:code-reviewer` |
-| `pr-review-toolkit:comment-analyzer` |
-| `pr-review-toolkit:pr-test-analyzer` |
-| `pr-review-toolkit:silent-failure-hunter` |
-| `pr-review-toolkit:type-design-analyzer` |
-| `pr-review-toolkit:code-simplifier` |
-| `feature-dev:code-reviewer` |
-
-**12-Point Checklist:**
-
-| # | Aspect |
-| --- | -------- |
-| 1 | Functional Correctness |
-| 2 | Architecture / App Helpers |
-| 3 | N+1 Prevention |
-| 4 | DRY & Simplicity |
-| 5 | Flatten Structure |
-| 6 | SOLID & Clean Architecture |
-| 7 | Elegance / Effect-TS Usage |
-| 8 | Clear Naming |
-| 9 | Documentation & Comments |
-| 10 | Type Safety (TS Advanced Types) |
-| 11 | Testability |
-| 12 | Debugging Friendly |
-| 13 | React/Next.js Performance *(web/admin only)* |
-
-**QG Score:** starts 100 — Critical = −15, Important = −5, Suggestion = −1. Gate: 100 = PASS, 85–99 = CONDITIONAL, <85 = FAIL.
-
----
-
-### `/spec-kit` — Spec-Driven Development
-
-Full SDD workflow using [spec-kit](https://github.com/github/spec-kit). Guides through 6 steps from requirements to working code.
-
-**6-Step Workflow:**
-
-| Step | Command |
-| ------ | --------- |
-| 1 | `/speckit.constitution` |
-| 2 | `/speckit.specify <what>` |
-| 3 | `/speckit.clarify` |
-| 4 | `/speckit.plan <tech stack>` |
-| 5 | `/speckit.tasks` |
-| 6 | `/speckit.implement` |
-
-**Optional quality gates** (between steps 5–6):
-
-- `/speckit.analyze` — cross-artifact consistency check (CRITICAL/HIGH/MEDIUM/LOW, max 50 findings, read-only)
-- `/speckit.checklist` — requirement quality checklists (`checklists/[domain].md`)
-- `/speckit.taskstoissues` — convert `tasks.md` to GitHub issues (requires GitHub MCP server)
-
-**CLI:**
-
-```bash
-# Install
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
-
-# Bootstrap
-specify init my-project --ai claude
-specify init --here --ai claude --ai-skills
-```
-
----
-
-### `/deep-research-workflow` — Research → Plan → Implement
-
-Structured workflow for complex features requiring research before implementation. Produces a research report, architecture plan, and implementation steps.
-
----
-
-### `/optimize-context` — CLAUDE.md Optimizer
-
-Audit, score, and optimize CLAUDE.md files across a project. 5-phase workflow: Discovery → Quality Assessment → Audit → Generate Update → Apply & Verify.
-
----
-
-## Integration Patterns
-
-### ralph-loop + spec-kit
-
-[Ralph Loop](https://ghuntley.com/ralph/) (iterative self-referential agent loop) pairs naturally with spec-kit because spec-kit produces **verifiable artifacts** — tasks.md checkboxes and SC-NNN success criteria — that serve as concrete completion signals.
-
-**Best fit: automate Phase 6 (`/speckit.implement`)**
-
-```bash
-/ralph-loop:ralph-loop "Run /speckit.implement. After each session run tests.
-If tests fail, fix them and continue.
-Output DONE only when: all tasks.md items are [X], all tests pass,
-and all SC-NNN in spec.md are satisfied." \
-  --completion-promise "DONE" \
-  --max-iterations 30
-```
-
-**Iterative spec quality loop:**
-
-```bash
-/ralph-loop:ralph-loop "Run /speckit.analyze.
-If CRITICAL or HIGH findings exist, fix them in spec.md.
-Output SPEC_CLEAN only when analyze reports zero CRITICAL/HIGH issues." \
-  --completion-promise "SPEC_CLEAN" \
-  --max-iterations 10
-```
-
-**Full-auto with phase detection:**
-
-```bash
-/ralph-loop:ralph-loop "Check current spec-kit phase:
-bash ${CLAUDE_SKILL_DIR}/scripts/detect-phase.sh
-Execute the recommended next_action.
-Output FEATURE_DONE only when current_step is 6_complete." \
-  --completion-promise "FEATURE_DONE" \
-  --max-iterations 50
-```
-
-**When to use ralph-loop per step:**
-
-| Step | Ralph-loop? |
-| ------ | ------------ |
-| 1–3 (constitution/specify/clarify) | ❌ |
-| 4 (plan) | ❌ |
-| 5 (tasks) | ❌ |
-| quality gates (analyze/checklist) | ✅ |
-| 6 (implement) | ✅✅ |
-
-**Tips:**
-
-- Use SC-NNN from `spec.md` as completion criteria — already measurable
-- Respect `[P]` markers in `tasks.md` to identify parallelizable work
-- Always set `--max-iterations` as safety net
-- Never ralph-loop steps requiring human input (specify/plan/clarify)
-
----
-
-## Skill Structure
-
+# Check symlink status
+bash scripts/link-skill.sh --list
 ```text
-skills/<name>/
-  SKILL.md          # Main entry point (YAML frontmatter + workflow)
-  CLAUDE.md         # Contributor context (architecture, validate commands, gotchas)
-  references/       # Supporting docs referenced from SKILL.md
-  scripts/          # Helper scripts
-```
 
-**SKILL.md frontmatter keys:**
+## Contents
 
-```yaml
-name: skill-name
-description: "What it does. Use when: X, Y, Z."  # max 1024 chars — primary trigger
-argument-hint: "[pr-number] [jira-key?] [Author|Reviewer]"
-compatibility: "Requires gh CLI and git"          # optional: prerequisites
-context: fork                       # Run in isolated subagent context
-agent: general-purpose              # Subagent type when context: fork
-disable-model-invocation: true      # Remove from context; skill never auto-triggers
-allowed-tools: Read, Grep, Glob     # Auto-approve these tools when skill is active
-```
+### Skills (23)
 
----
+| Category | Skills | Description |
+| --- | --- | --- |
+| **PR Review** | `tathep-api-review-pr`, `tathep-web-review-pr`, `tathep-admin-review-pr`, `tathep-video-review-pr`, `tathep-agent-review-pr` | Project-specific PR review — 7 parallel agents, Jira AC verification, 12-point checklist, QG scoring |
+| **Spec-Driven Dev** | `spec-kit`, `speckit-constitution`, `speckit-specify`, `speckit-clarify`, `speckit-plan`, `speckit-tasks`, `speckit-implement`, `speckit-analyze`, `speckit-checklist`, `speckit-taskstoissues` | 6-step SDD workflow from requirements to working code |
+| **Team Workflows** | `team-debug`, `team-dev-loop`, `team-review-pr` | Multi-agent team patterns — debugging, dev loop, review |
+| **Thinking** | `systems-thinking` | Causal Loop Diagram analysis for architecture decisions and bottleneck diagnosis |
+| **Database** | `postgresql-schema-design` | Schema design, data types, indexing strategies, FK gotchas |
+| **Utilities** | `deep-research-workflow`, `optimize-context`, `env-heal` | Research-first workflow, CLAUDE.md optimizer, env var healing |
 
-## Agents
+### Agents (4)
 
-Custom subagents at `agents/<name>.md`. Symlinked to `~/.claude/agents/`.
+| Agent | Model | Purpose |
+| --- | --- | --- |
+| `commit-finalizer` | haiku | Fast git commit with conventional commits format |
+| `pr-review-bootstrap` | sonnet | Fetch PR diff + Jira AC in one pass before review |
+| `tathep-reviewer` | sonnet | Code reviewer with persistent memory + preloaded skills |
+| `skill-validator` | sonnet | Validates SKILL.md against best practices |
 
-| Agent | Purpose |
-| --- | --- |
-| `tathep-reviewer` | Code reviewer with persistent memory, preloads `next-best-practices` + `clean-code` skills |
-| `skill-validator` | Validates SKILL.md against best practices checklist |
+### Hooks (9)
 
----
+| Hook | Event | Purpose |
+| --- | --- | --- |
+| `session-start-context.sh` | SessionStart | Inject git state + project detection |
+| `post-compact-context.sh` | SessionStart[compact] | Re-inject context after compaction |
+| `auto-test-env.sh` | PostToolUse[Edit\|Write] | Auto-detect test framework after file edits |
+| `protect-files.sh` | PreToolUse[Edit\|Write] | Block edits to protected config files |
+| `session-summary-hook.sh` | PostToolUse[Bash] | Track session activity |
+| `dev-loop-idle-nudge.sh` | Stop | Nudge dev-loop team to continue |
+| `dev-loop-task-gate.sh` | Stop | Gate dev-loop completion |
+| `review-debate-idle-nudge.sh` | Stop | Nudge review-debate to continue |
+| `review-debate-task-gate.sh` | Stop | Gate review-debate completion |
 
-## Hooks
-
-Lifecycle hooks configured in `.claude/settings.json`.
-
-| Hook | Event | Type | What it does |
-| --- | --- | --- | --- |
-| Session start | `SessionStart[startup]` | command | Injects git state + project detection |
-| Post-compact | `SessionStart[compact]` | command | Re-injects project context + git state after compaction |
-| Auto-lint | `PostToolUse[Edit\|Write]` | command | Runs markdownlint on `.md` files after edits |
-| Task guard | `Stop` | prompt | LLM check for incomplete work before stopping |
-| Notification | `Notification` | command | macOS desktop alert when Claude needs input |
-
----
-
-## Output Styles
-
-Custom output styles at `output-styles/<name>.md`. Symlinked to `~/.claude/output-styles/`.
+### Output Styles (2)
 
 | Style | Description |
 | --- | --- |
-| `thai-tech-lead` | Thai language tech lead mode with architecture focus |
-| `coding-mentor` | Explains architectural decisions inline while coding |
+| `thai-tech-lead` | Thai language, concise, architecture-focused |
+| `coding-mentor` | Explains decisions inline while coding |
+
+### Commands (1)
+
+| Command | Description |
+| --- | --- |
+| `analyze-claude-features` | Analyze Claude Code features and capabilities |
+
+### Scripts (6)
+
+| Script | Description |
+| --- | --- |
+| `install.sh` | New machine setup — prerequisites, settings.json from template, symlinks |
+| `link-skill.sh` | Symlink manager — links all asset types + dotfiles to `~/.claude/` |
+| `detect-project.sh` | Auto-detect current project type for context injection |
+| `pr-context.sh` | Fetch PR context (diff, Jira, AC) for review agents |
+| `classify-env-gaps.sh` | Classify missing env vars by severity |
+| `fix-tables.py` | Fix markdown table formatting |
+
+### Dotfiles
+
+| File | Symlink Target | Description |
+| --- | --- | --- |
+| `global-CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions for all projects |
+| `statusline.sh` | `~/.claude/statusline.sh` | Custom status line display |
+| `global-settings.template.json` | *(template only)* | Settings template for new machine setup |
+
+## Repo Structure
+
+```text
+dotclaude/
+├── skills/           → ~/.claude/skills/
+├── agents/           → ~/.claude/agents/
+├── hooks/            → ~/.claude/hooks/
+├── output-styles/    → ~/.claude/output-styles/
+├── commands/         → ~/.claude/commands/
+├── scripts/          → ~/.claude/scripts/
+├── references/       # Shared reference docs (not symlinked)
+├── global-CLAUDE.md  → ~/.claude/CLAUDE.md
+├── statusline.sh     → ~/.claude/statusline.sh
+└── global-settings.template.json  # Template for settings.json
+```text
+
+## New Machine Setup
+
+```bash
+git clone git@github.com:wasikarn/dotclaude.git ~/Codes/Personals/dotclaude
+cd ~/Codes/Personals/dotclaude
+bash scripts/install.sh
+```text
+
+The install script will:
+
+1. Check prerequisites (git, jq, node/bun)
+2. Generate `~/.claude/settings.json` from template
+3. Create required directories
+4. Run `link-skill.sh` to symlink everything
