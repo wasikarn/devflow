@@ -7,9 +7,7 @@
     "ENABLE_TOOL_SEARCH": "true",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS": "10000",
-    "MAX_THINKING_TOKENS": "8000",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "32000"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "includeGitInstructions": false,
   "permissions": {
@@ -91,7 +89,7 @@
       "~/Codes/*"
     ]
   },
-  "model": "sonnet",
+  "model": "sonnet[1m]",
   "hooks": {
     "SessionStart": [
       {
