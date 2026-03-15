@@ -84,6 +84,7 @@ bash scripts/link-skill.sh --list
 | --- | --- | --- |
 | `global-CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions for all projects |
 | `statusline.sh` | `~/.claude/statusline.sh` | Custom status line display |
+| `zshrc` | `~/.zshrc` | Optimized zsh config — startup ~0.11s, evalcache, lazy NVM, atuin, fzf-tab |
 | `global-settings.template.json` | *(template only)* | Settings template for new machine setup |
 
 ## Repo Structure
@@ -99,6 +100,7 @@ dotclaude/
 ├── references/       # Shared reference docs (not symlinked)
 ├── global-CLAUDE.md  → ~/.claude/CLAUDE.md
 ├── statusline.sh     → ~/.claude/statusline.sh
+├── zshrc             → ~/.zshrc
 └── global-settings.template.json  # Template for settings.json
 ```
 

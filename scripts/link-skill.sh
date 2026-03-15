@@ -13,7 +13,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ASSET_TYPES="skills:$HOME/.claude/skills agents:$HOME/.claude/agents output-styles:$HOME/.claude/output-styles hooks:$HOME/.claude/hooks commands:$HOME/.claude/commands scripts:$HOME/.claude/scripts"
 
 # Dotfiles: individual repo_file:claude_target pairs (space-separated, pipe-delimited entries)
-DOTFILES="statusline.sh:$HOME/.claude/statusline.sh|global-CLAUDE.md:$HOME/.claude/CLAUDE.md"
+DOTFILES="statusline.sh:$HOME/.claude/statusline.sh|global-CLAUDE.md:$HOME/.claude/CLAUDE.md|zshrc:$HOME/.zshrc"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 link_item() {
