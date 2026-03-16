@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# skill-routing.sh — UserPromptSubmit hook
+# Detects workflow keywords, injects structured skill hints.
+# Priority: fix-bug > finish-feature > review-pr > start-feature
+# NOTE: no set -euo pipefail — hook must exit 0 on all failures (matching qmd-pre-search.sh pattern)
+
+export LANG=en_US.UTF-8
+
+command -v jq &>/dev/null || exit 0
+
+INPUT=$(cat)
+PROMPT=$(echo "$INPUT" | jq -r '.user_prompt // empty' 2>/dev/null) || exit 0
+[ -z "$PROMPT" ] && exit 0
+
+emit_hint() {
+  jq -n --arg ctx "$1" '{"hookSpecificOutput": {"additionalContext": $ctx}}'
+  exit 0
+}
+
+# --- fix-bug (priority 1) ---
+if echo "$PROMPT" | grep -qiE 'bug|broken|failing|error|crash|test fail' \
+   || echo "$PROMPT" | grep -qE 'พัง|ไม่ทำงาน|แก้ bug'; then
+  if echo "$PROMPT" | grep -qiE 'parallel' \
+     || echo "$PROMPT" | grep -qE 'ยาก|หา root cause ไม่เจอ'; then
+    emit_hint "[skill-hint:fix-bug]
+Sequence: systematic-debugging → TDD → verification-before-completion
+Skip systematic-debugging: root cause already stated explicitly (not a guess)
+Alt (complex): team-debug — parallel root cause + DX analysis"
+  fi
+  emit_hint "[skill-hint:fix-bug]
+Sequence: systematic-debugging → TDD → verification-before-completion
+Skip systematic-debugging: root cause already stated explicitly (not a guess)
+Alt (complex): team-debug — parallel root cause + DX analysis"
+fi
+
+# --- finish-feature (priority 2) ---
+if echo "$PROMPT" | grep -qiE 'ready to merge|feature complete|ready for PR|ready for review' \
+   || echo "$PROMPT" | grep -qE 'พร้อม merge|พร้อม PR|ทำเสร็จแล้ว พร้อม'; then
+  emit_hint "[skill-hint:finish-feature]
+Sequence: verification-before-completion → requesting-code-review → finishing-a-development-branch
+Skip verification: tests already passing / already verified"
+fi
+
+# --- review-pr (priority 3) ---
+if echo "$PROMPT" | grep -qiE 'review PR|review pull request|review code|TATHEP-' \
+   || echo "$PROMPT" | grep -qE 'ดู PR'; then
+  PROJECT=$(basename "${CLAUDE_PROJECT_DIR:-}")
+  case "$PROJECT" in
+    tathep-platform-api) REVIEW_SKILL="tathep-api-review-pr" ;;
+    tathep-admin)         REVIEW_SKILL="tathep-admin-review-pr" ;;
+    tathep-website)       REVIEW_SKILL="tathep-web-review-pr" ;;
+    *)                    REVIEW_SKILL="team-review-pr" ;;
+  esac
+  emit_hint "[skill-hint:review-pr]
+Run IN PARALLEL (all independent):
+  code quality    → ${REVIEW_SKILL}
+  error handling  → silent-failure-hunter
+  test coverage   → pr-test-analyzer
+  type design     → type-design-analyzer  (only if new types added)
+  polish          → code-simplifier       (run last)
+Adversarial option: team-review-pr"
+fi
+
+# --- start-feature (priority 4) ---
+# 'build' and 'create' require feature/component modifier to reduce false positives
+if echo "$PROMPT" | grep -qiE 'implement|add feature|build.*(feature|service|component|api)|create.*(feature|service|component|page)' \
+   || echo "$PROMPT" | grep -qE 'สร้าง|เพิ่ม feature|ทำ feature|อยากทำ'; then
+  if echo "$PROMPT" | grep -qiE 'unfamiliar|research' \
+     || echo "$PROMPT" | grep -qE 'ไม่คุ้น|ศึกษา|ไม่รู้'; then
+    emit_hint "[skill-hint:start-feature]
+Alt (unfamiliar/complex): deep-research-workflow → writing-plans → using-git-worktrees → TDD"
+  elif echo "$PROMPT" | grep -qiE 'team|parallel' \
+       || echo "$PROMPT" | grep -qE 'ช่วยกัน'; then
+    emit_hint "[skill-hint:start-feature]
+Alt (team): team-dev-loop — full development loop with agent teams"
+  fi
+  emit_hint "[skill-hint:start-feature]
+Sequence: brainstorming → writing-plans → using-git-worktrees → TDD
+Skip brainstorming: full design already described this session
+Skip worktree:     user says hotfix / small fix / one-liner
+Alt (unfamiliar):  deep-research-workflow → writing-plans → using-git-worktrees → TDD
+Alt (team):        team-dev-loop"
+fi
+
+exit 0
