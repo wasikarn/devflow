@@ -110,9 +110,21 @@ If no Jira key → skip to Phase 1.
 
 ## Phase 1: Project Detection
 
-Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `review_skill`, `base_branch`, `branch`.
+Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `base_branch`, `branch`.
 
-If `review_skill` is non-empty, load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill's SKILL.md. Otherwise use generic rules:
+Check for project-specific rules at `{project_root}/.claude/skills/review-rules/`:
+
+```text
+.claude/skills/review-rules/hard-rules.md exists?
+├→ Yes: load it as project Hard Rules + note checklist.md and examples.md paths:
+│       {project_root}/.claude/skills/review-rules/checklist.md
+│       {project_root}/.claude/skills/review-rules/examples.md
+└→ No:  use generic rules below
+```
+
+Pass checklist.md and examples.md paths to Phase 2 teammates so they can reference project-specific patterns.
+
+If no review-rules found, use generic rules:
 
 **Generic Hard Rules** (flag unconditionally):
 
