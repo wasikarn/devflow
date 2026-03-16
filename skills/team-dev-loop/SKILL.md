@@ -75,6 +75,28 @@ Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.m
 
 If no Jira key → skip to Step 3.
 
+### Step 2.7: Branch Setup
+
+Check `branch` from the Project JSON against `base_branch`:
+
+```text
+Already on a feature/fix branch (not base)?
+└→ Proceed as-is — assume intentional
+
+On base branch (main/develop)?
+├→ Jira key found (Step 2.5)?
+│   ├→ Full mode  → create: feature/BEP-XXX-{slug}
+│   └→ Quick mode → create: fix/BEP-XXX-{slug}
+└→ No Jira key?
+    └→ Ask user: "Branch name? (e.g. feature/short-description)"
+```
+
+**Slug rules:** lowercase, hyphens only, max 40 chars, derived from task description (strip articles, keep nouns/verbs).
+
+Run: `git checkout -b {branch_name}`
+
+**GATE:** Branch is a non-base branch → proceed.
+
 ### Step 3: Create Context Artifact
 
 Write `dev-loop-context.md` at project root:
@@ -318,10 +340,37 @@ Update progress tracker with iteration results:
 
 Present options to user:
 
-1. **Create PR** — auto-generate title + description from plan.md + review summary
-2. **Merge to main** — squash merge current branch
+1. **Create PR** — generate PR using template below, push branch, open with `gh pr create`
+2. **Merge to base** — squash merge current branch into `{base_branch}` from Project JSON
 3. **Keep branch** — leave as-is for manual review
 4. **Restart loop** — return to Phase 3 with additional changes
+
+#### PR Template (option 1)
+
+**Title:** English, under 70 chars, start with verb — derived from plan.md problem statement.
+
+**Description (Thai):**
+
+```markdown
+## สิ่งที่เปลี่ยนแปลง
+{สรุปสิ่งที่แก้/เพิ่ม จาก plan.md problem statement — 2-3 ประโยค}
+
+## เหตุผล
+{ทำไมต้องทำ และ approach ที่เลือก จาก plan.md rationale}
+
+## วิธีทดสอบ
+{test strategy จาก plan.md — unit/integration/manual steps}
+
+## Jira
+{BEP-XXXX หรือ N/A}
+
+## AC Checklist
+{แสดงก็ต่อเมื่อมี Jira key — ดึงจาก dev-loop-context.md}
+- [x] {AC1 description}
+- [x] {AC2 description}
+```
+
+Run: `gh pr create --title "{title}" --body "{description}" --base {base_branch}`
 
 ### Step 3: Cleanup
 

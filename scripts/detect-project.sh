@@ -42,7 +42,7 @@ case "$REMOTE_URL" in
   *bluedragon-eye-admin*)
     PROJECT="tathep-admin"
     REPO="100-Stars-Co/bluedragon-eye-admin"
-    VALIDATE="npm run ts-check && npm run lint@fix && npm run test"
+    VALIDATE="npm run ts-check && npm run lint:fix && npm run test"
     REVIEW_SKILL="tathep-admin-review-pr"
     BASE_BRANCH="develop"
     ;;
