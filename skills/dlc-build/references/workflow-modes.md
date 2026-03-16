@@ -1,6 +1,6 @@
 # Workflow Modes
 
-Classification criteria for Full vs Quick mode. Lead auto-classifies at Phase 0; user can override.
+Classification criteria for Full, Quick, and Hotfix mode. Lead auto-classifies at Phase 0; user can override.
 
 ## Mode Selection
 
@@ -8,6 +8,7 @@ Classification criteria for Full vs Quick mode. Lead auto-classifies at Phase 0;
 | --- | --- | --- | --- |
 | **Full** | Multi-file feature, architectural change, new domain | All (0-6) | 9-14 |
 | **Quick** | Bug fix, small refactor, fix PR comments, single-file change | Skip Phase 1 | 6-10 |
+| **Hotfix** | Urgent production bug, `--hotfix` flag | Skip Phase 1, branch from `main` | 4-8 |
 
 ## Auto-Classification Rules
 
@@ -27,21 +28,38 @@ Classification criteria for Full vs Quick mode. Lead auto-classifies at Phase 0;
 - No new domain concepts introduced
 - User explicitly passes `--quick`
 
+**Hotfix mode** — any of:
+
+- User explicitly passes `--hotfix`
+- Task mentions "production", "P0", "urgent fix", "hotfix", "incident"
+- Bug is actively impacting users in production
+
 **Ambiguous** — ask user: "This could be Full or Quick. Full adds a research phase (~2-3 explorer sessions). Which do you prefer?"
 
 ## Mode Differences
 
-| Aspect | Full | Quick |
-| --- | --- | --- |
-| Phase 1 (Research) | 2-3 explorer teammates | Skipped |
-| Phase 2 (Plan) | From research.md | From task description directly |
-| Phase 3 (Implement) | May use parallel workers | Usually 1 worker |
-| Phase 4 (Review) | Full 3-reviewer debate | Full 3-reviewer debate |
-| Artifacts | research.md + plan.md | plan.md only |
+| Aspect | Full | Quick | Hotfix |
+| --- | --- | --- | --- |
+| Phase 1 (Research) | 2-3 explorer teammates | Skipped | Skipped |
+| Phase 2 (Plan) | From research.md | From task description | Minimal — broken path only |
+| Phase 3 (Implement) | May use parallel workers | Usually 1 worker | 1 worker, minimal scope |
+| Phase 4 (Review) | Full 3-reviewer debate | Full 3-reviewer debate | 2 reviewers max (no DX) |
+| Branch | `feature/` or `fix/` from `develop` | `fix/` from `develop` | `hotfix/` from `main` |
+| PR target | `develop` | `develop` | `main` + backport to `develop` |
+| Artifacts | research.md + plan.md | plan.md only | plan.md only |
+
+## Hotfix Constraints
+
+- Branch from `main` (not `develop`) — `git checkout main && git pull`
+- Scope is the broken code path **only** — no refactoring, no unrelated improvements
+- Review uses 2 reviewers max (Correctness + Architecture, skip DX)
+- After merge to `main`: mandatory backport PR to `develop`
+- Backport via cherry-pick; if conflicts → note in PR, assign to author
 
 ## User Override
 
 User can always override classification:
 
-- `/team-dev-loop "simple bug" --full` → forces Full mode (extra research won't hurt)
-- `/team-dev-loop "big feature" --quick` → forces Quick mode (lead warns about risk but complies)
+- `/dlc-build "simple bug" --full` → forces Full mode (extra research won't hurt)
+- `/dlc-build "big feature" --quick` → forces Quick mode (lead warns about risk but complies)
+- `/dlc-build "BEP-1234" --hotfix` → forces Hotfix mode (branch from main, minimal scope)

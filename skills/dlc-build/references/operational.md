@@ -5,7 +5,7 @@
 | Level | Available tools | Behavior |
 | --- | --- | --- |
 | **Agent Teams** | TeamCreate, SendMessage | Full workflow as described |
-| **Subagent** | Task (Agent tool) | Same phases, but: explorers/workers/reviewers as subagents. No debate (can't message). Review = 7-agent parallel (existing tathep-\*-review-pr pattern). |
+| **Subagent** | Task (Agent tool) | Same phases, but: explorers/workers/reviewers as subagents. No debate (can't message). Review = 3 parallel subagent reviewers (Correctness, Architecture, DX). |
 | **Solo** | None (lead only) | Lead executes all phases sequentially. Research = lead explores. Review = self-review with checklist. Loop still applies. |
 
 Detect at Phase 0 and inform user of mode.

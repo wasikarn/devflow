@@ -52,13 +52,13 @@ If TeamCreate tool is not available → check graceful degradation:
 
 ### Step 1: Detect Project
 
-Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `review_skill`, `base_branch`, `branch`.
+Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `base_branch`, `branch`.
 
-If `review_skill` is non-empty, load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill.
+Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md`. If it exists, load it.
 
 ### Step 1.5: Jira Context (skip if no Jira)
 
-Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §team-debug:
+Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §dlc-debug:
 
 1. Fetch ticket — enrich bug description with ticket details
 2. Check linked issues — related bugs may share root cause

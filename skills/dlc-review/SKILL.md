@@ -96,7 +96,7 @@ If Massive: skip to simplified single-session review (debate overhead not worth 
 
 ## Phase 0.6: Ticket Understanding (skip if no Jira)
 
-Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §team-review-pr:
+Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §dlc-review:
 
 1. Fetch ticket → summarize Problem / Value / Scope
 2. Parse AC → numbered checklist

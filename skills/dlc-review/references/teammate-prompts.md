@@ -1,4 +1,4 @@
-# Teammate Prompts — team-review-pr
+# Teammate Prompts — dlc-review
 
 Prompt templates for the 3 reviewer teammates. Lead inserts project Hard Rules and PR number.
 

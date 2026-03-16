@@ -25,12 +25,12 @@ if echo "$PROMPT" | grep -qiE 'bug|broken|failing|error|crash|test fail' \
     emit_hint "[skill-hint:fix-bug]
 Sequence: systematic-debugging → TDD → verification-before-completion
 Skip systematic-debugging: root cause already stated explicitly (not a guess)
-Alt (complex): team-debug — parallel root cause + DX analysis"
+Alt (complex): dlc-debug — parallel root cause + DX analysis"
   fi
   emit_hint "[skill-hint:fix-bug]
 Sequence: systematic-debugging → TDD → verification-before-completion
 Skip systematic-debugging: root cause already stated explicitly (not a guess)
-Alt (complex): team-debug — parallel root cause + DX analysis"
+Alt (complex): dlc-debug — parallel root cause + DX analysis"
 fi
 
 # --- finish-feature (priority 2) ---
@@ -44,21 +44,14 @@ fi
 # --- review-pr (priority 3) ---
 if echo "$PROMPT" | grep -qiE 'review PR|review pull request|review code|TATHEP-' \
    || echo "$PROMPT" | grep -qE 'ดู PR'; then
-  PROJECT=$(basename "${CLAUDE_PROJECT_DIR:-}")
-  case "$PROJECT" in
-    tathep-platform-api) REVIEW_SKILL="tathep-api-review-pr" ;;
-    tathep-admin)         REVIEW_SKILL="tathep-admin-review-pr" ;;
-    tathep-website)       REVIEW_SKILL="tathep-web-review-pr" ;;
-    *)                    REVIEW_SKILL="team-review-pr" ;;
-  esac
   emit_hint "[skill-hint:review-pr]
 Run IN PARALLEL (all independent):
-  code quality    → ${REVIEW_SKILL}
+  code quality    → dlc-review
   error handling  → silent-failure-hunter
   test coverage   → pr-test-analyzer
   type design     → type-design-analyzer  (only if new types added)
   polish          → code-simplifier       (run last)
-Adversarial option: team-review-pr"
+Adversarial option: dlc-review (adversarial debate, 3 reviewers)"
 fi
 
 # --- start-feature (priority 4) ---
@@ -68,18 +61,18 @@ if echo "$PROMPT" | grep -qiE 'implement|add feature|build.*(feature|service|com
   if echo "$PROMPT" | grep -qiE 'unfamiliar|research' \
      || echo "$PROMPT" | grep -qE 'ไม่คุ้น|ศึกษา|ไม่รู้'; then
     emit_hint "[skill-hint:start-feature]
-Alt (unfamiliar/complex): deep-research-workflow → writing-plans → using-git-worktrees → TDD"
+Alt (unfamiliar/complex): dlc-build → writing-plans → using-git-worktrees → TDD"
   elif echo "$PROMPT" | grep -qiE 'team|parallel' \
        || echo "$PROMPT" | grep -qE 'ช่วยกัน'; then
     emit_hint "[skill-hint:start-feature]
-Alt (team): team-dev-loop — full development loop with agent teams"
+Alt (team): dlc-build — full development loop with agent teams"
   fi
   emit_hint "[skill-hint:start-feature]
 Sequence: brainstorming → writing-plans → using-git-worktrees → TDD
 Skip brainstorming: full design already described this session
 Skip worktree:     user says hotfix / small fix / one-liner
-Alt (unfamiliar):  deep-research-workflow → writing-plans → using-git-worktrees → TDD
-Alt (team):        team-dev-loop"
+Alt (unfamiliar):  dlc-build → writing-plans → using-git-worktrees → TDD
+Alt (team):        dlc-build"
 fi
 
 exit 0

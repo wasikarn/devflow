@@ -16,7 +16,6 @@ Prefer reading source before editing — key references:
 | [`references/skill-creation-guide.md`](references/skill-creation-guide.md) | 5 golden rules, creation workflow, skill brief template, anti-patterns |
 | `skills/<name>/references/checklist.md` | Per-skill review criteria with severity markers (review-pr skills) |
 | `skills/<name>/references/examples.md` | Per-skill ✅/❌ code examples for all 12 rules (review-pr skills) |
-| [`references/review-workflow.md`](references/review-workflow.md) | Shared phase orchestration for all 5 tathep-*-review-pr skills |
 | [`references/review-conventions.md`](references/review-conventions.md) | Comment labels, dedup protocol, strengths, PR size thresholds |
 
 ## Skill Structure
@@ -39,26 +38,16 @@ Full spec + examples: [references/skills-best-practices.md](references/skills-be
 
 ## Skills in This Repo
 
-| Skill |
-| --- |
-| `optimize-context` |
-| `deep-research-workflow` |
-| `spec-kit` |
-| `tathep-api-review-pr` |
-| `tathep-web-review-pr` |
-| `tathep-admin-review-pr` |
-| `tathep-agent-review-pr` |
-| `tathep-video-review-pr` |
-| `env-heal` |
-| `team-review-pr` |
-| `team-dev-loop` |
-| `team-debug` |
+| Skill | Purpose |
+| --- | --- |
+| `optimize-context` | Audit and optimize CLAUDE.md files |
+| `env-heal` | Scan and fix environment variable mismatches |
+| `dlc-build` | Full development loop (Research → Plan → Implement → Review → Ship) |
+| `dlc-review` | Adversarial PR review with 3-reviewer debate |
+| `dlc-respond` | Address PR review comments as author |
+| `dlc-debug` | Parallel root cause analysis + DX hardening |
 
 Commands live at `commands/<name>.md` (symlinked to `~/.claude/commands/`). Current: `analyze-claude-features`.
-
-## PR Review Skills Pattern
-
-Shared structure and validate commands are in [`.claude/rules/review-skills.md`](.claude/rules/review-skills.md) (auto-loaded when editing `skills/*-review-pr/`).
 
 ## Agents
 

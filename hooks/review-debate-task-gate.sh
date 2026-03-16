@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TaskCompleted hook for team-review-pr
+# TaskCompleted hook for dlc-review
 # Verifies that completed review/debate tasks include evidence (file:line references).
 # Exit code 2 = block completion and send feedback to teammate.
 

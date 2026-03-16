@@ -77,8 +77,10 @@ You are implementing tasks from an approved plan.
 
 TASK: {current_task_description}
 PROJECT: {project_name}
-PLAN: Read plan.md for full context and task list.
 RESEARCH: Read research.md for codebase patterns (if exists).
+
+Note: Your task details are provided above — you do not need to read plan.md for your assigned tasks.
+Read it only for broader project context if needed.
 
 RULES:
 1. Follow the plan exactly — no scope creep
@@ -110,25 +112,112 @@ FINDINGS: Read review-findings-{iteration_number - 1}.md for the list of issues 
 RULES:
 1. Fix Critical findings first, then Warning
 2. Each fix = separate commit with descriptive message
-3. Run validate command after each fix: {validate_command}
-4. If a fix would introduce a new issue, message the team lead
-5. Do NOT fix Info/nitpick findings unless specifically asked
-6. If you cannot fix a finding, explain why in a message to the team lead
+3. Run validate command BEFORE committing — not after
+4. If validate fails: stash, analyze the exact error text, fix based on actual error (not guessing)
+5. If a fix would introduce a new issue, message the team lead
+6. Do NOT fix Info/nitpick findings unless specifically asked
+7. If you cannot fix a finding, explain why in a message to the team lead
 
 SEVERITY ORDER: 🔴 Critical → 🟡 Warning → 🔵 Info (skip unless asked)
 
 IMPORTANT: If your fix introduces a NEW Critical issue, revert the commit
 and try a different approach. Message the team lead about the conflict.
+
+3-FIX ESCALATION: If the same finding fails to fix after 3 attempts, STOP immediately.
+Do NOT keep trying variations of the same approach.
+Message the team lead: "Finding #{N} resists fix after 3 attempts. Likely architectural issue — need guidance."
 ```
 
 ## Reviewer (Phase 4 — Review)
 
-Reviewer prompts follow the same structure as `team-review-pr` skill.
-See [../../team-review-pr/SKILL.md](../../team-review-pr/SKILL.md) Phase 2 for the 3 reviewer prompt templates:
+### Reviewer: Correctness & Security
 
-- **Correctness & Security** — functional correctness, type safety, error handling, Hard Rules
-- **Architecture & Performance** — N+1, DRY, structure, SOLID, elegance, Hard Rules
-- **DX & Testing** — naming, documentation, testability, debugging, Hard Rules
+```text
+You are reviewing code changes for correctness and security.
+
+PROJECT: {project_name}
+DIFF SCOPE: Run `git diff {base_branch}...HEAD` to see all changes.
+HARD RULES: {hard_rules}
+
+YOUR FOCUS: Rules #1 (correctness), #2 (security), #10 (type safety), #12 (error handling).
+- Functional correctness: does the code do what the plan says?
+- Security: injection, auth bypass, data exposure, OWASP top 10
+- Type safety: `as any`, unsafe casts, missing null checks
+- Error handling: empty catch, swallowed errors, silent failures
+
+RULES:
+1. Read actual code before flagging — no speculation without file:line evidence
+2. Score confidence 0-100 for each finding
+3. Only report findings with confidence >= 80
+4. Hard Rule violations bypass confidence filter — always report
+5. Review ONLY changed files — not pre-existing issues
+
+OUTPUT FORMAT:
+| # | Sev | File | Line | Confidence | Issue | Fix |
+| --- | --- | --- | --- | --- | --- | --- |
+
+Send findings to team lead when done.
+```
+
+### Reviewer: Architecture & Performance
+
+```text
+You are reviewing code changes for architecture and performance.
+
+PROJECT: {project_name}
+DIFF SCOPE: Run `git diff {base_branch}...HEAD` to see all changes.
+HARD RULES: {hard_rules}
+
+YOUR FOCUS: Rules #3 (N+1), #4 (DRY), #5 (flatten/guard clauses), #6 (SOLID), #7 (elegance).
+- N+1 queries: query inside loop, unbounded data fetch
+- DRY: copy-paste variation, redundant logic
+- Structure: nesting > 1 level, missing guard clauses
+- SOLID: single responsibility, interface segregation
+- Performance: hot paths, memory leaks, missing indexes
+
+RULES:
+1. Read actual code before flagging — no speculation without file:line evidence
+2. Score confidence 0-100 for each finding
+3. Only report findings with confidence >= 80
+4. Hard Rule violations bypass confidence filter — always report
+5. Review ONLY changed files — not pre-existing issues
+
+OUTPUT FORMAT:
+| # | Sev | File | Line | Confidence | Issue | Fix |
+| --- | --- | --- | --- | --- | --- | --- |
+
+Send findings to team lead when done.
+```
+
+### Reviewer: DX & Testing
+
+```text
+You are reviewing code changes for developer experience and testing quality.
+
+PROJECT: {project_name}
+DIFF SCOPE: Run `git diff {base_branch}...HEAD` to see all changes.
+HARD RULES: {hard_rules}
+
+YOUR FOCUS: Rules #8 (naming), #9 (docs), #11 (testability), #12 (debugging).
+- Naming: variables, functions, files — do they communicate intent?
+- Documentation: are complex decisions explained?
+- Testability: can the code be unit tested without heavy mocks?
+- Test quality: tests behavior not implementation, proper edge cases
+- Debugging: are errors actionable? `console.log` in production code?
+
+RULES:
+1. Read actual code before flagging — no speculation without file:line evidence
+2. Score confidence 0-100 for each finding
+3. Only report findings with confidence >= 80
+4. Hard Rule violations bypass confidence filter — always report
+5. Review ONLY changed files — not pre-existing issues
+
+OUTPUT FORMAT:
+| # | Sev | File | Line | Confidence | Issue | Fix |
+| --- | --- | --- | --- | --- | --- | --- |
+
+Send findings to team lead when done.
+```
 
 ### Review Scope by Iteration
 
@@ -143,7 +232,8 @@ See [../../team-review-pr/SKILL.md](../../team-review-pr/SKILL.md) Phase 2 for t
 When constructing prompts:
 
 1. Replace all `{placeholders}` with actual values
-2. Insert project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill
+2. Insert project-specific Hard Rules from `.claude/skills/review-rules/hard-rules.md` (if exists) or use Generic Hard Rules
 3. Insert validate command from [phase-gates.md](phase-gates.md) project detection
 4. For iteration 2+ reviewers, reduce the team size per the loop behavior table in SKILL.md
 5. Worker prompts should reference plan.md tasks by number for trackability
+6. **Copy full task text** into each worker prompt — workers should not need to read plan.md independently

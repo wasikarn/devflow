@@ -41,7 +41,7 @@ If TeamCreate tool is not available → check graceful degradation:
 
 ### Step 1: Detect Project
 
-Use the `Project` JSON from the header. Load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill if `review_skill` is non-empty.
+Use the `Project` JSON from the header. Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md` and load if present.
 
 ### Step 2: Fetch All Open Threads
 

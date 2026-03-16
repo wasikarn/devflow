@@ -1,6 +1,6 @@
 # Debate Protocol
 
-Rules for the adversarial debate phase in team-review-pr. Teammates challenge each other's findings to reduce false positives and produce higher-confidence results.
+Rules for the adversarial debate phase in dlc-review. Teammates challenge each other's findings to reduce false positives and produce higher-confidence results.
 
 ## Debate Structure
 

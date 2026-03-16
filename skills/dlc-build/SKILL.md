@@ -1,7 +1,7 @@
 ---
 name: dlc-build
 description: "Full development loop with Agent Teams — Research → Plan → Implement → Review → Ship with iterative fix-review loop. Pass a Jira key (BEP-XXXX) to auto-extract AC into plan tasks. Use when: building features, refactoring code, implementing tickets, or any multi-step development task. Use --hotfix for urgent production fixes that branch from main and auto-create backport PR. Triggers: dev loop, build feature, implement ticket, hotfix, /dlc-build."
-argument-hint: "[task-description-or-jira-key] [--quick?] [--hotfix?]"
+argument-hint: "[task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *)
@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *)
 
 # Team Dev Loop — Full Development Workflow
 
-Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--hotfix?]`
+Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]`
 
 ## References
 
@@ -20,7 +20,7 @@ Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--hotfix?]`
 | [workflow-modes.md](references/workflow-modes.md) |
 | [../../references/review-conventions.md](../../references/review-conventions.md) |
 | [../../references/review-output-format.md](../../references/review-output-format.md) |
-| [../team-review-pr/references/debate-protocol.md](../team-review-pr/references/debate-protocol.md) |
+| [../dlc-review/references/debate-protocol.md](../dlc-review/references/debate-protocol.md) |
 | [jira-integration.md](../../references/jira-integration.md) — Jira detection, MCP fetch, AC extraction (loaded when Jira key detected) |
 | [references/operational.md](references/operational.md) — Graceful Degradation, Context Compression Recovery, Success Criteria |
 
@@ -31,7 +31,7 @@ Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--hotfix?]`
 **Recent commits:** !`git log --oneline -5 2>/dev/null`
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null`
 
-**Args:** `$0`=task description or Jira key (required) · `$1`=`--quick` (skip research) · `$1`=`--hotfix` (urgent production fix)
+**Args:** `$0`=task description or Jira key (required) · `$1`=`--quick` (skip research) · `$1`=`--full` (force research) · `$1`=`--hotfix` (urgent production fix)
 
 Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
 
@@ -53,9 +53,15 @@ If TeamCreate tool is not available → check graceful degradation:
 
 ### Step 1: Detect Project
 
-Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `review_skill`, `base_branch`, `branch`.
+Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `base_branch`, `branch`.
 
-If `review_skill` is non-empty, load project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill.
+Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md`:
+
+```text
+.claude/skills/review-rules/hard-rules.md exists?
+├→ Yes: load it + note checklist.md and examples.md paths
+└→ No:  use Generic Hard Rules (as defined in dlc-review Phase 1)
+```
 
 ### Step 1.5: Pending PRs Check
 
@@ -74,7 +80,7 @@ Open PRs found:
 Continue with new task, or switch to one of these?
 ```
 
-- User picks existing PR → stop, suggest `/team-respond-review {pr}` or `/team-review-pr {pr} Author` instead
+- User picks existing PR → stop, suggest `/dlc-respond {pr}` or `/dlc-review {pr} Author` instead
 - User confirms new task → proceed (note: stale PRs may need cleanup later)
 - No open PRs → proceed silently
 
@@ -89,7 +95,7 @@ Per [workflow-modes.md](references/workflow-modes.md):
 
 ### Step 2.5: Jira Context (skip if no Jira)
 
-Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §team-dev-loop:
+Scan `$ARGUMENTS` for Jira key (`BEP-\d+`). If found, follow [jira-integration.md](../../references/jira-integration.md) §dlc-build:
 
 1. Fetch ticket → extract AC and subtasks
 2. AC items become plan task constraints (Phase 2)
@@ -215,9 +221,10 @@ Plan structure:
 2. Approach with rationale
 3. File-by-file changes
 4. Trade-offs
-5. Simplicity check — is this the simplest approach? Flag speculative features or abstractions not required by the task
+5. Simplicity check — is this the simplest approach? Flag speculative features or abstractions not required by the task. "Can a junior understand this in 5 minutes?" test.
 6. Test strategy
 7. Task list — tag each task `[P]` (parallelizable) or `[S]` (sequential)
+8. Task granularity — each task must specify: exact file(s) to modify, what to change (specific — not "update the logic"), expected behavior after change, how to verify (test to run or output to check). Each task must be completable in one worker turn — if not, split further.
 
 ### Step 2: Annotation Cycle
 
@@ -251,8 +258,17 @@ Create 1-2 worker teammates using prompts from [teammate-prompts.md](references/
 - `[S]` tasks: 1 worker, sequential
 - `[P]` tasks: 2 workers with non-overlapping file assignments
 
+**Controller provides full task text** to each worker — copy the relevant task descriptions from plan.md into the worker creation prompt. Workers should NOT need to read plan.md themselves for their assigned tasks.
+
 Workers follow TDD: failing test → implement → green → commit.
 Lead validates each commit against plan.
+
+**Checkpoint Recovery:** if worker completes task X but validate fails:
+
+1. `git stash` (or revert the commit)
+2. Analyze exact error output — send the literal error text to worker
+3. Worker fixes based on actual error (not guessing)
+4. If 2 attempts fail → lead intervenes with narrower scope
 
 #### Iteration 2+: Fix Findings
 
@@ -263,7 +279,24 @@ Fix order: Critical → Warning. Each fix = separate commit.
 **If a fix introduces a NEW Critical:** fixer reverts the commit and messages lead.
 Lead decides: try different approach or escalate.
 
+**3-Fix Rule:** if fixer fails the same finding 3 times → lead stops the loop and presents options:
+
+1. Switch to diagnosis mode — analyze root cause before fixing
+2. Revert to last clean checkpoint — try a different approach
+3. Accept with known issue — document and ship
+
 **GATE:** All tasks done + validate command passes → proceed to Review.
+
+### Verification Gate (before proceeding to Phase 4)
+
+Lead MUST independently verify — never trust worker reports:
+
+1. **RUN:** execute `{validate_command}` fresh
+2. **READ:** read the actual terminal output (not the worker's claim)
+3. **DIFF:** `git diff {base_branch}...HEAD --stat` — scope matches plan tasks
+4. **LOG:** `git log --oneline {base_branch}..HEAD` — confirm commit-per-task, no missing tasks
+
+If worker claims "done" but verify fails → send back with the specific failing evidence.
 
 ---
 
@@ -271,12 +304,16 @@ Lead decides: try different approach or escalate.
 
 #### Iteration 1: Full Review + Debate
 
-Reuse team-review-pr pattern (see [teammate-prompts.md](references/teammate-prompts.md) for reviewer prompts):
+Reuse dlc-review pattern (see [teammate-prompts.md](references/teammate-prompts.md) for reviewer prompts):
 
 1. Create 3 reviewer teammates (Correctness, Architecture, DX)
 2. Independent review of full diff
-3. Adversarial debate per [debate-protocol.md](../team-review-pr/references/debate-protocol.md)
+3. Adversarial debate per [debate-protocol.md](../dlc-review/references/debate-protocol.md)
 4. Consolidate findings per [review-conventions.md](../../references/review-conventions.md)
+
+**Adaptation note:** `review-conventions.md` references 7 agents and "N/7" consensus — for dlc-build's 3-reviewer model: replace "7 agents" with "3 reviewers" and "N/7" with "N/3". Consolidation rules (dedup, pattern cap, verify, sort) still apply.
+
+**Confidence filter:** Drop any finding with confidence < 80 before consolidation (Hard Rule violations bypass this filter — always report).
 
 #### Iteration 2: Focused Review
 
@@ -315,6 +352,14 @@ Critical: X | Warning: Y | Info: Z
 ### Phase 5: Assess (Lead Only)
 
 Count findings from `review-findings-{N}.md`. If Jira ticket was provided, also verify AC coverage — each AC must have corresponding implementation + test. Unverified AC = Critical finding.
+
+### Independent VCS Verification
+
+Before counting findings, lead verifies via VCS:
+
+1. `git diff {base_branch}...HEAD --stat` — confirm scope matches plan
+2. `git log --oneline {base_branch}..HEAD` — confirm commit-per-task
+3. If Jira: each AC has both implementation AND test in the diff
 
 ```text
 Critical == 0 AND Warning == 0?
@@ -431,7 +476,7 @@ If cherry-pick conflicts → note the conflict in backport PR description, assig
 
 - **Max 3 teammates concurrent** — more adds coordination overhead without proportional value
 - **Max 3 loop iterations** — beyond 3 = architectural problem, not fixable by iteration
-- **Max 2 debate rounds** per [debate-protocol.md](../team-review-pr/references/debate-protocol.md)
+- **Max 2 debate rounds** per [debate-protocol.md](../dlc-review/references/debate-protocol.md)
 - **Workers are READ-ONLY during review** — no workers alive during Phase 4
 - **Reviewers are READ-ONLY always** — no file modifications during review
 - **Hard Rules cannot be dropped** — only reclassified with evidence

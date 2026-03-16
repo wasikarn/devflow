@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TaskCompleted hook for team-dev-loop
+# TaskCompleted hook for dlc-build
 # Verifies that completed tasks include evidence (file:line references).
 # Exit code 2 = block completion and send feedback to teammate.
 

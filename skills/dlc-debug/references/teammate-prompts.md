@@ -177,7 +177,7 @@ Message the team lead when all fixes are done.
 When constructing prompts:
 
 1. Replace all `{placeholders}` with actual values from `debug-context.md`
-2. Insert project-specific Hard Rules from the corresponding `tathep-*-review-pr` skill
+2. Insert project-specific Hard Rules from `{project_root}/.claude/skills/review-rules/hard-rules.md` if it exists
 3. Insert validate command from phase-gates.md project detection
 4. For Quick mode, use Quick Mode Fixer prompt (includes condensed DX checklist)
 5. For Full mode, use Full Mode Fixer prompt (references investigation.md)

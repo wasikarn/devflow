@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TeammateIdle hook for team-dev-loop
+# TeammateIdle hook for dlc-build
 # Nudges idle teammates during active phases to stay on task.
 # Exit code 2 = send feedback and keep teammate working.
 

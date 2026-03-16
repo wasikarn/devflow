@@ -5,8 +5,8 @@
 | Level | Available tools | Behavior |
 | --- | --- | --- |
 | **Agent Teams** | TeamCreate, SendMessage | Full workflow — 3 teammates with adversarial debate |
-| **Subagent** | Task (Agent tool) | Same phases, but: reviewers as parallel subagents (existing tathep-\*-review-pr pattern). No debate (can't message). Lead consolidation only. |
-| **Solo** | None (lead only) | Recommend project-specific review skills (`/tathep-*-review-pr`). If none available, lead does sequential checklist-based review. |
+| **Subagent** | Task (Agent tool) | Same phases, but: reviewers as parallel subagents. No debate (can't message). Lead consolidation only. |
+| **Solo** | None (lead only) | Lead does sequential checklist-based review using review-conventions.md. |
 
 Detect at Prerequisite Check and inform user of mode.
 

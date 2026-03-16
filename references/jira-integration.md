@@ -1,6 +1,6 @@
-# Jira Integration for team-* Skills
+# Jira Integration for dlc-* Skills
 
-Shared Jira context injection for team-review-pr, team-dev-loop, and team-debug.
+Shared Jira context injection for dlc-review, dlc-build, and dlc-debug.
 All Jira phases are optional — if no Jira key detected, skip entirely.
 
 ---
@@ -41,7 +41,7 @@ From the issue response, extract and summarize:
 
 ---
 
-## team-review-pr: AC Verification
+## dlc-review: AC Verification
 
 **Phase 0.5: Ticket Understanding** (between Phase 0: Scope Assessment and Phase 1: Project Detection)
 
@@ -60,7 +60,7 @@ From the issue response, extract and summarize:
 
 ---
 
-## team-dev-loop: Scope & Planning
+## dlc-build: Scope & Planning
 
 **Phase 0, Step 2.5: Jira Context** (after Step 2: Classify Mode, before Step 3: Create Context Artifact)
 
@@ -86,7 +86,7 @@ From the issue response, extract and summarize:
 
 ---
 
-## team-debug: Bug Enrichment
+## dlc-debug: Bug Enrichment
 
 **Phase 0, Step 1.5: Jira Context** (after Step 1: Detect Project, before Step 2: Classify Severity)
 

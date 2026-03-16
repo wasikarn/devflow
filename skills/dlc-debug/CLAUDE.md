@@ -1,15 +1,15 @@
-# team-debug skill
+# dlc-debug skill
 
 Systematic debugging with Agent Teams: parallel Investigator + DX Analyst, then Fixer.
 Combines systematic-debugging methodology with DX analysis to fix bugs and harden the affected area.
 
 ## How It Differs from Other Skills
 
-| Aspect | team-review-pr | team-dev-loop | team-debug |
+| Aspect | dlc-review | dlc-build | dlc-debug |
 | --- | --- | --- | --- |
 | Scope | PR review + debate | Full dev loop | Debug + DX harden |
 | Execution | 3 teammates (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
-| Review | Adversarial debate | Embedded (reuses team-review-pr) | N/A (no review phase) |
+| Review | Adversarial debate | Embedded (reuses dlc-review) | N/A (no review phase) |
 | Loop | None | Implement-Review (max 3 iter) | Fix-only (max 3 attempts) |
 | Artifacts | Findings in output | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md |
 
@@ -29,20 +29,20 @@ Combines systematic-debugging methodology with DX analysis to fix bugs and harde
 - `references/teammate-prompts.md` — prompt templates for Investigator, DX Analyst, Fixer (Full + Quick)
 - `references/dx-checklist.md` — DX audit categories with severity criteria
 - `references/phase-gates.md` — gate conditions for every phase transition
-- Project-specific Hard Rules loaded dynamically from `tathep-*-review-pr` skills
+- Project-specific Hard Rules loaded from `{project_root}/.claude/skills/review-rules/hard-rules.md` if present
 
 ## Validate After Changes
 
 ```bash
 # Lint all markdown in this skill
-npx markdownlint-cli2 "skills/team-debug/**/*.md"
+npx markdownlint-cli2 "skills/dlc-debug/**/*.md"
 
 # Verify skill symlink exists
-ls -la ~/.claude/skills/team-debug
+ls -la ~/.claude/skills/dlc-debug
 
 # Test invocation (requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1):
-# /team-debug "NullPointerException in UserService.findById"
-# /team-debug "API returns 500 on empty payload" --quick
+# /dlc-debug "NullPointerException in UserService.findById"
+# /dlc-debug "API returns 500 on empty payload" --quick
 ```
 
 ## Gotchas
@@ -55,5 +55,5 @@ ls -la ~/.claude/skills/team-debug
 - 3 fix attempts max — beyond that is an architectural problem, escalate to user
 - Artifacts written to **target project root** (not this skills repo): `debug-context.md`, `investigation.md`
 - Team cleanup must be done by lead in Phase 3 — teammates don't self-terminate
-- One team per session — cannot run multiple team-debug in parallel
+- One team per session — cannot run multiple dlc-debug in parallel
 - Quick mode still has DX awareness via condensed checklist — not zero DX

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TeammateIdle hook for team-review-pr
+# TeammateIdle hook for dlc-review
 # Nudges idle teammates during active debate rounds to respond.
 # Exit code 2 = send feedback and keep teammate working.
 
