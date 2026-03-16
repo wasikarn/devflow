@@ -115,3 +115,29 @@ From the issue response, extract and summarize:
    ```
 
 6. Include Jira context in Investigator prompt (Phase 1) — helps narrow search area
+
+---
+
+## dlc-respond: Thread Prioritization
+
+**Phase 0, Step 0.5: Jira Context** (after Step 1: Detect Project, before Step 2: Fetch Threads)
+
+1. Fetch ticket per Detection & Fetch above
+2. Extract AC — use to enrich thread severity:
+   - Thread relates to an AC item → severity bump (🔵 Suggestion → 🟡 Important if AC-related)
+   - Thread flagging missing AC implementation → treat as 🔴 Critical regardless of reviewer label
+3. Add to `respond-context.md`:
+
+   ```markdown
+   ## Jira Ticket
+   Key: BEP-XXXX
+   Summary: {summary}
+   Priority: {priority}
+
+   ## Acceptance Criteria
+   - [ ] AC1: {description}
+   - [ ] AC2: {description}
+   ```
+
+4. Include AC context in Fixer prompts — helps Fixer understand business intent behind reviewer comments
+5. **Jira context is informational only** — does not block Phase 0 if fetch fails

@@ -4,10 +4,10 @@ description: "Respond to PR review comments — reads all open GitHub review thr
 argument-hint: "[pr-number] [jira-key?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(gh *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git *), Bash(gh *)
 ---
 
-# Team Respond Review — Address PR Review Comments
+# dlc-respond — Address PR Review Comments
 
 Invoke as `/dlc-respond [pr-number] [jira-key?]`
 
@@ -23,17 +23,21 @@ Invoke as `/dlc-respond [pr-number] [jira-key?]`
 
 Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
 
+## References
+
+| File | Load when |
+| --- | --- |
+| [references/teammate-prompts.md](references/teammate-prompts.md) | Phase 1: creating Fixer teammates |
+| [references/phase-gates.md](references/phase-gates.md) | Any gate transition |
+| [references/operational.md](references/operational.md) | Mode detection, compression recovery, success criteria |
+| [../../references/review-conventions.md](../../references/review-conventions.md) | Phase 2: reply format and comment labels |
+| [../../references/jira-integration.md](../../references/jira-integration.md) | Phase 0 Step 0.5: when Jira key detected in `$1` |
+
 ---
 
 ## Prerequisite Check
 
-Verify agent teams availability:
-
-```text
-If TeamCreate tool is not available → check graceful degradation:
-- If Task (subagent) tool is available → "Agent Teams not enabled. Running in subagent mode."
-- If neither → "Running in solo mode. Lead handles all fixes sequentially."
-```
+Detect mode per [references/operational.md](references/operational.md) Graceful Degradation table. Inform user.
 
 ---
 
@@ -41,77 +45,79 @@ If TeamCreate tool is not available → check graceful degradation:
 
 ### Step 1: Detect Project
 
-Use the `Project` JSON from the header. Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md` and load if present.
+Use the `Project` JSON from the header. Load project-specific Hard Rules from `{project_root}/.claude/skills/review-rules/hard-rules.md` if present.
+
+### Step 0.5: Jira Context (if `$1` present)
+
+If `$1` matches `BEP-\d+`, follow `## dlc-respond` section in [../../references/jira-integration.md](../../references/jira-integration.md) to fetch AC and enrich thread prioritization.
 
 ### Step 2: Fetch All Open Threads
 
+Inline review comments:
+
 ```bash
 gh api repos/{owner}/{repo}/pulls/{pr}/comments \
-  --jq '[.[] | {id, path, line, body, user: .user.login, created_at, html_url}]'
+  --jq '[.[] | {id, path, line, body, user: .user.login, html_url}]'
 ```
 
-Also fetch review-level comments:
+Review-level CHANGES_REQUESTED:
 
 ```bash
-gh pr view {pr} --json reviews --jq '.reviews[] | select(.state == "CHANGES_REQUESTED") | {id, author: .author.login, body, submittedAt}'
+gh pr view {pr} --json reviews \
+  --jq '.reviews[] | select(.state == "CHANGES_REQUESTED") | {id, author: .author.login, body}'
 ```
+
+### Step 2.5: Check Dismissed Patterns
+
+Load `{project_root}/.claude/review-dismissed.md` if present. Threads matching dismissed patterns → note as "Previously dismissed" in triage table (still include — reviewer may have re-raised with new evidence).
 
 ### Step 3: Classify Threads
 
-Group into a triage table:
+Build triage table:
 
 ```markdown
 ## Thread Triage
 
 | # | File | Line | Reviewer | Severity | Issue Summary | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | src/foo.ts | 42 | BIG-TATHEP | 🔴 Critical | ... | Open |
-| 2 | src/bar.ts | 15 | ... | 🟡 Important | ... | Open |
+| 1 | src/foo.ts | 42 | reviewer | 🔴 Critical | ... | Open |
+| 2 | src/bar.ts | 15 | reviewer | 🟡 Important | ... | Open |
 ```
 
 **Severity inference:**
 
-- 🔴 Critical: Hard Rule violation, security issue, data loss risk, incorrect business logic
-- 🟡 Important: Code quality, maintainability, incomplete fix
+- 🔴 Critical: Hard Rule violation, security issue, data loss risk, incorrect business logic, missing AC implementation
+- 🟡 Important: Code quality, maintainability, incomplete fix, AC-related suggestion
 - 🔵 Suggestion: Style, naming, optional improvement
 
-**GATE:** Triage table complete, count confirmed → present to user and proceed.
+### Step 4: Write `respond-context.md`
+
+Write to `{project_root}/respond-context.md` — thread triage table, project info, validate command, Jira context if fetched. Required for context compression recovery.
+
+**GATE:** Triage table confirmed by user → proceed. (See [references/phase-gates.md](references/phase-gates.md) Triage → Fix gate for checklist.)
 
 ---
 
 ## Phase 1: Fix Threads
 
-### Iteration Strategy
+Fix in severity order: 🔴 Critical → 🟡 Important → 🔵 Suggestion (only if user requested).
 
-Fix in severity order: 🔴 Critical first → 🟡 Important → 🔵 Suggestion.
+**Agent Teams mode:** Create 1 Fixer per non-overlapping file group using prompts from [references/teammate-prompts.md](references/teammate-prompts.md).
+**Solo/subagent mode:** Lead fixes sequentially using the same Fixer rules.
 
-**Agent Teams mode:** Create 1 Fixer teammate per non-overlapping file group.
-**Solo/subagent mode:** Lead fixes sequentially.
+**Lead verification gate (before Phase 2):**
 
-### Fixer Instructions
+- Run validate independently: `{validate_command}`
+- Check `git diff --stat` — scope must match thread scope only
+- If validate fails or scope crept → revert and re-fix before proceeding
 
-For each thread:
-
-1. Read the full file context around the flagged line
-2. Understand the reviewer's intent — do not just satisfy the surface complaint
-3. Apply the simplest correct fix — no scope creep beyond the thread
-4. Run validate command after each fix: `{validate_command}`
-5. Commit: `fix(scope): address review comment — {short description}`
-
-**If fix would conflict with another thread:** message lead, fix the higher-severity one first.
-
-**If reviewer's suggestion is incorrect or not applicable:**
-
-- Do NOT blindly implement it
-- Document the reason in the reply: "ไม่ได้ implement เพราะ {reason}"
-
-**GATE:** All Critical + Important threads fixed + validate passes → Phase 2.
+**GATE:** All Critical+Important fixed + Lead-verified validate passes. (See [references/phase-gates.md](references/phase-gates.md) Fix → Reply gate.)
 
 ---
 
 ## Phase 2: Reply to Threads
 
-For each fixed thread, post a reply comment on GitHub:
+Post a reply for each thread. Comment labels per [../../references/review-conventions.md](../../references/review-conventions.md).
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/replies \
@@ -120,23 +126,11 @@ gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/replies \
 
 **Reply format (Thai):**
 
-```text
-แก้ไขแล้วครับ — {commit_sha_short}: {one-line description of what changed}
-```
+- Fixed: `แก้ไขแล้วครับ — {commit_sha_short}: {description}`
+- Declined: `ขอบคุณสำหรับ suggestion ครับ — ยังไม่ได้แก้เพราะ {reason}`
+- Informational: `รับทราบครับ — {acknowledgment}`
 
-**For declined suggestions:**
-
-```text
-ขอบคุณสำหรับ suggestion ครับ — ยังไม่ได้แก้เพราะ {reason}
-```
-
-**For informational 🔵 threads:**
-
-```text
-รับทราบครับ — {acknowledge or note for future}
-```
-
-After replying to all threads, post a summary review comment:
+After all thread replies, post summary:
 
 ```bash
 gh pr review {pr} --comment --body "{summary}"
@@ -157,7 +151,9 @@ Commits: {list of fix commit shas}
 **Validate:** {validate_command} ✅
 ```
 
-**GATE:** All threads replied → Phase 3.
+Update `respond-context.md` progress section after each thread reply.
+
+**GATE:** All threads replied. (See [references/phase-gates.md](references/phase-gates.md) Reply → Re-request gate.)
 
 ---
 
@@ -165,13 +161,6 @@ Commits: {list of fix commit shas}
 
 ```bash
 gh pr edit {pr} --add-reviewer {original_reviewer_login}
-```
-
-Or if reviewer already assigned:
-
-```bash
-gh api repos/{owner}/{repo}/pulls/{pr}/requested_reviewers \
-  -X POST -f reviewers[]={reviewer_login}
 ```
 
 ### Final Summary
@@ -186,13 +175,15 @@ gh api repos/{owner}/{repo}/pulls/{pr}/requested_reviewers \
 **Re-review requested:** {reviewer_login}
 ```
 
+See [references/operational.md](references/operational.md) for Success Criteria checklist and team cleanup steps.
+
 ---
 
 ## Constraints
 
-- **Fix scope = thread scope only** — no refactors beyond what was requested
-- **One commit per thread group** (same file/area can share a commit)
-- **Validate must pass after every commit** — do not batch fixes without validating
-- **Never silently skip a Critical thread** — if unfixable, escalate to user
-- **Max 3 fix attempts per thread** — if still failing after 3 tries, escalate to user
+- **Fix scope = thread scope only** — why: scope creep makes re-review harder and risks introducing new issues unrelated to the review
+- **Validate BEFORE commit** — why: reverting uncommitted changes is cheaper than reverting commits; catches regressions before they enter history
+- **Never silently skip a Critical thread** — why: skipped Criticals become production incidents; if unfixable, the decision must be explicit and documented
+- **Max 3 fix attempts per thread** — why: beyond 3 attempts = architectural mismatch, not a surface fix; further attempts waste tokens without progress
+- **One commit per thread group** — why: enables clean revert of one fix without affecting others
 - **READ the code before fixing** — do not guess at the reviewer's intent

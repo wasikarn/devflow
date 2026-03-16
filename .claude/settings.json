@@ -18,6 +18,15 @@
 						"command": "\"$CLAUDE_PROJECT_DIR\"/hooks/dev-loop-task-gate.sh"
 					}
 				]
+			},
+			{
+				"matcher": "respond",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/hooks/respond-task-gate.sh"
+					}
+				]
 			}
 		],
 		"TeammateIdle": [
@@ -36,6 +45,15 @@
 					{
 						"type": "command",
 						"command": "\"$CLAUDE_PROJECT_DIR\"/hooks/dev-loop-idle-nudge.sh"
+					}
+				]
+			},
+			{
+				"matcher": "respond",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/hooks/respond-idle-nudge.sh"
 					}
 				]
 			}
