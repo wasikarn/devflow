@@ -2,7 +2,7 @@
 
 Prompt templates for fixer teammates (iteration 2+). Lead inserts project-specific values at `{placeholders}`.
 
-## Worker: Fixer (Iteration 2+)
+## Fixer: Fix Findings (Iteration 2+)
 
 ```text
 You are fixing review findings from iteration {iteration_number}.
