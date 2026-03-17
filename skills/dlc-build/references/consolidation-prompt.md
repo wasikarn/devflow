@@ -21,7 +21,7 @@ DEDUP RULES (apply strictly):
 
 CONFIDENCE FILTER:
 - Drop any finding with confidence < threshold for its reviewer role:
-  - Correctness & Security: 75 | Architecture: 80 | DX: 85
+  - Security: 70 | Correctness: 75 | Architecture: 80 | DX: 85
 - Hard Rule violations: always include regardless of confidence
 
 OUTPUT FORMAT for review-findings-{iteration}.md:

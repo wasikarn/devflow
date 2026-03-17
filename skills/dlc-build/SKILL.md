@@ -68,6 +68,12 @@ Phase 0: Triage ──→ Phase 1: Research (Full) ──→ Phase 2: Plan
 | [../../references/jira-integration.md](../../references/jira-integration.md) | Jira key in `$ARGUMENTS` |
 | [references/pr-template.md](references/pr-template.md) | Entering Phase 6 |
 
+## Fallback Behavior
+
+**Jira unreachable:** If Jira fetch fails — proceed with task description as acceptance criteria. Note `[Jira: UNAVAILABLE]` in dev-loop-context.md.
+
+**Mode confirmation timeout:** If user doesn't respond to mode selection within 1 message → default to Full mode and proceed. Note the auto-selection in the triage output.
+
 ---
 
 ## Prerequisite Check
@@ -91,6 +97,7 @@ See [references/operational.md](references/operational.md) for degradation behav
 - **Lead is sole writer of dev-loop-context.md** — workers SendMessage; lead updates the file
 - **Artifacts persist on disk** — `dev-loop-context.md`, plan file, `research.md`, `review-findings-*.md` survive context compression
 - **YAGNI** — implement only what the task requires; speculative abstractions are review findings
+- **Artifacts path** — target project's `.claude/dlc-build/` (NOT this skills repo); plan file → `~/.claude/plans/`
 
 ---
 
@@ -105,5 +112,7 @@ See [references/operational.md](references/operational.md) for degradation behav
 | Review → Assess | Findings consolidated |
 | Assess → Loop | Critical found, iteration < 3 |
 | Assess → Ship | Zero Critical (or user accepts) |
+| Assess → Escalate (STOP) | Iteration 3, still Critical — present 4 options |
+| Ship → Done | User selects completion option |
 
 Full gate details: [references/phase-gates.md](references/phase-gates.md)

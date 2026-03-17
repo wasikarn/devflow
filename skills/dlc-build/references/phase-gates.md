@@ -42,10 +42,10 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 ### Implement → Review
 
 - [ ] All tasks in the plan marked complete
-- [ ] Project validate command passes (e.g. `npm run validate:all`)
+- [ ] Project validate command passes (e.g. `npm run validate:all`) (fallback if validate field empty: `npx tsc --noEmit && npx eslint . --ext .ts,.tsx`)
 - [ ] Each task has at least 1 commit
 - [ ] No uncommitted changes in working tree
-- [ ] All workers shut down (TeamDelete executed or confirmed idle) — reviewers must not spawn while workers are alive
+- [ ] All workers shut down (TeamDelete executed or confirmed idle) — reviewers must not spawn while workers are alive (verify: TeamDelete called or git log shows commit count matches task count)
 - [ ] **Iteration 2+ only:** Regression check passed — `git diff dlc-checkpoint-iter-{N-1}..HEAD` shows no unintended file modifications outside of finding fixes (see Regression Gate in operational.md)
 
 Lead verifies with: `git diff {base_branch}...HEAD --stat` (scope) + `git log --oneline {base_branch}..HEAD` (commit-per-task). See Verification Gate in operational.md.
@@ -71,6 +71,16 @@ Critical count == 0?
 └→ No: iteration < 3?
     ├→ Yes: LOOP (iteration++)
     └→ No: STOP — escalate to user
+```
+
+### Stall Detection
+
+Run after loop decision:
+
+```text
+If iteration ≥ 2 AND Critical count(iter N) ≥ Critical count(iter N-1):
+→ Flag: "No improvement in Critical count between iterations. Likely cause: fixer not reading findings, or architectural issue requiring redesign."
+→ Present to user: "Continue loop" / "Switch to diagnosis mode" / "Rethink approach (return to Phase 2)"
 ```
 
 ### Ship → Done

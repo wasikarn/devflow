@@ -21,12 +21,7 @@ YOUR FOCUS: Rules #1 (correctness), #2 (security), #10 (type safety), #12 (error
 - Type safety: `as any`, unsafe casts, missing null checks
 - Error handling: empty catch, swallowed errors, silent failures
 
-RULES:
-1. Read actual code before flagging — no speculation without file:line evidence
-2. Score confidence 0-100 for each finding
-3. Only report findings above your domain threshold (Security: 70, Correctness: 75)
-4. Hard Rule violations bypass confidence filter — always report
-5. Review ONLY changed files — not pre-existing issues
+RULES: Apply all rules from reviewer-shared-rules.md. Your domain confidence threshold: Security: 70, Correctness: 75.
 6. If confidence is below threshold due to missing context (can't see a referenced module, test setup unclear), send a CONTEXT-REQUEST to team lead before submitting: `CONTEXT-REQUEST: Need [specific file/info] to assess [finding] — should I proceed without it or wait?`
 
 OUTPUT FORMAT:
@@ -58,12 +53,7 @@ YOUR FOCUS: Rules #3 (N+1), #4 (DRY), #5 (flatten/guard clauses), #6 (SOLID), #7
 - SOLID: single responsibility, interface segregation
 - Performance: hot paths, memory leaks, missing indexes
 
-RULES:
-1. Read actual code before flagging — no speculation without file:line evidence
-2. Score confidence 0-100 for each finding
-3. Only report findings above your domain threshold (Architecture: 80)
-4. Hard Rule violations bypass confidence filter — always report
-5. Review ONLY changed files — not pre-existing issues
+RULES: Apply all rules from reviewer-shared-rules.md. Your domain confidence threshold: Architecture: 80.
 6. If confidence is below threshold due to missing context, send a CONTEXT-REQUEST to team lead: `CONTEXT-REQUEST: Need [specific file/info] to assess [finding] — should I proceed without it or wait?`
 
 OUTPUT FORMAT:
@@ -95,12 +85,7 @@ YOUR FOCUS: Rules #8 (naming), #9 (docs), #11 (testability), #12 (debugging).
 - Test quality: tests behavior not implementation, proper edge cases
 - Debugging: are errors actionable? `console.log` in production code?
 
-RULES:
-1. Read actual code before flagging — no speculation without file:line evidence
-2. Score confidence 0-100 for each finding
-3. Only report findings above your domain threshold (DX: 85)
-4. Hard Rule violations bypass confidence filter — always report
-5. Review ONLY changed files — not pre-existing issues
+RULES: Apply all rules from reviewer-shared-rules.md. Your domain confidence threshold: DX: 85.
 6. If confidence is below threshold due to missing context, send a CONTEXT-REQUEST to team lead: `CONTEXT-REQUEST: Need [specific file/info] to assess [finding] — should I proceed without it or wait?`
 
 OUTPUT FORMAT:
@@ -141,3 +126,38 @@ When constructing reviewer prompts:
 4. **Iteration 2+:** Set `{dismissed_findings_path}` to `.claude/dlc-build/review-findings-{N-1}.md` so reviewers check the `## Dismissed` section before submitting. For iteration 1, set to `(none — first iteration)` to disable the dismissed check.
 5. **Domain lenses:** Set `{domain_lenses}` to the relevant lens content from `references/review-lenses/` based on file extensions and Jira labels detected in Phase 0. Leave empty if no domain lens applies.
 6. **Confidence thresholds by role:** Security/Correctness = 70/75, Architecture = 80, DX = 85. Hard Rules bypass all thresholds.
+
+### Lens Selection
+
+Select lenses based on diff content — inject only relevant ones:
+
+| Diff touches | Inject lens |
+| --- | --- |
+| `*.tsx`, `*.jsx`, React components, hooks | `review-lenses/frontend.md` |
+| auth/, middleware, API endpoints, user input | `review-lenses/security.md` |
+| migrations/, `*.sql`, ORM queries, repository layer | `review-lenses/database.md` |
+| data fetching, list rendering, event handlers, hot paths | `review-lenses/performance.md` |
+| `*.ts` type definitions, generics, type guards | `review-lenses/typescript.md` |
+
+Multiple lenses can apply. When in doubt, inject — false positives are filtered by confidence threshold.
+
+## Fallback Debate Protocol
+
+Use this when `dlc-review/references/debate-protocol.md` is not found.
+
+ROUND 1 — Independent positions:
+Each reviewer states their top findings with confidence scores. No discussion yet.
+
+ROUND 2 — Challenge & defend:
+Each reviewer responds to findings from other roles:
+
+- If you agree: add "+1" and any supporting evidence
+- If you disagree: state specific counter-evidence (file:line) — no assertions without evidence
+- If unsure: state "Insufficient context to challenge"
+
+LEAD MODERATES:
+
+- Finding with 2+ reviewers agreeing → retain as-is
+- Finding challenged with evidence → downgrade severity or dismiss with note
+- Finding with no challenges → retain as-is
+- Early exit: if all findings are either agreed or resolved → stop before round 2
