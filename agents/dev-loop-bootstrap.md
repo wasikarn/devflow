@@ -1,6 +1,7 @@
 ---
 name: dev-loop-bootstrap
 description: "Bootstraps dlc-build Phase 1 context by pre-gathering shared project structure, CLAUDE.md conventions, entry points, and key type definitions in one fast pass. Use at the START of Phase 1 before spawning explorers. Output goes to .claude/dlc-build/bootstrap-context.md for injection into explorer prompts."
+argument-hint: "[task-description-or-jira-key]"
 tools: Read, Glob, Bash, Grep
 model: haiku
 ---
@@ -34,7 +35,7 @@ fd -t f "(index|server|app|routes)\.(ts|tsx|js)" --max-depth 4 2>/dev/null | hea
 
 ### 4. Find Key Types in Task Area
 
-Use the task description (`$ARGUMENTS`) to identify the primary area (e.g. "UserService" → look in `src/app/user/` or similar).
+Use the task identifier (`$ARGUMENTS` — may be a Jira key or description) to identify the primary area (e.g. "UserService" → look in `src/app/user/` or similar). If it's a Jira key, the task description is available from the project context.
 
 Try `ast-grep` first, fall back to grep:
 

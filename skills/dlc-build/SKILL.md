@@ -147,7 +147,7 @@ Dispatch `dev-loop-bootstrap` agent (Haiku) with the task description as argumen
 
 ### Step 1: Create Explorer Team
 
-Load [explorer-prompts.md](references/explorer-prompts.md) now. Read `bootstrap-context.md` and inject into each explorer's `BOOTSTRAP CONTEXT` section. Create team `dev-loop-{branch}` with 2-3 explorer teammates:
+Load [explorer-prompts.md](references/explorer-prompts.md) now. Create team `dev-loop-{branch}` with 2-3 explorer teammates:
 
 - **Explorer 1:** Execution paths + patterns in primary area
 - **Explorer 2:** Data model + dependencies + coupling

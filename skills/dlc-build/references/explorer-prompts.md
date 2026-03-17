@@ -10,6 +10,7 @@ You are exploring the codebase for a development task.
 TASK: {task_description}
 PROJECT: {project_name}
 PROJECT HINTS: {project_hints}
+BOOTSTRAP CONTEXT: {bootstrap_context}
 
 YOUR FOCUS: Trace execution paths in the primary area this task will touch.
 
@@ -32,6 +33,7 @@ You are exploring the codebase for a development task.
 TASK: {task_description}
 PROJECT: {project_name}
 PROJECT HINTS: {project_hints}
+BOOTSTRAP CONTEXT: {bootstrap_context}
 
 YOUR FOCUS: Data model, dependencies, and coupling in the area this task touches.
 
@@ -55,6 +57,7 @@ You are exploring the codebase for a development task.
 TASK: {task_description}
 PROJECT: {project_name}
 PROJECT HINTS: {project_hints}
+BOOTSTRAP CONTEXT: {bootstrap_context}
 
 YOUR FOCUS: Find similar implementations in the codebase that can serve as reference.
 
