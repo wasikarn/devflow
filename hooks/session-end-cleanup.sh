@@ -5,4 +5,6 @@ pkill -f "figma-developer-mcp" 2>/dev/null || true
 pkill -f "mcp-server-sequential-thinking" 2>/dev/null || true
 pkill -f "mcp-atlassian" 2>/dev/null || true
 pkill -f "jira-cache-server/server.py" 2>/dev/null || true
+pkill -f "playwright-mcp" 2>/dev/null || true
+pkill -f "mcp-server.cjs" 2>/dev/null || true
 echo '{"ok": true}'
