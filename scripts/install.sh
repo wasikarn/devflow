@@ -150,6 +150,72 @@ create_dirs
 section "settings.json"
 generate_settings "$USERNAME" "$ALLOWED_DOMAINS"
 
+section "MCP binaries (global npm install)"
+for pkg in "@bytebase/dbhub" "figma-developer-mcp" "@modelcontextprotocol/server-sequential-thinking"; do
+  bin_name="${pkg##*/}"
+  bin_name="${bin_name/server-/mcp-server-}"
+  if command -v "$bin_name" &>/dev/null 2>&1 || npm list -g --depth=0 "$pkg" &>/dev/null 2>&1; then
+    info "$pkg — already installed"
+  else
+    echo "  Installing $pkg..."
+    npm install -g "$pkg" && info "$pkg — installed" || warn "$pkg — install failed, run: npm install -g $pkg"
+  fi
+done
+
+section "MCP server configuration (~/.claude.json)"
+CLAUDE_JSON="$HOME/.claude.json"
+if [ ! -f "$CLAUDE_JSON" ]; then
+  warn "~/.claude.json not found — start Claude Code once, then re-run this script to configure MCP servers"
+else
+  python3 - "$CLAUDE_JSON" <<'PYEOF'
+import json, sys, os
+
+path = sys.argv[1]
+with open(path) as f:
+    d = json.load(f)
+
+servers = d.setdefault('mcpServers', {})
+
+# Only set if not already pointing to a global binary (avoid overwriting user customizations)
+def needs_update(key, new_cmd):
+    return key not in servers or servers[key].get('command', '').startswith('npx') or servers[key].get('command', '').startswith('uvx')
+
+updates = {
+    'tathep-db': {
+        'type': 'stdio',
+        'command': '/opt/homebrew/bin/dbhub',
+        'args': ['--config', os.path.expanduser('~') + '/.claude/dbhub.toml']
+    },
+    'figma': {
+        'command': '/opt/homebrew/bin/figma-developer-mcp',
+        'args': ['--stdio']
+    },
+    'sequential-thinking': {
+        'type': 'stdio',
+        'command': '/opt/homebrew/bin/mcp-server-sequential-thinking',
+        'args': [],
+        'env': {}
+    },
+    'context7': {
+        'command': '/opt/homebrew/bin/context7-mcp',
+    },
+}
+
+changed = []
+for key, cfg in updates.items():
+    if needs_update(key, cfg['command']):
+        servers[key] = cfg
+        changed.append(key)
+
+if changed:
+    with open(path, 'w') as f:
+        json.dump(d, f, indent=2)
+    print(f"  ✓ MCP servers updated: {', '.join(changed)}")
+else:
+    print("  ✓ MCP servers — already configured")
+PYEOF
+fi
+
 section "QMD"
 if command -v qmd &>/dev/null; then
   info "qmd — already installed ($(command -v qmd))"

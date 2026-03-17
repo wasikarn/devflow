@@ -112,6 +112,15 @@
             "command": "$HOME/.claude/hooks/post-compact-context.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/session-start-mcp-cleanup.sh",
+            "async": true
+          }
+        ]
       }
     ],
     "PreToolUse": [
