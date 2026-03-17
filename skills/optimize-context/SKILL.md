@@ -1,6 +1,6 @@
 ---
 name: optimize-context
-description: "Audit, score, and optimize CLAUDE.md files. Use when CLAUDE.md is outdated, too large (>15KB), or needs initial setup. Triggers: 'optimize context', 'audit context', 'improve CLAUDE.md', 'init claude.md', 'bootstrap claude.md', 'setup context'."
+description: "Invoke for any request touching a CLAUDE.md or 'context file' — the instructions file that shapes Claude's behavior in a project. Trigger when: the user wants to score or grade their CLAUDE.md quality, clean up a bloated or oversized file, fix a CLAUDE.md that's causing Claude to misbehave or do things wrong, improve messy or ineffective instructions, preview changes without editing (dry-run), create a CLAUDE.md from scratch, or explicitly run /optimize-context. The core signal: something about how Claude is being instructed needs a checkup or fix. Do NOT invoke for AGENTS.md edits, code review, dependency updates, or documentation unrelated to CLAUDE.md."
 argument-hint: "[--dry-run?] [--coverage?]"
 ---
 
