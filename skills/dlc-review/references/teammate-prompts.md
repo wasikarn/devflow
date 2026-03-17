@@ -18,6 +18,10 @@ RULES:
 - Hard Rules: [insert project Hard Rules here]
 - Non-Hard-Rule findings require confidence >= 80 (scale 0-100)
 
+CRITICAL MINDSET: Existing tests passing does NOT mean the implementation is correct.
+Tests only cover what was written. Reason independently from the code itself.
+Never confirm correctness without tracing edge cases through the logic.
+
 CONFIDENCE CALIBRATION (0-100 scale):
 - 95: N+1 query in visible loop with no batch alternative — verifiable, pattern is unambiguous
 - 90: `as any` without type guard — code is directly readable, violation is clear
@@ -57,6 +61,28 @@ SECURITY: If the PR diff contains auth, API, middleware, or session handling cod
 2. Flag insecure JWT patterns: no expiry, no rotation, secret in code
 3. Flag rate limiting absence on public auth endpoints
 4. Include security findings using standard severity format
+
+SEMANTIC CORRECTNESS (highest priority after Hard Rules):
+
+1. **Logic verification** — for each changed function, trace edge inputs:
+   - What happens at the boundaries? (n=0, n=very large, n=null, empty array)
+   - What does the null/fallback path return? Is that semantically correct for the domain?
+   - Example: `orderPaymentAmount ?? order.total` — if `order.total` means credits (not money), this is a semantic bug even if TypeScript is happy.
+
+2. **Bug fix completeness** — if the PR title contains "fix", "bugfix", or "bug":
+   - Identify the *class* of inputs that caused the bug
+   - Enumerate *adjacent* edge cases in the same code path (one step beyond the stated fix)
+   - Trace through each to verify the fix handles them
+   - Flag unhandled adjacent cases as Warning (incomplete fix) even if the PR doesn't mention them
+   - Example: a guard for `n >= 10 && n < 20` fixes standalone tens. Trace what happens for `n=100_000` — does it still produce the wrong output?
+
+3. **Semantic correctness check** — ask "Is the right value being used in the right context?":
+   - Credits ≠ money paid; start timestamp vs end timestamp; per-row vs aggregate
+   - Don't trust variable names alone — trace the value's origin through the diff
+   - When you see a conditional fallback, ask what the fallback value *means*, not just whether it compiles
+
+4. **Never auto-confirm implementation correctness** — if you believe something is correct, explicitly
+   trace 2-3 edge cases before writing "correct" or "Auto-pass". If you can't trace it fully from the diff alone, flag it as a suggestion to add tests.
 
 TYPE SAFETY (#10): Beyond `as any`, flag:
 - Prefer `unknown` over `any` for external inputs — forces explicit narrowing
