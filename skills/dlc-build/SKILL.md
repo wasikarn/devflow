@@ -127,7 +127,24 @@ Follow [workflow-modes.md](references/workflow-modes.md) §Branch Setup — crea
 
 ### Step 3: Create Context Artifact
 
-`mkdir -p .claude/dlc-build` and write `.claude/dlc-build/dev-loop-context.md` with fields: Task, Mode, Project, Validate, Started, Branch, `Phase: triage`, Hard Rules, Jira context. Update `Phase:` at every gate transition — enables session resume (Step 0).
+`mkdir -p .claude/dlc-build` and write `.claude/dlc-build/dev-loop-context.md` with YAML frontmatter + Markdown body:
+
+```yaml
+---
+task: "{task_description}"
+mode: full|quick|hotfix
+phase: triage
+iteration: 0
+branch: "{branch_name}"
+project: "{project_name}"
+validate: "{validate_command}"
+started: "{YYYY-MM-DD}"
+jira: "{JIRA-KEY-or-empty}"
+tasks_completed: []
+---
+```
+
+Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Update `phase:` field at every gate transition. Append completed task IDs to `tasks_completed:` list after each worker commit (enables granular crash recovery).
 
 ### Step 4: Initialize Progress Tracker
 

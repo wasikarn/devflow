@@ -67,7 +67,7 @@ If no response after ~3 minutes: kill teammate via TeamDelete, analyze state fro
 
 If session compacts mid-workflow, re-read in order:
 
-1. `.claude/dlc-build/dev-loop-context.md` — task, mode, project, Hard Rules
+1. `.claude/dlc-build/dev-loop-context.md` — read YAML frontmatter for phase/iteration/tasks_completed, Markdown body for Hard Rules
 2. Plan file — `~/.claude/plans/` — open the most recently modified `.md` file (all modes use native plan)
 3. Latest `.claude/dlc-build/review-findings-*.md` — current iteration findings (if in loop)
 4. Progress tracker in conversation — iteration count and phase
