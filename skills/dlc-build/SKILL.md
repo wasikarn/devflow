@@ -237,6 +237,8 @@ Load [worker-prompts.md](references/worker-prompts.md) now. Create 1-2 worker te
 
 **Controller provides full task text** — copy task descriptions into the worker creation prompt. Workers follow TDD: failing test → implement → green → commit. After each commit, worker appends task ID to `tasks_completed:` in dev-loop-context.md.
 
+Per-commit spot-check: after each worker task commit, lead runs `git show HEAD --stat` — verify file scope matches task, no unintended files touched.
+
 On validate failure: see Checkpoint Recovery in [operational.md](references/operational.md).
 
 #### Iteration 2+: Fix Findings
@@ -283,7 +285,7 @@ Load [debate-protocol.md](../dlc-review/references/debate-protocol.md) only for 
 
 ### Review Output
 
-Write findings to `.claude/dlc-build/review-findings-{iteration}.md` per [review-output-format.md](../../references/review-output-format.md).
+Write findings to `.claude/dlc-build/review-findings-{iteration}.md` per [review-output-format.md](../../references/review-output-format.md). Full mode iter 1 with 3 reviewers: delegate consolidation + dedup to a Haiku subagent receiving ONLY the raw findings tables — removes main context bias from ranking.
 
 **GATE:** Findings consolidated → update `Phase: review` in dev-loop-context.md → proceed to Assess.
 
