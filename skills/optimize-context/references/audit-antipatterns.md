@@ -13,6 +13,8 @@ Common patterns that waste context tokens or degrade agent performance. Use duri
 | Unresolved TODOs | "TODO: document auth flow" | Dead content; either complete or remove |
 | Aspirational statements | "We strive for clean code" | Not actionable; no behavior change |
 | Copy-paste template text | `<placeholder>` left unfilled | Literal template artifacts that confuse the agent |
+| Migration tombstone | "validators/ removed in v2.0", "migrated from Heroku to AWS", "renamed MONGO_URI to MONGODB_URL" | Historical change log — if the migration is done, the note is noise; agent acts on current state, not history |
+| Infrastructure history | "switched from yarn to npm in 2023" | Past decisions irrelevant to current operation; remove unless actively in transition |
 
 ## Category: Stale (must fix)
 

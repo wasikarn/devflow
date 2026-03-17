@@ -169,6 +169,14 @@ Apply changes following these priorities:
 3. **Deduplicate** → replace with pointers to agent_docs/rules
 4. **Compress** → tables + one-liners over prose
 
+**Novel content rule:** If Phase 1 identified post-cutoff APIs or custom internal APIs:
+
+- If `agent_docs/` exists with docs → add pipe-delimited index pointing to it
+- If `agent_docs/` does NOT exist → document the API inline (key exports, breaking changes, usage patterns) — a docs pointer to a non-existent dir is worse than inline docs
+- Also add the command to generate docs if an official tool exists (e.g. `npx @next/codemod@canary agents-md`)
+
+**Command completeness:** Ensure every script in `package.json` / `Makefile` / `Taskfile` that an agent would need is in the Commands section. The pre-scan output contains `npm_scripts` — compare against what's already documented and add any missing commands.
+
 For compression techniques: [references/compression-guide.md](references/compression-guide.md).
 For templates by project type: [references/templates.md](references/templates.md).
 
