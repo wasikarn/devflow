@@ -40,3 +40,4 @@ When constructing worker prompts:
 3. Insert validate command from [phase-gates.md](phase-gates.md) project detection
 4. Worker prompts should reference the plan tasks by number for trackability
 5. **Copy full task text** into each worker prompt — workers should not need to read the plan independently
+6. Commit messages: workers can delegate commit creation to the `commit-finalizer` agent (Haiku) after completing each task — pass task description as argument. Saves Sonnet cost on mechanical commit work.
