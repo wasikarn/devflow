@@ -60,11 +60,11 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments \
   --jq '[.[] | {id, path, line, body, user: .user.login, html_url}]'
 ```
 
-Review-level CHANGES_REQUESTED:
+Review-level comments (CHANGES_REQUESTED + COMMENTED):
 
 ```bash
 gh pr view {pr} --json reviews \
-  --jq '.reviews[] | select(.state == "CHANGES_REQUESTED") | {id, author: .author.login, body}'
+  --jq '.reviews[] | select(.state == "CHANGES_REQUESTED" or .state == "COMMENTED") | {id, author: .author.login, body, state}'
 ```
 
 ### Step 2.5: Check Dismissed Patterns
@@ -78,17 +78,25 @@ Build triage table:
 ```markdown
 ## Thread Triage
 
-| # | File | Line | Reviewer | Severity | Issue Summary | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | src/foo.ts | 42 | reviewer | 🔴 Critical | ... | Open |
-| 2 | src/bar.ts | 15 | reviewer | 🟡 Important | ... | Open |
+| # | File | Line | Reviewer | Severity | Issue Summary | Status | AC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | src/foo.ts | 42 | reviewer | 🔴 Critical | ... | Open | AC1 |
+| 2 | src/bar.ts | 15 | reviewer | 🟡 Important | ... | Open | — |
 ```
+
+`AC` column: populated only when `$1` Jira key provided — `AC1`, `AC2`, etc. for threads relating to an AC item; `—` for unrelated threads.
 
 **Severity inference:**
 
 - 🔴 Critical: Hard Rule violation, security issue, data loss risk, incorrect business logic, missing AC implementation
 - 🟡 Important: Code quality, maintainability, incomplete fix, AC-related suggestion
 - 🔵 Suggestion: Style, naming, optional improvement
+
+**Conventional Comments decoration overrides** (scan thread body first):
+
+- `(non-blocking)` in thread body → override to 🔵 Suggestion regardless of content
+- `(blocking)` in thread body → override to 🔴 Critical regardless of content
+- No decoration → use severity inference above
 
 ### Step 4: Write `respond-context.md`
 
@@ -101,6 +109,12 @@ Write to `{project_root}/respond-context.md` — thread triage table, project in
 ## Phase 1: Fix Threads
 
 Fix in severity order: 🔴 Critical → 🟡 Important → 🔵 Suggestion (only if user requested).
+
+**Bootstrap (Lead — before spawning Fixers):**
+
+1. Read all affected files (files listed in triage table)
+2. Run `git log --oneline -5 -- {affected_files}` for recent change context
+3. Include pre-gathered content as shared context in each Fixer prompt — avoids redundant per-Fixer reads
 
 **Agent Teams mode:** Create 1 Fixer per non-overlapping file group using prompts from [references/teammate-prompts.md](references/teammate-prompts.md).
 **Solo/subagent mode:** Lead fixes sequentially using the same Fixer rules.
@@ -124,10 +138,12 @@ gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/replies \
   -f body="{reply_body}"
 ```
 
+**Before posting replies:** Lead verifies `git log --oneline -10` — confirm that the sha in each planned reply matches the commit whose message references that thread. Mismatched sha → fix the reply before posting.
+
 **Reply format (Thai):**
 
 - Fixed: `แก้ไขแล้วครับ — {commit_sha_short}: {description}`
-- Declined: `ขอบคุณสำหรับ suggestion ครับ — ยังไม่ได้แก้เพราะ {reason}`
+- Declined: `ขอบคุณสำหรับ suggestion ครับ — ไม่ได้แก้เพราะ [เลือก {current_approach} เพราะ {tradeoff}] — ถ้าแก้ตาม suggestion อาจ [specific_consequence] — ถ้า concern ยังอยู่ รบกวน clarify เพิ่มเติมได้ครับ`
 - Informational: `รับทราบครับ — {acknowledgment}`
 
 After all thread replies, post summary:
@@ -149,6 +165,8 @@ gh pr review {pr} --comment --body "{summary}"
 Commits: {list of fix commit shas}
 
 **Validate:** {validate_command} ✅
+
+ขอความกรุณา resolve conversation threads ที่ fixed แล้วได้เลยครับ (GitHub ไม่อนุญาตให้ author resolve threads ของ reviewer ผ่าน API)
 ```
 
 Update `respond-context.md` progress section after each thread reply.

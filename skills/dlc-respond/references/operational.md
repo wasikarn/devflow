@@ -10,6 +10,26 @@
 
 Detect at Prerequisite Check and inform user of mode.
 
+## Bootstrap
+
+Before spawning Fixers (Phase 1), Lead pre-gathers shared context:
+
+1. Read all affected files (files listed in triage table)
+2. `git log --oneline -5 -- {affected_files}` — recent change context per file
+3. Attach pre-gathered content to each Fixer prompt under "Shared File Context" heading
+
+This prevents each Fixer from redundantly reading the same files and reduces total token spend, especially in Agent Teams mode with 2–3 parallel Fixers.
+
+## De-escalation Protocol
+
+When a reviewer responds negatively to a decline or the exchange becomes heated:
+
+1. **Do not reply immediately** — read the reviewer's message again objectively before responding
+2. **Check for missed context** — did the reviewer provide new information that changes the tradeoff? If yes, reconsider the decline
+3. **Partial acknowledgment** — if reviewer's concern has merit even partially, implement the partial fix and update the decline reply
+4. **Escalate to human** — if consensus is impossible after two exchange rounds, stop replying and surface to user: "Thread #{N} — reviewer and I disagree on [X]. Here are both positions. How would you like to proceed?"
+5. **Never reply defensively** — courtesy is non-negotiable; if the next reply would be defensive, escalate to human instead
+
 ## Context Compression Recovery
 
 If session compacts mid-workflow, re-read in order:
@@ -18,6 +38,23 @@ If session compacts mid-workflow, re-read in order:
 2. `git log --oneline -10` — see which threads already have fix commits
 3. Re-fetch open GitHub threads — compare with triage table to find unresolved threads
 4. Resume from first unresolved thread in the triage table
+
+### Progress Section Template
+
+`respond-context.md` must include a Progress section with this structure:
+
+```markdown
+## Progress
+
+| Thread # | Status | Commit |
+| --- | --- | --- |
+| 1 | ✅ Fixed | abc1234 |
+| 2 | 🔄 In progress | — |
+| 3 | ⏳ Pending | — |
+| 4 | ❌ Declined | — |
+```
+
+Update this table after each thread fix and after each reply post. Used by crash recovery to find first unresolved thread without re-reading the full triage table.
 
 ## Success Criteria
 

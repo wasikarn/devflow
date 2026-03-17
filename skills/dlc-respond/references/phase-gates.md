@@ -37,14 +37,15 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 - [ ] Validate command passes — **Lead runs independently**, not Fixer self-report
 - [ ] `git diff --stat` confirms scope matches thread scope (no unrequested changes)
 - [ ] No fix introduced a new Critical issue
+- [ ] Lead verified commit sha per thread: `git log --oneline -10` confirms sha in planned reply matches the commit for that thread's fix
 
 ### Reply → Re-request
 
 - [ ] Reply posted for every thread:
   - Fixed → `แก้ไขแล้วครับ — {commit_sha_short}: {description}`
-  - Declined → `ขอบคุณสำหรับ suggestion ครับ — ยังไม่ได้แก้เพราะ {reason}`
+  - Declined → `ขอบคุณสำหรับ suggestion ครับ — ไม่ได้แก้เพราะ [เลือก {approach} เพราะ {tradeoff}] — ถ้าแก้ตาม suggestion อาจ [consequence] — ถ้า concern ยังอยู่ รบกวน clarify เพิ่มเติมได้ครับ`
   - Informational → `รับทราบครับ — {acknowledgment}`
-- [ ] Summary review comment posted (`gh pr review --comment`)
+- [ ] Summary review comment posted (`gh pr review --comment`) includes request for reviewer to resolve fixed conversation threads
 - [ ] `respond-context.md` progress section updated
 
 ### Re-request → Done
