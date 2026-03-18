@@ -2,7 +2,7 @@
 
 A Claude Code plugin — 8 workflow skills, 7 custom agents, 13 lifecycle hooks, and 2 output styles for structured development and PR review workflows.
 
-**Plugin name:** `claude-code-skills` · **Repo:** `wasikarn/dotclaude`
+**Plugin name:** `claude-code-skills` · **Repo:** `wasikarn/claude-code-skills`
 
 ---
 
@@ -24,7 +24,7 @@ No cloning required. Claude Code handles everything.
 ### Step 1 — Install the plugin
 
 ```bash
-claude plugin install wasikarn/dotclaude
+claude plugin install wasikarn/claude-code-skills
 ```
 
 ### Step 2 — Verify installation
@@ -70,8 +70,8 @@ For contributors or users who want to customize everything and have it symlinked
 ### Step 1 — Clone the repo
 
 ```bash
-git clone git@github.com:wasikarn/dotclaude.git ~/Codes/Personals/dotclaude
-cd ~/Codes/Personals/dotclaude
+git clone git@github.com:wasikarn/claude-code-skills.git ~/Codes/Personals/claude-code-skills
+cd ~/Codes/Personals/claude-code-skills
 ```
 
 ### Step 2 — Run the install script
@@ -200,7 +200,7 @@ qmd update && qmd embed
 ## Repo Structure
 
 ```text
-dotclaude/
+claude-code-skills/
 ├── .claude-plugin/
 │   └── plugin.json       # Plugin manifest
 ├── skills/               → ~/.claude/skills/

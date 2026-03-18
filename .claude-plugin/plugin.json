@@ -8,7 +8,7 @@
     "name": "kobig",
     "url": "https://github.com/wasikarn"
   },
-  "repository": "https://github.com/wasikarn/dotclaude",
+  "repository": "https://github.com/wasikarn/claude-code-skills",
   "skills": "./skills/",
   "agents": "./agents/",
   "commands": "./commands/",

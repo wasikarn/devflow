@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-**Plugin name:** `claude-code-skills` · **Repo:** `wasikarn/dotclaude`
+**Plugin name:** `claude-code-skills` · **Repo:** `wasikarn/claude-code-skills`
 
-A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install wasikarn/dotclaude` or symlinked directly to `~/.claude/`.
+A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install wasikarn/claude-code-skills` or symlinked directly to `~/.claude/`.
 
 ## Docs Index
 

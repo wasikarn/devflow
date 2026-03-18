@@ -231,10 +231,10 @@ bash "$REPO_ROOT/scripts/link-skill.sh"
 
 section "zshrc (optional)"
 echo ""
-echo "  dotclaude includes an optimized ~/.zshrc (atuin, fzf-tab, lazy NVM, ~0.11s startup)."
+echo "  claude-code-skills includes an optimized ~/.zshrc (atuin, fzf-tab, lazy NVM, ~0.11s startup)."
 echo "  WARNING: This will REPLACE your existing ~/.zshrc."
 echo ""
-read -r -p "  Link dotclaude zshrc → ~/.zshrc? [y/N]: " LINK_ZSHRC
+read -r -p "  Link claude-code-skills zshrc → ~/.zshrc? [y/N]: " LINK_ZSHRC
 if [[ "${LINK_ZSHRC,,}" == "y" ]]; then
   bash "$REPO_ROOT/scripts/link-skill.sh" --zshrc
 else
