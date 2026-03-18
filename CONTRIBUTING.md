@@ -63,18 +63,18 @@ Changes to symlinked files take effect immediately. Restart only needed for sett
 
 1. Create `skills/<name>/SKILL.md` with YAML frontmatter
 2. Create `skills/<name>/CLAUDE.md` with contributor context (architecture, gotchas, validate commands)
-3. Add `references/` docs if the skill needs supporting material
+3. Add `references/` directory for multi-phase skills or skills exceeding ~100 lines — move templates, checklists, and examples there
 4. Symlink: `bash scripts/link-skill.sh <name>`
 5. Lint: `npx markdownlint-cli2 "skills/<name>/**/*.md"`
 
-### Required frontmatter fields
+### Frontmatter fields
 
 ```yaml
 ---
-name: skill-name
-description: "What it does, when to use it, trigger keywords. Max 1024 chars."
-argument-hint: "[required-arg] [optional-arg?]"
-compatibility: "List required tools, e.g. Requires gh CLI and git."
+name: skill-name                                                     # required
+description: "What it does, when to use it, trigger keywords. Max 1024 chars."  # required
+argument-hint: "[required-arg] [optional-arg?]"                      # recommended if skill accepts arguments
+compatibility: "List required tools, e.g. Requires gh CLI and git."  # recommended if skill uses external tools
 ---
 ```
 
