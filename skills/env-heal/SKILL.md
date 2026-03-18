@@ -4,7 +4,7 @@ description: "Scans codebase for environment variable references, cross-referenc
 context: fork
 agent: general-purpose
 argument-hint: "[--quick?] [--dry-run?]"
-compatibility: "Run from within the tathep-platform-api repo"
+compatibility: "Run from within the project repo. Supports AdonisJS (Env.schema), dotenv (.env.example), and any Node.js project."
 model: haiku
 ---
 

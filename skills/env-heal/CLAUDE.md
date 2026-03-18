@@ -14,7 +14,7 @@ Runs as isolated subagent (`context: fork`).
 - `SKILL.md` — 7-phase workflow: discover → read schema → gap analysis → classify → fix → test → report
 - **`--quick` mode** skips Phase 1 (codebase scan) and Phase 4 (classify), only comparing schema vs example — replaces the former `env-check` skill
 - Runs in `context: fork` with `agent: general-purpose` — isolated subagent, no lead context
-- Target: tathep-platform-api primarily (AdonisJS `Env.schema`), but grep patterns work for any Node.js project
+- Target: any Node.js project — AdonisJS (`Env.schema`), dotenv (`.env.example`), or custom schema
 
 ## Validate After Changes
 
@@ -25,7 +25,7 @@ npx markdownlint-cli2 "skills/env-heal/**/*.md"
 # Verify symlink
 ls -la ~/.claude/skills/env-heal
 
-# Invoke (run in tathep-platform-api repo):
+# Invoke (run in your project repo):
 # /env-heal            # full mode
 # /env-heal --quick    # schema vs example only (former env-check)
 ```

@@ -1,6 +1,6 @@
 # merge-pr skill
 
-Automates git-flow merge and deploy workflows for tathep projects (platform-api, website, admin).
+Automates git-flow merge and deploy workflows for any project following git-flow branching.
 
 ## Architecture
 
