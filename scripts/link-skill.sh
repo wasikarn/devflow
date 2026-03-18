@@ -10,7 +10,14 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Asset types: repo_subdir:claude_target (each item in subdir gets symlinked individually)
-ASSET_TYPES="skills:$HOME/.claude/skills agents:$HOME/.claude/agents output-styles:$HOME/.claude/output-styles hooks:$HOME/.claude/hooks commands:$HOME/.claude/commands scripts:$HOME/.claude/scripts"
+ASSET_TYPES=(
+  "skills:$HOME/.claude/skills"
+  "agents:$HOME/.claude/agents"
+  "output-styles:$HOME/.claude/output-styles"
+  "hooks:$HOME/.claude/hooks"
+  "commands:$HOME/.claude/commands"
+  "scripts:$HOME/.claude/scripts"
+)
 
 # Dotfiles: individual repo_file:claude_target pairs (space-separated, pipe-delimited entries)
 # Note: zshrc is intentionally excluded — use link-skill.sh --zshrc to opt-in
@@ -73,7 +80,7 @@ link_dotfiles() {
 }
 
 list_status() {
-  for entry in $ASSET_TYPES; do
+  for entry in "${ASSET_TYPES[@]}"; do
     local type="${entry%%:*}"
     local dst_dir="${entry#*:}"
     local src_dir="$REPO_ROOT/$type"
@@ -132,7 +139,7 @@ case "${1:-}" in
     ;;
   "")
     echo "Linking all assets → ~/.claude/"
-    for entry in $ASSET_TYPES; do
+    for entry in "${ASSET_TYPES[@]}"; do
       type="${entry%%:*}"
       dst_dir="${entry#*:}"
       echo ""

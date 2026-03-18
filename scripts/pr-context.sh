@@ -9,11 +9,15 @@ BASE="${2:-develop}"
 
 # PR metadata (1 API call)
 PR_JSON=$(gh pr view "$PR" --json title,body,labels,author,comments 2>/dev/null || echo '{}')
-TITLE=$(echo "$PR_JSON" | jq -r '.title // empty')
-AUTHOR=$(echo "$PR_JSON" | jq -r '.author.login // empty')
-BODY_PREVIEW=$(echo "$PR_JSON" | jq -r '.body // empty' | head -c 200)
-LABELS_JSON=$(echo "$PR_JSON" | jq -c '[.labels[].name]' 2>/dev/null || echo '[]')
-COMMENT_COUNT=$(echo "$PR_JSON" | jq '.comments | length' 2>/dev/null || echo "0")
+
+# Parse all fields in one jq pass (avoids 5 separate subshells + parse cycles)
+eval "$(printf '%s' "$PR_JSON" | jq -r '
+  "TITLE=" + (.title // "" | @sh),
+  "AUTHOR=" + (.author.login // "" | @sh),
+  "BODY_PREVIEW=" + (.body // "" | .[0:200] | @sh),
+  "LABELS_JSON=" + ([.labels[].name] | tojson | @sh),
+  "COMMENT_COUNT=" + (.comments | length | tostring)
+')" 2>/dev/null || { TITLE=""; AUTHOR=""; BODY_PREVIEW=""; LABELS_JSON='[]'; COMMENT_COUNT=0; }
 
 # Diff stats
 DIFF_STAT=$(gh pr diff "$PR" --stat 2>/dev/null || git diff "${BASE}...HEAD" --stat 2>/dev/null || echo "")

@@ -67,14 +67,15 @@ esac
 if [ "$PROJECT" = "unknown" ] && [ -z "$VALIDATE" ]; then
   # Try package.json scripts
   if [ -f "package.json" ]; then
-    # Look for common validate script names in order of preference
-    if grep -q '"validate:all"' package.json 2>/dev/null; then
+    # Scan package.json once, check extracted names in-memory (avoids 5 separate forks)
+    SCRIPTS=$(grep -oE '"(validate:all|validate|typecheck|ts-check|type-check|test)"' package.json 2>/dev/null | tr -d '"' | sort -u)
+    if echo "$SCRIPTS" | grep -qx 'validate:all'; then
       VALIDATE="npm run validate:all"
-    elif grep -q '"validate"' package.json 2>/dev/null; then
+    elif echo "$SCRIPTS" | grep -qx 'validate'; then
       VALIDATE="npm run validate"
-    elif grep -q '"test"' package.json 2>/dev/null && grep -q '"typecheck"\|"ts-check"\|"type-check"' package.json 2>/dev/null; then
+    elif echo "$SCRIPTS" | grep -qE '^(typecheck|ts-check|type-check)$' && echo "$SCRIPTS" | grep -qx 'test'; then
       VALIDATE="npm run typecheck && npm test"
-    elif grep -q '"test"' package.json 2>/dev/null; then
+    elif echo "$SCRIPTS" | grep -qx 'test'; then
       VALIDATE="npm test"
     fi
     # Detect package manager (bun preferred if bun.lockb exists)
