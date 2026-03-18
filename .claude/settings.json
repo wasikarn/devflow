@@ -69,15 +69,6 @@
     ],
     "SessionStart": [
       {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/hooks/post-compact-context.sh"
-          }
-        ]
-      },
-      {
         "matcher": "startup",
         "hooks": [
           {
@@ -104,28 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=$(cat | jq -r '.tool_input.file_path // empty'); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE '\\.md$'; then npx markdownlint-cli2 --fix \"$FILE\" 2>/dev/null; fi"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "If stop_hook_active is true in the input, respond {\"ok\": true} immediately. Otherwise: Focus ONLY on the most recent user message and the assistant's immediate response to it. Do NOT treat previous stop hook feedback messages in conversation history as evidence of pending work — those are historical records. Check: (1) Did the assistant directly answer what the user just asked? (2) Are there TodoWrite items in-progress that were promised this turn but not completed? (3) Did the assistant explicitly promise something this turn and not deliver it? If all pass, respond {\"ok\": true}. If work from THIS TURN is genuinely unfinished, respond {\"ok\": false, \"reason\": \"what specifically remains from this turn\"}."
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"Claude Code\"'"
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE '\\.md$'; then npx markdownlint-cli2 --fix \"$FILE\" 2>/dev/null; fi"
           }
         ]
       }
