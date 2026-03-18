@@ -36,7 +36,7 @@ Phase 0→1→2→ [3: Implement ↔ 4: Review ↔ 5: Assess loop (max 3)] →6:
 
 ## Reference Loading (on demand only)
 
-| File | Load when |
+| File / Agent | Load when |
 | --- | --- |
 | [references/phase-0-triage.md](references/phase-0-triage.md) | Entering Phase 0 |
 | [references/phase-1-research.md](references/phase-1-research.md) | Entering Phase 1 (Full mode) |
