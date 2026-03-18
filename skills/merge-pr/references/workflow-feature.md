@@ -47,11 +47,10 @@ If user presses Enter: `gh pr list --base develop --state open`
 Mode:   Feature/bugfix merge
 Branch: {branch} → develop
 PR:     #{pr_number}
-
-Proceed? [y/N]
 ```
 
-Abort if N.
+Call `AskUserQuestion` (question: "Proceed with merge?", header: "Confirm",
+options: Yes/No as defined in SKILL.md § Confirmation Gate). Abort if "No, abort".
 
 **[5/6] Merge PR**
 

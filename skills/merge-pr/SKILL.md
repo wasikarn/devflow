@@ -47,9 +47,9 @@ Run all checks before any merge operation. Abort immediately on failure unless n
 | 1 | Clean working tree | `git status --porcelain` | output non-empty — uncommitted changes break rebase |
 | 2 | Fetch remote | `git fetch origin` | fails — stale state causes wrong rebase decisions |
 | 3 | PR status | `gh pr view --json isDraft,state,mergeable --jq '{isDraft,state,mergeable}'` | isDraft=true, state=MERGED, or mergeable=CONFLICTING |
-| 4 | CI checks | `gh pr checks` | any failing → **warn** only ("CI failing. --admin will bypass. Continue? [y/N]") |
+| 4 | CI checks | `gh pr checks` | any failing → **warn** via `AskUserQuestion` ("CI failing — --admin will bypass. Continue?") |
 | 5 | No PR found | (if auto-detect returns empty) | prompt user for PR number |
-| 6 | Mode 2/3: concurrent hotfix | see command below table | any result → **warn** ("Found open hotfix PR. Proceed anyway? [y/N]") |
+| 6 | Mode 2/3: concurrent hotfix | see command below table | any result → **warn** via `AskUserQuestion` ("Found open hotfix PR. Proceed anyway?") |
 
 Check 6 command (concurrent hotfix detection):
 
@@ -74,7 +74,7 @@ Load the relevant reference file now, then follow its steps exactly.
 
 ## Confirmation Gate
 
-Before any merge, tag, or delete operation, show this summary and require explicit `y` confirmation:
+Before any merge, tag, or delete operation, show this summary then use `AskUserQuestion` with Yes/No options:
 
 ```text
 === merge-pr: Ready to execute ===
@@ -84,11 +84,15 @@ Version: {current} → {next} (Mode 2/3 only)
 Tag:     v{version} (Mode 2/3 only)
 Backport: {backport_target} (Mode 2/3 only)
 PR:      #{pr_number}
-
-Proceed? [y/N]
 ```
 
-Abort cleanly if user answers N.
+Call `AskUserQuestion` with:
+
+- question: "Proceed with merge?"
+- header: "Confirm"
+- options: `[{ label: "Yes, proceed", description: "Execute merge and all follow-up steps" }, { label: "No, abort", description: "Cancel — no changes will be made" }]`
+
+Abort cleanly if user selects "No, abort".
 
 ---
 
@@ -122,11 +126,11 @@ Report at every step:
 | Dirty working tree | Abort: "Uncommitted changes. Commit or stash first." |
 | Draft PR | Abort: "PR is still draft. Mark ready for review first." |
 | PR already merged | Abort: "PR already merged. Nothing to do." |
-| CI checks failing | Warn: "CI failing. --admin will bypass. Continue? [y/N]" |
+| CI checks failing | Warn via `AskUserQuestion`: "CI failing — --admin will bypass. Continue?" (Yes/No) |
 | No PR found for branch | Prompt user for PR number or offer `gh pr list` |
 | Rebase conflict | Abort: "Rebase conflict. Resolve manually then re-run /merge-pr" |
 | Tag already exists | Abort: "Tag v{version} already exists. Bump version manually first." |
-| Concurrent open hotfix PR | Warn: "Found open hotfix PR #{n}. Proceed anyway? [y/N]" |
+| Concurrent open hotfix PR | Warn via `AskUserQuestion`: "Found open hotfix PR #{n}. Proceed anyway?" (Yes/No) |
 | Active release branch during hotfix | Auto-detect and backport to release branch instead of develop |
 | Backport cherry-pick conflict | Create PR but don't auto-merge: "Backport has conflicts — manual resolution needed." |
 | No GitHub remote | Abort: "No GitHub remote found. Cannot use gh CLI." |

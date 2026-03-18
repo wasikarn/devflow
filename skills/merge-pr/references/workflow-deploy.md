@@ -112,9 +112,9 @@ Add new section at the top of CHANGELOG.md (after the `# Changelog` header):
 - {generated entries — edit as needed}
 ```
 
-Show draft to user and ask: "Review CHANGELOG entries. Edit if needed, then confirm to continue. [y/N]"
-
-Wait for confirmation before proceeding.
+Show draft to user, then call `AskUserQuestion` (question: "Review CHANGELOG entries — proceed?",
+header: "CHANGELOG", options: `[{ label: "Looks good, continue" }, { label: "Abort" }]`).
+Abort if "Abort".
 
 ---
 
@@ -135,11 +135,10 @@ Branch:  {branch} → main
 Version: {current} → {next_version}
 Tag:     v{next_version}
 Backport: {backport_target}
-
-Proceed? [y/N]
 ```
 
-Abort if N.
+Call `AskUserQuestion` (question: "Proceed with merge?", header: "Confirm",
+options: Yes/No as defined in SKILL.md § Confirmation Gate). Abort if "No, abort".
 
 ---
 
