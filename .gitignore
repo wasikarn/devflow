@@ -1,6 +1,7 @@
 .worktrees/
 skills/.DS_Store
 docs/superpowers
+docs/specs
 skill-creator-workspace/
 prompts/
 eval-workspace/
