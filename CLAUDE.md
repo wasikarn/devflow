@@ -73,27 +73,26 @@ Current agents (7):
 
 ## Hooks
 
-Lifecycle hooks automate actions at specific points. Configured in `.claude/settings.json` or `~/.claude/settings.json`.
+Hooks live at `hooks/`. Two sources of truth:
 
-Active hooks — `P` = `.claude/settings.json` (project), `G` = `~/.claude/settings.json` (global):
+### Plugin hooks (`hooks/hooks.json`) — distributed automatically with the plugin
 
-| Event | Matcher | Script | What it does | Loc |
-| --- | --- | --- | --- | --- |
-| `SessionStart` | `startup` | `session-start-context.sh` | Inject git state on fresh session | P |
-| `SessionStart` | `compact` | `post-compact-context.sh` | Re-inject context after compaction | G |
-| `PreToolUse` | `Edit\|Write` | `protect-files.sh` | Block edits to `.claude/settings.json` | P |
-| `PostToolUse` | `Edit\|Write` | _(inline)_ | Auto-lint `.md` files after edits | P |
-| `Stop` | — | _(prompt)_ | Verify tasks complete before stopping (with `stop_hook_active` guard) | G |
-| `TaskCompleted` | `review-debate` | `task-gate.sh` | Verify file:line evidence in review/debate task completions | P |
-| `TaskCompleted` | `dev-loop` | `task-gate.sh` | Verify file:line evidence in dev-loop task completions | P |
-| `TaskCompleted` | `respond` | `task-gate.sh` | Verify file:line evidence in respond task completions | P |
-| `TeammateIdle` | `review-pr` | `idle-nudge.sh` | Nudge idle teammates during debate rounds | P |
-| `TeammateIdle` | `dev-loop` | `idle-nudge.sh` | Nudge idle dev-loop teammates to stay on task | P |
-| `TeammateIdle` | `respond` | `idle-nudge.sh` | Nudge idle Fixer teammates | P |
-| `TeammateIdle` | `debug-` | `idle-nudge.sh` | Nudge idle Investigator teammates | P |
-| `Notification` | `*` | _(inline)_ | macOS desktop alert when input needed | G |
+| Event | Matcher | Script | What it does |
+| --- | --- | --- | --- |
+| `SessionStart` | `startup` | `check-deps.sh` | Warn if required tools (`jq`, `gh`, `rtk`) are missing |
+| `SessionStart` | `startup` | `session-start-context.sh` | Inject git branch + uncommitted changes into context |
+| `UserPromptSubmit` | — | `skill-routing.sh` | Detect keywords, suggest relevant skill before responding |
+| `PreToolUse` | `Edit\|Write` | `protect-files.sh` | Block edits to `.claude/settings.json` |
+| `PostToolUse` | `Edit\|Write` | _(inline)_ | Auto-lint `.md` files with `markdownlint-cli2 --fix` |
+| `PostToolUse` | `Write` | `shellcheck-written-scripts.sh` | Auto-validate `.sh` files Claude writes |
+| `TaskCompleted` | `review-debate\|dev-loop\|respond` | `task-gate.sh` | Require file:line evidence before agent tasks complete |
+| `TeammateIdle` | `review-pr\|dev-loop\|respond\|debug-` | `idle-nudge.sh` | Nudge idle Agent Teams teammates back on task |
 
-Hook scripts live at `hooks/` and are symlinked to `~/.claude/hooks/` via `link-skill.sh`. `task-gate.sh` and `idle-nudge.sh` are parameterized via env vars in each matcher's command string.
+`task-gate.sh` and `idle-nudge.sh` are parameterized via `GATE_PATTERN`/`NUDGE_PATTERN` env vars set in each matcher's command string.
+
+### Project hooks (`.claude/settings.json`) — active only in this repo
+
+These are already configured in `.claude/settings.json` (checked into the repo). They duplicate the plugin hooks above so contributors working via symlinks get the same behavior without having the plugin installed.
 
 ## Output Styles
 
@@ -103,24 +102,25 @@ Output styles replace the default system prompt's coding instructions unless `ke
 
 Current styles: `thai-tech-lead` (Thai language tech lead mode), `coding-mentor` (explains architecture decisions inline while coding)
 
-## Global CLAUDE.md
-
-`global-CLAUDE.md` at repo root is a tracked copy of `~/.claude/CLAUDE.md` — serves as version-controlled backup and reference. Not auto-loaded; sync manually when updating the global file.
-
 ## Plugin
 
-Plugin manifest at `.claude-plugin/plugin.json` packages this skills collection for distribution. Install via `gh` or direct clone — see [Claude Code plugins docs](https://code.claude.com/docs/en/plugins.md).
+Plugin manifest at `.claude-plugin/plugin.json`. Install:
+
+```bash
+claude plugin install wasikarn/claude-code-skills
+claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
+```
+
+`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is required for all DLC skills (dlc-build, dlc-review, dlc-respond, dlc-debug) to spawn Agent Teams.
 
 ## Adding a New Skill
 
-1. Create `skills/<name>/SKILL.md` with YAML frontmatter
-2. Add `argument-hint` if the skill takes arguments; add `compatibility` for prerequisite tools
-3. Add `references/` docs if the skill needs supporting material
-4. Keep `description:` trigger-complete (what + when + keywords) — max 1024 chars
-5. Use `disable-model-invocation: true` for side-effect skills (deploy, PR review)
-6. Create `skills/<name>/CLAUDE.md` with contributor context: architecture overview, validate commands, gotchas specific to this skill
-7. Install symlink: `bash scripts/link-skill.sh <name>` (or `--list` to check, no args to link all)
-8. Lint: `npx markdownlint-cli2 "skills/<name>/**/*.md"` — pre-commit hook auto-fixes staged `.md` files
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full step-by-step guide. Key rules for Claude when editing:
+
+- `description:` must be trigger-complete (what + when + keywords) — max 1024 chars
+- `disable-model-invocation: true` for side-effect skills (deploy, PR review, merge)
+- `compatibility:` must list all required external tools
+- Pre-commit hook auto-fixes staged `.md` files — no manual lint needed before commit
 
 ## Repo Commands
 

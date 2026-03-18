@@ -179,6 +179,7 @@ These hooks are active automatically after plugin install:
 | `session-start-context.sh` | SessionStart | Inject git branch + uncommitted changes into context |
 | `skill-routing.sh` | UserPromptSubmit | Auto-suggest relevant skills based on prompt keywords |
 | `protect-files.sh` | PreToolUse[Edit\|Write] | Block Claude from editing `.claude/settings.json` directly |
+| _(inline)_ | PostToolUse[Edit\|Write] | Auto-lint `.md` files with `markdownlint-cli2 --fix` |
 | `shellcheck-written-scripts.sh` | PostToolUse[Write] | Auto-validate shell scripts Claude writes |
 | `task-gate.sh` | TaskCompleted | Require file:line evidence before agent tasks complete |
 | `idle-nudge.sh` | TeammateIdle | Nudge idle teammates during Agent Teams workflows |
@@ -195,6 +196,21 @@ These hooks are active automatically after plugin install:
 | Command | Description |
 | --- | --- |
 | `analyze-claude-features` | Analyze Claude Code features and capabilities |
+
+---
+
+## Optional: Jira Integration
+
+DLC skills (`dlc-build`, `dlc-review`, `dlc-respond`, `dlc-debug`) can auto-fetch Jira ticket context when you pass a ticket key as argument (e.g. `/claude-code-skills:dlc-build PROJ-123`).
+
+Configure one of these MCP servers:
+
+| MCP Server | How to install | Notes |
+| --- | --- | --- |
+| `mcp-atlassian` | See [mcp-atlassian docs](https://github.com/sooperset/mcp-atlassian) | Direct Jira API |
+| `jira-cache-server` | See [jira-cache-server docs](https://github.com/wasikarn/jira-cache-server) | Cached, faster |
+
+If neither is configured, skills skip Jira context silently and work normally.
 
 ---
 
