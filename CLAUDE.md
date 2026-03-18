@@ -61,23 +61,23 @@ Current agents: `tathep-reviewer` (code reviewer with persistent memory), `skill
 
 Lifecycle hooks automate actions at specific points. Configured in `.claude/settings.json` or `~/.claude/settings.json`.
 
-Active hooks (in `.claude/settings.json`):
+Active hooks — `P` = `.claude/settings.json` (project), `G` = `~/.claude/settings.json` (global):
 
-| Event | Matcher | Script | What it does |
-| --- | --- | --- | --- |
-| `SessionStart` | `startup` | `session-start-context.sh` | Inject git state on fresh session |
-| `SessionStart` | `compact` | `post-compact-context.sh` | Re-inject context after compaction |
-| `PreToolUse` | `Edit\|Write` | `protect-files.sh` | Block edits to `.claude/settings.json` |
-| `PostToolUse` | `Edit\|Write` | _(inline)_ | Auto-lint `.md` files after edits |
-| `Stop` | — | _(prompt)_ | Verify tasks complete before stopping (with `stop_hook_active` guard) |
-| `TaskCompleted` | `review-debate` | `task-gate.sh` | Verify file:line evidence in review/debate task completions |
-| `TaskCompleted` | `dev-loop` | `task-gate.sh` | Verify file:line evidence in dev-loop task completions |
-| `TaskCompleted` | `respond` | `task-gate.sh` | Verify file:line evidence in respond task completions |
-| `TeammateIdle` | `review-pr` | `idle-nudge.sh` | Nudge idle teammates during debate rounds |
-| `TeammateIdle` | `dev-loop` | `idle-nudge.sh` | Nudge idle dev-loop teammates to stay on task |
-| `TeammateIdle` | `respond` | `idle-nudge.sh` | Nudge idle Fixer teammates |
-| `TeammateIdle` | `debug-` | `idle-nudge.sh` | Nudge idle Investigator teammates |
-| `Notification` | `*` | _(inline)_ | macOS desktop alert when input needed |
+| Event | Matcher | Script | What it does | Loc |
+| --- | --- | --- | --- | --- |
+| `SessionStart` | `startup` | `session-start-context.sh` | Inject git state on fresh session | P |
+| `SessionStart` | `compact` | `post-compact-context.sh` | Re-inject context after compaction | G |
+| `PreToolUse` | `Edit\|Write` | `protect-files.sh` | Block edits to `.claude/settings.json` | P |
+| `PostToolUse` | `Edit\|Write` | _(inline)_ | Auto-lint `.md` files after edits | P |
+| `Stop` | — | _(prompt)_ | Verify tasks complete before stopping (with `stop_hook_active` guard) | G |
+| `TaskCompleted` | `review-debate` | `task-gate.sh` | Verify file:line evidence in review/debate task completions | P |
+| `TaskCompleted` | `dev-loop` | `task-gate.sh` | Verify file:line evidence in dev-loop task completions | P |
+| `TaskCompleted` | `respond` | `task-gate.sh` | Verify file:line evidence in respond task completions | P |
+| `TeammateIdle` | `review-pr` | `idle-nudge.sh` | Nudge idle teammates during debate rounds | P |
+| `TeammateIdle` | `dev-loop` | `idle-nudge.sh` | Nudge idle dev-loop teammates to stay on task | P |
+| `TeammateIdle` | `respond` | `idle-nudge.sh` | Nudge idle Fixer teammates | P |
+| `TeammateIdle` | `debug-` | `idle-nudge.sh` | Nudge idle Investigator teammates | P |
+| `Notification` | `*` | _(inline)_ | macOS desktop alert when input needed | G |
 
 Hook scripts live at `hooks/` and are symlinked to `~/.claude/hooks/` via `link-skill.sh`. `task-gate.sh` and `idle-nudge.sh` are parameterized via env vars in each matcher's command string.
 
@@ -88,6 +88,10 @@ Custom output styles live at `output-styles/<name>.md` with frontmatter (`name`,
 Output styles replace the default system prompt's coding instructions unless `keep-coding-instructions: true`. Use for consistent formatting/tone across sessions.
 
 Current styles: `thai-tech-lead` (Thai language tech lead mode), `coding-mentor` (explains architecture decisions inline while coding)
+
+## Global CLAUDE.md
+
+`global-CLAUDE.md` at repo root is a tracked copy of `~/.claude/CLAUDE.md` — serves as version-controlled backup and reference. Not auto-loaded; sync manually when updating the global file.
 
 ## Plugin
 
@@ -117,6 +121,6 @@ Plugin manifest at `.claude-plugin/plugin.json` packages this skills collection 
 ## Gotchas
 
 - `context: fork` + `agent` field runs skills in isolated subagent — available but not used in this repo (removed for real-time streaming visibility and follow-up interaction)
-- Pre-commit hook auto-fixes staged `.md` files — runs `scripts/fix-tables.py` + `markdownlint-cli2 --fix`; no manual fix needed before commit
+- Pre-commit hook auto-fixes staged `.md` files — runs `scripts/fix-tables.sh` + `markdownlint-cli2 --fix`; no manual fix needed before commit
 - `disable-model-invocation: true` removes description from context entirely (skill never auto-triggers); `user-invocable: false` hides from menu but keeps context — different effects
 - Run `/optimize-context` when this file feels stale

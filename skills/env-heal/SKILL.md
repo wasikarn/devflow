@@ -1,6 +1,6 @@
 ---
 name: env-heal
-description: "Scans codebase for environment variable references, cross-references with validation schema, auto-fixes and tests. Use when env vars are missing from schema or .env.example, when environment variable errors appear at startup, or when .env files are out of sync. Triggers: heal env, fix env, env heal, env check, check env, validate env, missing env var, env not defined, environment variable error, .env out of sync."
+description: "Scans codebase for environment variable references, cross-references with validation schema, auto-fixes and tests. Use this skill whenever env vars are missing from schema or .env.example, whenever environment variable errors appear at startup, or whenever .env files are out of sync. Always invoke when the user mentions missing env vars, broken env config, or wants to validate environment setup. Triggers: heal env, fix env, env heal, env check, check env, validate env, missing env var, env not defined, environment variable error, .env out of sync."
 context: fork
 agent: general-purpose
 argument-hint: "[--quick?] [--dry-run?]"
