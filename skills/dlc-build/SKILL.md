@@ -46,13 +46,15 @@ Phase 0→1→2→ [3: Implement ↔ 4: Review ↔ 5: Assess loop (max 3)] →6:
 | [references/phase-5-assess.md](references/phase-5-assess.md) | Entering Phase 5 |
 | [references/phase-6-ship.md](references/phase-6-ship.md) | Entering Phase 6 |
 | [references/workflow-modes.md](references/workflow-modes.md) | Phase 0 — mode classification |
-| `references/modes/feature.md` · `references/modes/quick.md` · `references/modes/hotfix.md` | Phase 0 Step 2.5 — load the file matching the confirmed mode |
+| [references/modes/feature.md](references/modes/feature.md) · [references/modes/quick.md](references/modes/quick.md) · [references/modes/hotfix.md](references/modes/hotfix.md) | Phase 0 Step 2.5 — load the file matching the confirmed mode |
 | [references/operational.md](references/operational.md) | Phase 0 (degradation) + Phase 3 end (Verification Gate) + on crash |
 | [references/phase-gates.md](references/phase-gates.md) | At each phase transition |
 | [references/explorer-prompts.md](references/explorer-prompts.md) | Entering Phase 1 |
 | [references/worker-prompts.md](references/worker-prompts.md) | Entering Phase 3 iter 1 |
 | [references/fixer-prompts.md](references/fixer-prompts.md) | Entering Phase 3 iter 2+ |
 | [references/reviewer-prompts.md](references/reviewer-prompts.md) | Entering Phase 4 |
+| [references/reviewer-shared-rules.md](references/reviewer-shared-rules.md) | Phase 4 — shared reviewer rules/output format (referenced by reviewer templates) |
+| [references/review-lenses/frontend.md](references/review-lenses/frontend.md) · [security.md](references/review-lenses/security.md) · [database.md](references/review-lenses/database.md) · [performance.md](references/review-lenses/performance.md) · [typescript.md](references/review-lenses/typescript.md) | Phase 4 — domain lenses injected per diff content (see Lens Selection in reviewer-prompts.md) |
 | `review-consolidator` agent | Phase 4 iter 1 (3 reviewers) — consolidate findings |
 | [../../references/review-conventions.md](../../references/review-conventions.md) | Entering Phase 4 |
 | [../../references/review-output-format.md](../../references/review-output-format.md) | Entering Phase 4 |
