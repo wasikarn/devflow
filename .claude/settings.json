@@ -157,7 +157,8 @@
           {
             "type": "command",
             "async": true,
-            "command": "NOTIFY=1 \"$CLAUDE_PROJECT_DIR\"/hooks/stop-failure-log.sh"
+            "command": "NOTIFY=1 \"$CLAUDE_PROJECT_DIR\"/hooks/stop-failure-log.sh",
+            "timeout": 5
           }
         ]
       }

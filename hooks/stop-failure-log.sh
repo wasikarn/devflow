@@ -24,9 +24,12 @@ LOG_FILE="$LOG_DIR/$(date +%Y-%m-%d).log"
   [ -n "$ERROR_DETAILS" ] && echo "details: $ERROR_DETAILS"
 } >> "$LOG_FILE"
 
+# Sanitize for AppleScript string interpolation (strip double-quotes and backslashes)
+SAFE_ERROR=$(echo "$ERROR" | tr -d '"\\')
+
 # macOS notification (opt-in via NOTIFY=1)
 if [ "${NOTIFY:-0}" = "1" ] && command -v osascript > /dev/null 2>&1; then
-  osascript -e "display notification \"Session stopped: $ERROR\" with title \"Claude Code\" subtitle \"API Error\"" 2>/dev/null || true
+  osascript -e "display notification \"Session stopped: $SAFE_ERROR\" with title \"Claude Code\" subtitle \"API Error\"" 2>/dev/null || true
 fi
 
 exit 0
