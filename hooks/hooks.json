@@ -88,6 +88,19 @@
         ]
       }
     ],
+    "StopFailure": [
+      {
+        "matcher": "rate_limit|max_output_tokens|billing_error|server_error",
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/stop-failure-log.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "TaskCompleted": [
       {
         "matcher": "review-debate",

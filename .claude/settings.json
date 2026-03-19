@@ -149,6 +149,18 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "matcher": "rate_limit|max_output_tokens|billing_error|server_error",
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "NOTIFY=1 \"$CLAUDE_PROJECT_DIR\"/hooks/stop-failure-log.sh"
+          }
+        ]
+      }
     ]
   }
 }
