@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # check-deps.sh — SessionStart hook (startup)
-# Checks required tools for claude-code-skills plugin.
+# Checks required tools for dev-loop plugin.
 # Outputs a warning to Claude's context if any are missing.
 # Silent if all tools are present.
 
@@ -19,5 +19,5 @@ check "gh"  "brew install gh && gh auth login"         "required by dlc-build, d
 check "rtk" "brew install rtk  (https://rtk-ai.app/)" "recommended — token-optimized git/gh output in DLC skills"
 
 if [ -n "$MISSING" ]; then
-  printf "## ⚠️  claude-code-skills: Missing Dependencies\n\nThe following tools are not installed. Some skills and hooks will not work correctly:\n%b\n\nInstall missing tools and restart Claude Code to dismiss this warning.\n" "$MISSING"
+  printf "## ⚠️  dev-loop: Missing Dependencies\n\nThe following tools are not installed. Some skills and hooks will not work correctly:\n%b\n\nInstall missing tools and restart Claude Code to dismiss this warning.\n" "$MISSING"
 fi

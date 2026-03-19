@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-**Plugin name:** `claude-code-skills` · **Repo:** `wasikarn/claude-code-skills`
+**Plugin name:** `dev-loop` · **Repo:** `wasikarn/dev-loop`
 
-A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install wasikarn/claude-code-skills`.
+A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install wasikarn/dev-loop`.
 
 ## Docs Index
 
@@ -104,7 +104,7 @@ Current styles: `senior-software-engineer` (Thai language, pragmatic senior engi
 Plugin manifest at `.claude-plugin/plugin.json`. Install:
 
 ```bash
-claude plugin install wasikarn/claude-code-skills
+claude plugin install wasikarn/dev-loop
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 

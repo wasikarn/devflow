@@ -1,10 +1,10 @@
 <div align="center">
 
-# claude-code-skills
+# dev-loop
 
 **A Claude Code plugin for structured development, PR review, and debugging — powered by Agent Teams.**
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/wasikarn/claude-code-skills/releases)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/wasikarn/dev-loop/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-8-blue?style=flat-square)](#skills)
 [![Agents](https://img.shields.io/badge/agents-8-purple?style=flat-square)](#agents)
@@ -40,7 +40,7 @@
 ## Quick Start
 
 ```bash
-claude plugin install wasikarn/claude-code-skills
+claude plugin install wasikarn/dev-loop
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 
@@ -84,7 +84,7 @@ gh auth login
 #### Step 3 — Install the plugin
 
 ```bash
-claude plugin install wasikarn/claude-code-skills
+claude plugin install wasikarn/dev-loop
 ```
 
 #### Step 4 — Enable Agent Teams
@@ -103,7 +103,7 @@ Close and reopen Claude Code. On next session start, the plugin automatically ch
 
 ```bash
 claude plugin list
-# Expected output includes: claude-code-skills
+# Expected output includes: dev-loop
 ```
 
 ---
@@ -117,8 +117,8 @@ For contributors who want to edit skills and see changes immediately without rei
 **1.** Clone the repository:
 
 ```bash
-git clone git@github.com:wasikarn/claude-code-skills.git
-cd claude-code-skills
+git clone git@github.com:wasikarn/dev-loop.git
+cd dev-loop
 ```
 
 **2.** Install prerequisites _(same as Option A above)_
@@ -203,10 +203,10 @@ The primary workflow for any coding task. Runs Research → Plan → Implement �
 **Usage:**
 
 ```bash
-/claude-code-skills:dlc-build "add rate limiting to the API"
-/claude-code-skills:dlc-build PROJ-1234           # auto-fetches Jira AC
-/claude-code-skills:dlc-build PROJ-1234 --quick   # skip research for small fixes
-/claude-code-skills:dlc-build PROJ-1234 --hotfix  # urgent production incident
+/dev-loop:dlc-build "add rate limiting to the API"
+/dev-loop:dlc-build PROJ-1234           # auto-fetches Jira AC
+/dev-loop:dlc-build PROJ-1234 --quick   # skip research for small fixes
+/dev-loop:dlc-build PROJ-1234 --hotfix  # urgent production incident
 ```
 
 **Modes:**
@@ -229,10 +229,10 @@ Three agents independently review a PR, then debate their findings in rounds to 
 **Usage:**
 
 ```bash
-/claude-code-skills:dlc-review 42                  # PR number
-/claude-code-skills:dlc-review 42 PROJ-1234        # with Jira AC verification
-/claude-code-skills:dlc-review 42 Author           # apply fixes directly to the branch
-/claude-code-skills:dlc-review 42 Reviewer         # post findings as GitHub review comments
+/dev-loop:dlc-review 42                  # PR number
+/dev-loop:dlc-review 42 PROJ-1234        # with Jira AC verification
+/dev-loop:dlc-review 42 Author           # apply fixes directly to the branch
+/dev-loop:dlc-review 42 Reviewer         # post findings as GitHub review comments
 ```
 
 **Modes:**
@@ -253,8 +253,8 @@ Fetches all open GitHub review threads on a PR, groups them by file, fixes each 
 **Usage:**
 
 ```bash
-/claude-code-skills:dlc-respond 42
-/claude-code-skills:dlc-respond 42 PROJ-1234   # with Jira AC context for prioritization
+/dev-loop:dlc-respond 42
+/dev-loop:dlc-respond 42 PROJ-1234   # with Jira AC context for prioritization
 ```
 
 ---
@@ -268,10 +268,10 @@ Two agents run in parallel: an Investigator traces the root cause through logs, 
 **Usage:**
 
 ```bash
-/claude-code-skills:dlc-debug "NullPointerException in UserService"
-/claude-code-skills:dlc-debug PROJ-5678           # from a Jira bug ticket
-/claude-code-skills:dlc-debug PROJ-5678 --quick   # fix only, skip DX analysis
-/claude-code-skills:dlc-debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
+/dev-loop:dlc-debug "NullPointerException in UserService"
+/dev-loop:dlc-debug PROJ-5678           # from a Jira bug ticket
+/dev-loop:dlc-debug PROJ-5678 --quick   # fix only, skip DX analysis
+/dev-loop:dlc-debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
 ```
 
 ---
@@ -285,9 +285,9 @@ Automates the full merge and release process following git-flow conventions: ver
 **Usage:**
 
 ```bash
-/claude-code-skills:merge-pr 42           # feature/bugfix → develop
-/claude-code-skills:merge-pr --hotfix     # hotfix → main + backport to develop
-/claude-code-skills:merge-pr --release    # release → main + tag + backport
+/dev-loop:merge-pr 42           # feature/bugfix → develop
+/dev-loop:merge-pr --hotfix     # hotfix → main + backport to develop
+/dev-loop:merge-pr --release    # release → main + tag + backport
 ```
 
 **Requires:** `gh` CLI (authenticated), clean working tree, GitHub remote.
@@ -301,9 +301,9 @@ Scores a CLAUDE.md file across quality dimensions, identifies bloat and gaps, an
 **Usage:**
 
 ```bash
-/claude-code-skills:optimize-context
-/claude-code-skills:optimize-context --dry-run    # preview without editing
-/claude-code-skills:optimize-context --coverage   # include coverage analysis
+/dev-loop:optimize-context
+/dev-loop:optimize-context --dry-run    # preview without editing
+/dev-loop:optimize-context --coverage   # include coverage analysis
 ```
 
 ---
@@ -315,8 +315,8 @@ Scans the codebase for all env var references, cross-references against the vali
 **Usage:**
 
 ```bash
-/claude-code-skills:env-heal          # full scan and fix
-/claude-code-skills:env-heal --quick  # schema vs .env.example only
+/dev-loop:env-heal          # full scan and fix
+/dev-loop:env-heal --quick  # schema vs .env.example only
 ```
 
 **Supports:** AdonisJS (`Env.schema`), dotenv (`.env.example`), and any Node.js project.
@@ -330,8 +330,8 @@ Helps think through complex architecture decisions by mapping causal loops, iden
 **Usage:**
 
 ```bash
-/claude-code-skills:systems-thinking "should we move to microservices?"
-/claude-code-skills:systems-thinking "what happens if we remove the cache layer?"
+/dev-loop:systems-thinking "should we move to microservices?"
+/dev-loop:systems-thinking "what happens if we remove the cache layer?"
 ```
 
 ---
@@ -350,7 +350,7 @@ A typical feature cycle using the DLC skills together.
 ### Step 1 — Build the feature
 
 ```bash
-/claude-code-skills:dlc-build PROJ-1234
+/dev-loop:dlc-build PROJ-1234
 ```
 
 Claude fetches the Jira acceptance criteria, spawns Explorer agents to map the existing auth middleware, produces a `plan.md`, implements the feature with tests, then runs a 3-reviewer debate on the diff. If reviewers flag issues, the Fixer agent iterates until the loop passes. A PR is opened automatically.
@@ -362,7 +362,7 @@ Claude fetches the Jira acceptance criteria, spawns Explorer agents to map the e
 Your teammate leaves inline comments on the PR.
 
 ```bash
-/claude-code-skills:dlc-respond 42
+/dev-loop:dlc-respond 42
 ```
 
 Claude fetches all open review threads on PR #42, groups them by file, fixes each in parallel, commits the changes, and posts replies to close every thread.
@@ -372,7 +372,7 @@ Claude fetches all open review threads on PR #42, groups them by file, fixes eac
 ### Step 3 — Final review pass before merge
 
 ```bash
-/claude-code-skills:dlc-review 42 PROJ-1234 Author
+/dev-loop:dlc-review 42 PROJ-1234 Author
 ```
 
 Three agents independently re-examine the updated PR against the Jira AC, debate their findings, and apply any remaining fixes. You get a final verdict with signal percentage.
@@ -382,7 +382,7 @@ Three agents independently re-examine the updated PR against the Jira AC, debate
 ### Step 4 — Merge
 
 ```bash
-/claude-code-skills:merge-pr 42
+/dev-loop:merge-pr 42
 ```
 
 Claude handles the git-flow merge: squash into `develop`, version bump, CHANGELOG update, and post-merge verification.
@@ -581,13 +581,13 @@ Restart Claude Code after setting.
 
 ```bash
 claude plugin list
-# Expected: claude-code-skills appears
+# Expected: dev-loop appears
 ```
 
 If missing, reinstall:
 
 ```bash
-claude plugin install wasikarn/claude-code-skills
+claude plugin install wasikarn/dev-loop
 ```
 
 ### Warning about missing tools at session start
@@ -605,7 +605,7 @@ Then restart Claude Code to dismiss the warning.
 
 Jira is optional. If you want it, configure `mcp-atlassian` or `jira-cache-server`. See [Jira Integration](#jira-integration).
 
-### Plugin skills show as `claude-code-skills:skill-name`
+### Plugin skills show as `dev-loop:skill-name`
 
 This is correct. Skills installed via plugin are namespaced automatically to avoid conflicts.
 
@@ -624,7 +624,7 @@ Re-run `bash scripts/link-skill.sh` if any are missing.
 ## Repo Structure
 
 ```text
-claude-code-skills/
+dev-loop/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest
 ├── skills/                   # Skill entry points (SKILL.md per skill)
