@@ -321,6 +321,128 @@ Helps think through complex architecture decisions by mapping causal loops, iden
 
 ---
 
+## Full Workflow Example — Jira Ticket to Merged PR
+
+A typical feature cycle using the DLC skills together.
+
+### Scenario
+
+> **BEP-1234** — "Add rate limiting to auth endpoints"
+> Your team wants to prevent brute-force attacks on `/login` and `/refresh`.
+
+---
+
+### Step 1 — Build the feature
+
+```bash
+/claude-code-skills:dlc-build BEP-1234
+```
+
+Claude fetches the Jira acceptance criteria, spawns Explorer agents to map the existing auth middleware, produces a `plan.md`, implements the feature with tests, then runs a 3-reviewer debate on the diff. If reviewers flag issues, the Fixer agent iterates until the loop passes. A PR is opened automatically.
+
+---
+
+### Step 2 — Address reviewer comments
+
+Your teammate leaves inline comments on the PR.
+
+```bash
+/claude-code-skills:dlc-respond 42
+```
+
+Claude fetches all open review threads on PR #42, groups them by file, fixes each in parallel, commits the changes, and posts replies to close every thread.
+
+---
+
+### Step 3 — Final review pass before merge
+
+```bash
+/claude-code-skills:dlc-review 42 BEP-1234 Author
+```
+
+Three agents independently re-examine the updated PR against the Jira AC, debate their findings, and apply any remaining fixes. You get a final verdict with signal percentage.
+
+---
+
+### Step 4 — Merge
+
+```bash
+/claude-code-skills:merge-pr 42
+```
+
+Claude handles the git-flow merge: squash into `develop`, version bump, CHANGELOG update, and post-merge verification.
+
+---
+
+## dlc-review Example Output
+
+What a typical `dlc-review` run produces (condensed):
+
+```markdown
+---
+
+## 📋 PR #42 — BEP-1234 | Author Mode | 🟡
+
+**PR:** feat: add rate limiting to auth endpoints
+**Author:** kobig | **Files changed:** 6 | **Lines changed:** +142 −18 | **Today:** 2026-03-19
+
+---
+
+### Phase 1: Ticket Understanding
+
+**Problem:** Auth endpoints have no rate limiting — vulnerable to brute-force
+**AC Checklist:**
+- [ ] AC1: /login limited to 5 requests per minute per IP
+- [ ] AC2: /refresh limited to 10 requests per minute per IP
+- [ ] AC3: Rate limit headers returned in all responses
+
+### Phase 2: AC Verification
+
+| AC  | Status         | File                              | Note                    |
+| --- | -------------- | --------------------------------- | ----------------------- |
+| AC1 | ✅ Implemented  | `app/middleware/rate-limit.ts:24` | 5 req/min enforced      |
+| AC2 | ✅ Implemented  | `app/middleware/rate-limit.ts:31` | 10 req/min enforced     |
+| AC3 | 🔴 Partial      | `app/middleware/rate-limit.ts`    | Headers set only on 429 |
+
+### Phase 3: 12-Point Review
+
+#### Reviewer Progress
+
+| Reviewer                   | Status  | 🔴 | 🟡 | 🔵 |
+| -------------------------- | ------- | -- | -- | -- |
+| Correctness & Security     | ✅ Done | 1  | 1  | 0  |
+| Architecture & Performance | ✅ Done | 0  | 1  | 1  |
+| DX & Testing               | ✅ Done | 0  | 0  | 2  |
+
+**Summary: 🔴 1 · 🟡 2 · 🔵 3** (after dedup)
+
+#### Findings
+
+| #  | Sev | Rule | File                              | Line | Consensus | Issue                                              |
+| -- | --- | ---- | --------------------------------- | ---- | --------- | -------------------------------------------------- |
+| 1  | 🔴  | #2   | `app/middleware/rate-limit.ts`    | 47   | 3/3       | Rate limit headers missing on success responses (AC3 partial) |
+| 2  | 🟡  | #8   | `app/middleware/rate-limit.ts`    | 12   | 2/3       | In-memory store resets on restart — use Redis for production |
+| 3  | 🟡  | #9   | `tests/rate-limit.spec.ts`        | 88   | 2/3       | Only 429 case tested — add success path + edge (burst) cases |
+
+### Phase 4: Fixes Applied
+
+| #  | Fix                                              | File                             |
+| -- | ------------------------------------------------ | -------------------------------- |
+| 1  | Add X-RateLimit-* headers to all responses       | `app/middleware/rate-limit.ts:47` |
+| 2  | Add Redis store note in TODO + env guard          | `app/middleware/rate-limit.ts:12` |
+| 3  | Add success path + burst edge case tests         | `tests/rate-limit.spec.ts:88`    |
+
+✅ **Validate:** `node ace test --filter rate-limit` — PASS
+
+---
+
+### Final Verdict
+
+✅ **APPROVE** — Fixed 🔴 1, 🟡 2 issues | AC: 3/3 ✅ | Validate: PASS | Signal: 50%
+```
+
+---
+
 ## Agents
 
 Specialized subagents that the DLC skills and other workflows spawn automatically. You can also invoke them directly.
