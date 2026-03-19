@@ -19,9 +19,6 @@ ASSET_TYPES=(
   "scripts:$HOME/.claude/scripts"
 )
 
-# Copy-dotfiles: copied (not symlinked) so ~/.claude/CLAUDE.md stays independent from repo
-COPY_DOTFILES="global-CLAUDE.md:$HOME/.claude/CLAUDE.md"
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 link_item() {
   local src="$1"
@@ -67,36 +64,6 @@ link_asset_type() {
   fi
 }
 
-copy_item() {
-  local src="$1"
-  local dst="$2"
-  local name
-  name=$(basename "$src")
-
-  if [ -L "$dst" ]; then
-    echo "  ~ $name — replacing symlink with copy"
-    rm "$dst"
-    cp "$src" "$dst"
-  elif [ -e "$dst" ]; then
-    echo "  ~ $name — updating copy"
-    cp "$src" "$dst"
-  else
-    cp "$src" "$dst"
-    echo "  + $name — copied"
-  fi
-}
-
-copy_dotfiles() {
-  IFS='|' read -ra PAIRS <<< "$COPY_DOTFILES"
-  for pair in "${PAIRS[@]}"; do
-    local src_rel="${pair%%:*}"
-    local dst="${pair#*:}"
-    local src="$REPO_ROOT/$src_rel"
-    [ -f "$src" ] || continue
-    copy_item "$src" "$dst"
-  done
-}
-
 list_status() {
   for entry in "${ASSET_TYPES[@]}"; do
     local type="${entry%%:*}"
@@ -117,21 +84,6 @@ list_status() {
         && echo "  ✓ $name → $target" \
         || echo "  ✗ $name (not linked)"
     done
-  done
-
-  echo ""
-  echo "dotfiles (copied):"
-  IFS='|' read -ra PAIRS <<< "$COPY_DOTFILES"
-  for pair in "${PAIRS[@]}"; do
-    local src_rel="${pair%%:*}"
-    local dst="${pair#*:}"
-    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-      echo "  ✓ $src_rel → $dst (copy)"
-    elif [ -L "$dst" ]; then
-      echo "  ! $src_rel → $dst (still a symlink — run link-skill.sh to fix)"
-    else
-      echo "  ✗ $src_rel (not copied to $dst)"
-    fi
   done
 }
 
@@ -163,12 +115,6 @@ case "${1:-}" in
       echo "[$type]"
       link_asset_type "$type" "$dst_dir"
     done
-
-    # Copy-dotfiles: copied (not symlinked)
-    echo ""
-    echo "[copy-dotfiles]"
-    copy_dotfiles
-
     ;;
   *)
     link_one_skill "$1"
