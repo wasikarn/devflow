@@ -87,10 +87,14 @@ Hooks live at `hooks/`. Two sources of truth:
 | `PostToolUse` | `Write` | `shellcheck-written-scripts.sh` | Auto-validate `.sh` files Claude writes |
 | `TaskCompleted` | `review-debate\|dev-loop\|respond` | `task-gate.sh` | Require file:line evidence before agent tasks complete |
 | `TeammateIdle` | `review-pr\|dev-loop\|respond\|debug-` | `idle-nudge.sh` | Nudge idle Agent Teams teammates back on task |
+| `PostCompact` | — | `post-compact-context.sh` | Re-inject context after compaction |
+| `PostToolUseFailure` | `Bash` | `bash-failure-hint.sh` | Inject diagnostic hints after Bash failures |
+| `StopFailure` | `rate_limit\|max_output_tokens\|...` | `stop-failure-log.sh` | Log API errors to session log (async) |
+| `SubagentStop` | reviewer agent names | `subagent-stop-gate.sh` | Block review agents without file:line evidence |
 
 `task-gate.sh` and `idle-nudge.sh` are parameterized via `GATE_PATTERN`/`NUDGE_PATTERN` env vars set in each matcher's command string.
 
-**Note on matchers:** The official Claude Code spec lists `TaskCompleted` and `TeammateIdle` as "None (always fires)" — meaning matchers on these events may be undocumented/unsupported. Both scripts contain internal `GATE_PATTERN`/`NUDGE_PATTERN` filtering as a fallback, so behavior is correct either way: if the runtime ignores matchers, the scripts self-filter; if the runtime respects them, the scripts get a pre-filtered subset.
+**Note on matchers:** The official Claude Code spec lists `TaskCompleted` and `TeammateIdle` as "None (always fires)" — meaning matchers on these events may be undocumented/unsupported. Both scripts contain internal `GATE_PATTERN`/`NUDGE_PATTERN` filtering as a fallback, so behavior is correct either way: if the runtime ignores matchers, the scripts self-filter; if the runtime respects them, the scripts get a pre-filtered subset. `SubagentStop` uses the same dual-filter pattern via `subagent-stop-gate.sh` — matcher targets reviewer agent names, and the script self-filters if the runtime ignores the matcher.
 
 ### Project hooks (`.claude/settings.json`) — active only in this repo
 
@@ -107,9 +111,12 @@ The following scripts exist in `hooks/` but are **not registered in `hooks.json`
 | `bash-blockers.sh` | Block dangerous bash commands |
 | `auto-test-env.sh` | Auto-detect test environment |
 | `patch-plugin-skills.sh` | Patch plugin skills after install |
-| `post-compact-context.sh` | Inject context after compaction |
 | `session-start-mcp-cleanup.sh` | Clean up stale MCP connections on session start |
 | `session-summary-hook.sh` | Generate session summary on session end |
+| `session-end.sh` | Log session end timestamp and reason |
+| `subagent-start-context.sh` | Inject project context at agent spawn (pr-review-bootstrap, dev-loop-bootstrap) |
+| `permission-auto-approve.sh` | Auto-allow known safe read-only commands |
+| `instructions-loaded-log.sh` | Audit cross-project CLAUDE.md loads (nested_traversal only) |
 
 ## Output Styles
 
