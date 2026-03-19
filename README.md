@@ -7,7 +7,7 @@
 [![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/wasikarn/claude-code-skills/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-8-blue?style=flat-square)](#skills)
-[![Agents](https://img.shields.io/badge/agents-7-purple?style=flat-square)](#agents)
+[![Agents](https://img.shields.io/badge/agents-8-purple?style=flat-square)](#agents)
 [![Hooks](https://img.shields.io/badge/hooks-12-orange?style=flat-square)](#hooks)
 
 <p>
@@ -30,7 +30,7 @@
 | Component | Count | Purpose |
 | --- | --- | --- |
 | **Skills** | 8 | Workflow automation — dev loop, PR review, debugging, utilities |
-| **Agents** | 7 | Specialized subagents for bootstrapping, reviewing, and committing |
+| **Agents** | 8 | Specialized subagents for bootstrapping, reviewing, and committing |
 | **Hooks** | 12 | Lifecycle automation — dependency checks, skill routing, quality gates |
 | **Output Styles** | 2 | Senior Software Engineer, Coding Mentor |
 | **Commands** | 1 | `analyze-claude-features` |
@@ -342,7 +342,7 @@ A typical feature cycle using the DLC skills together.
 
 ### Scenario
 
-> **BEP-1234** — "Add rate limiting to auth endpoints"
+> **PROJ-1234** — "Add rate limiting to auth endpoints"
 > Your team wants to prevent brute-force attacks on `/login` and `/refresh`.
 
 ---
@@ -350,7 +350,7 @@ A typical feature cycle using the DLC skills together.
 ### Step 1 — Build the feature
 
 ```bash
-/claude-code-skills:dlc-build BEP-1234
+/claude-code-skills:dlc-build PROJ-1234
 ```
 
 Claude fetches the Jira acceptance criteria, spawns Explorer agents to map the existing auth middleware, produces a `plan.md`, implements the feature with tests, then runs a 3-reviewer debate on the diff. If reviewers flag issues, the Fixer agent iterates until the loop passes. A PR is opened automatically.
@@ -372,7 +372,7 @@ Claude fetches all open review threads on PR #42, groups them by file, fixes eac
 ### Step 3 — Final review pass before merge
 
 ```bash
-/claude-code-skills:dlc-review 42 BEP-1234 Author
+/claude-code-skills:dlc-review 42 PROJ-1234 Author
 ```
 
 Three agents independently re-examine the updated PR against the Jira AC, debate their findings, and apply any remaining fixes. You get a final verdict with signal percentage.
@@ -396,7 +396,7 @@ What a typical `dlc-review` run produces (condensed):
 ```markdown
 ---
 
-## 📋 PR #42 — BEP-1234 | Author Mode | 🟡
+## 📋 PR #42 — PROJ-1234 | Author Mode | 🟡
 
 **PR:** feat: add rate limiting to auth endpoints
 **Author:** kobig | **Files changed:** 6 | **Lines changed:** +142 −18 | **Today:** 2026-03-19
@@ -469,6 +469,7 @@ Specialized subagents that the DLC skills and other workflows spawn automaticall
 | `dlc-debug-bootstrap` | Haiku | `dlc-debug` Phase 0 | Pre-gathers stack trace context and affected files |
 | `pr-review-bootstrap` | Haiku | `dlc-review` Phase 0 | Fetches PR diff, Jira AC, and groups changed files |
 | `review-consolidator` | Haiku | `dlc-review` Phase 4 | Deduplicates and ranks findings from multiple reviewers |
+| `falsification-agent` | Sonnet | `dlc-build` Phase 4.5, `dlc-review` Phase 4 | Challenges every finding before consolidation — outputs SUSTAINED/DOWNGRADED/REJECTED verdict per finding |
 | `skill-validator` | Sonnet | Manually | Validates SKILL.md frontmatter and description quality |
 | `code-reviewer` | Sonnet | Manually | General-purpose code reviewer with cross-session persistent memory |
 

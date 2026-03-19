@@ -55,7 +55,7 @@ Key fields: `description` (include "proactively" to auto-trigger), `memory` (`us
 
 > **Plugin limitation:** `hooks`, `mcpServers`, and `permissionMode` are silently ignored when agents are loaded from a plugin. To use these fields, copy the agent to `.claude/agents/` instead.
 
-Current agents (7):
+Current agents (8):
 
 | Agent | Model | Purpose |
 | --- | --- | --- |
@@ -64,6 +64,7 @@ Current agents (7):
 | `dlc-debug-bootstrap` | haiku | Pre-gather debug context before dlc-debug Investigator spawns |
 | `pr-review-bootstrap` | haiku | Fetch PR diff + Jira AC in one pass before review |
 | `review-consolidator` | haiku | Dedup/sort multi-reviewer findings into single ranked table |
+| `falsification-agent` | sonnet | Challenges review findings before consolidation — outputs SUSTAINED/DOWNGRADED/REJECTED per finding |
 | `skill-validator` | sonnet | Validates SKILL.md against best practices |
 | `code-reviewer` | sonnet | General-purpose code reviewer with cross-session persistent memory |
 
