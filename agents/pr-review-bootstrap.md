@@ -31,8 +31,9 @@ Look for ticket ID in:
 
 If found, fetch ticket using fallback order:
 
-1. `issue-bootstrap` agent (atlassian-pm plugin — optional) — if available, delegate entirely;
-   captures parent epic + subtasks + linked issues in one pass, AC already structured in output
+1. `issue-bootstrap --depth=minimal` agent (atlassian-pm plugin — optional) — if available, delegate;
+   minimal depth fetches the story's own fields only (AC, summary, priority) — no parent/sibling traversal
+   needed for PR review context
 2. `mcp-atlassian` → `mcp__mcp-atlassian__jira_get_issue` (direct API fallback)
 3. Neither available → skip Jira section, continue without AC — output:
    `[Jira: skipped — install atlassian-pm plugin for Jira integration]`

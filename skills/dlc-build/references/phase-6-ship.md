@@ -15,6 +15,19 @@ Present options to user:
 
 Load [pr-template.md](pr-template.md) for PR title format, description template (Thai), `gh pr create` command, and Hotfix Backport steps.
 
+### Step 2.5: PR Description Draft (if user chose "Create PR")
+
+If `pr-description-writer` agent (atlassian-pm plugin) is available AND a Jira key is present in
+`dev-loop-context.md`:
+
+1. Spawn `pr-description-writer` — pass `<branch-name> <jira-key>` as arguments
+2. Capture the output: description draft + any scope drift findings
+3. **If scope drift detected** → surface findings to user before creating PR; let them acknowledge
+   or return to Phase 3 via "Restart loop" option. A PR with known scope drift should not be silently opened.
+4. Pass the description as `--body` argument to `gh pr create`
+
+If `pr-description-writer` is not available, fall back to `pr-template.md` manual template (current behavior).
+
 ## Step 3: Cleanup
 
 1. Shut down all remaining teammates and clean up the team
@@ -26,9 +39,16 @@ Load [pr-template.md](pr-template.md) for PR title format, description template 
 
 ## Step 3.5: Jira Sync (optional)
 
-If a Jira key is present in `dev-loop-context.md`, run the `jira-sync` agent to post an implementation
-summary comment. The agent reads the context artifact and posts automatically — no manual drafting
-needed.
+If a Jira key is present in `dev-loop-context.md`:
+
+1. Run `jira-sync` agent — posts implementation summary comment (what was built, files changed, AC deviations).
+   The agent reads the context artifact and posts automatically — no manual drafting needed.
+2. **After the PR is merged** (by CI or manually) — if `pr-review-jira-sync` agent (atlassian-pm plugin)
+   is available, run it with the Jira key to: transition the subtask to Done, post the PR link, and
+   check whether all sibling subtasks are complete (signal for parent story closure).
+
+Note: `jira-sync` runs now (post-create). `pr-review-jira-sync` runs post-merge — remind user or add
+to their post-merge checklist if atlassian-pm is installed.
 
 ## Step 4: Metrics (optional)
 
