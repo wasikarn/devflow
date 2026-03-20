@@ -2,10 +2,12 @@
 # bump-version.sh — Bump plugin version across all files, tag, push, and create GitHub release.
 #
 # Usage:
-#   ./scripts/bump-version.sh <version>   # explicit: 0.6.0
-#   ./scripts/bump-version.sh patch       # auto-increment patch: 0.5.0 → 0.5.1
-#   ./scripts/bump-version.sh minor       # auto-increment minor: 0.5.0 → 0.6.0
-#   ./scripts/bump-version.sh major       # auto-increment major: 0.5.0 → 1.0.0
+#   ./scripts/bump-version.sh <version>            # explicit: 0.6.0
+#   ./scripts/bump-version.sh patch                # auto-increment patch: 0.5.0 → 0.5.1
+#   ./scripts/bump-version.sh minor                # auto-increment minor: 0.5.0 → 0.6.0
+#   ./scripts/bump-version.sh major                # auto-increment major: 0.5.0 → 1.0.0
+#   ./scripts/bump-version.sh patch -y             # non-interactive (auto-generate title)
+#   ./scripts/bump-version.sh patch -y "My Title"  # non-interactive with explicit title
 #
 # Steps:
 #   1. Validate version + working tree clean
@@ -65,10 +67,32 @@ with open(path, 'w') as f:
 PY
 }
 
-# ── parse arg ─────────────────────────────────────────────────────────────────
+# ── parse args ────────────────────────────────────────────────────────────────
 
-ARG="${1:-}"
-[[ -n "$ARG" ]] || die "Usage: $0 <version|patch|minor|major>"
+ARG=""
+AUTO_YES=0
+RELEASE_TITLE_ARG=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -y|--yes)
+      AUTO_YES=1
+      if [[ -n "${2:-}" && ! "${2:-}" =~ ^- ]]; then
+        RELEASE_TITLE_ARG="$2"
+        shift
+      fi
+      ;;
+    patch|minor|major|[0-9]*)
+      ARG="$1"
+      ;;
+    *)
+      die "Unknown argument '$1' — usage: $0 <version|patch|minor|major> [-y [title]]"
+      ;;
+  esac
+  shift
+done
+
+[[ -n "$ARG" ]] || die "Usage: $0 <version|patch|minor|major> [-y [title]]"
 
 CURRENT=$(current_version)
 
@@ -106,8 +130,23 @@ fi
 echo ""
 echo -e "  ${CYAN}dev-loop${NC}  ${YELLOW}$CURRENT${NC} → ${GREEN}$NEW_VERSION${NC}"
 echo ""
-read -r -p "Release title (e.g. 'Centralized Artifact Paths'): " RELEASE_TITLE
-[[ -n "$RELEASE_TITLE" ]] || die "Release title cannot be empty"
+if [[ "$AUTO_YES" -eq 1 ]]; then
+  if [[ -n "$RELEASE_TITLE_ARG" ]]; then
+    RELEASE_TITLE="$RELEASE_TITLE_ARG"
+  else
+    # Auto-generate from first non-chore commit since last tag
+    LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+    if [[ -n "$LAST_TAG" ]]; then
+      RELEASE_TITLE=$(git log "${LAST_TAG}..HEAD" --oneline --no-merges \
+        | grep -v "^[a-f0-9]* chore:" | head -1 | sed 's/^[a-f0-9]* //' || true)
+    fi
+    RELEASE_TITLE="${RELEASE_TITLE:-Release $NEW_VERSION}"
+  fi
+  echo "Release title: $RELEASE_TITLE"
+else
+  read -r -p "Release title (e.g. 'Centralized Artifact Paths'): " RELEASE_TITLE
+  [[ -n "$RELEASE_TITLE" ]] || die "Release title cannot be empty"
+fi
 echo ""
 
 # ── 1. auto-generate CHANGELOG entry ─────────────────────────────────────────
@@ -159,8 +198,12 @@ echo -e "  Tag    : ${GREEN}v${NEW_VERSION}${NC}"
 echo -e "  Title  : v${NEW_VERSION} — ${RELEASE_TITLE}"
 echo "────────────────────────────────────────────"
 echo ""
-read -r -p "Commit, tag v$NEW_VERSION, push, and create GitHub release? [y/N] " CONFIRM
-[[ "$CONFIRM" =~ ^[Yy]$ ]] || { warn "Aborted — changes left unstaged"; exit 0; }
+if [[ "$AUTO_YES" -eq 1 ]]; then
+  echo "Auto-confirmed (-y)"
+else
+  read -r -p "Commit, tag v$NEW_VERSION, push, and create GitHub release? [y/N] " CONFIRM
+  [[ "$CONFIRM" =~ ^[Yy]$ ]] || { warn "Aborted — changes left unstaged"; exit 0; }
+fi
 
 # ── 3. update CHANGELOG.md ────────────────────────────────────────────────────
 
