@@ -12,6 +12,11 @@ node_modules/
 .worktrees/
 *-workspace/
 
+# Agent runtime artifacts (machine-specific, auto-generated)
+.claude/agent-memory/
+.claude/dlc-build/
+.claude/dlc-debug/
+
 # Personal / non-distributed
 prompts/
 
