@@ -172,6 +172,15 @@ Update `respond-context.md` progress section after each thread reply.
 gh pr edit {pr} --add-reviewer {original_reviewer_login}
 ```
 
+### Cleanup
+
+Remove `respond-context.md` from the project root after re-review is requested — this file is
+ephemeral scaffolding and must not remain as uncommitted state in the target project:
+
+```bash
+rm -f {project_root}/respond-context.md
+```
+
 ### Final Summary
 
 ```markdown

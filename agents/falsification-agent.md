@@ -2,7 +2,7 @@
 name: falsification-agent
 model: sonnet
 tools: Read, Grep, Glob
-maxTurns: 1
+maxTurns: 3
 description: "Challenges all review findings before consolidation. Receives raw findings table inline, outputs SUSTAINED/DOWNGRADED/REJECTED verdict per finding. Called by dlc-build Phase 4.5 and dlc-review Phase 4 Convergence."
 ---
 

@@ -71,9 +71,12 @@ Return this exact block — nothing else:
 **Config:** [files]
 
 ### Suggested Agent Groups (for parallel dispatch)
-- Group A: [files] → code-reviewer + silent-failure-hunter
-- Group B: [files] → pr-test-analyzer
-- Group C: [files] → type-design-analyzer (if new types)
+- Group A: [files] → code-reviewer (this plugin) + silent-failure-hunter (pr-review-toolkit plugin)
+- Group B: [files] → pr-test-analyzer (pr-review-toolkit plugin)
+- Group C: [files] → type-design-analyzer (pr-review-toolkit plugin, only if new types added)
+
+> Note: `silent-failure-hunter`, `pr-test-analyzer`, and `type-design-analyzer` are agents from the
+> `pr-review-toolkit` plugin. If that plugin is not installed, use `code-reviewer` from this plugin for all groups.
 
 ### PR Diff Summary
 [3-5 bullet points describing what changed at a high level]
