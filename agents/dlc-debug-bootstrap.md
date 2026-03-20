@@ -20,6 +20,7 @@ Passed inline in this prompt with labeled fields:
 ```text
 Bug: {bug description or Jira key}
 Project Root: {absolute path to target project root}
+Artifacts Dir: {artifacts_dir from dlc-debug skill header}
 ```
 
 ## Steps
@@ -27,12 +28,12 @@ Project Root: {absolute path to target project root}
 ### Step 1: Check for dlc-build Artifacts
 
 ```bash
-# Check if a recent dlc-build session left artifacts
-ls {project_root}/.claude/dlc-build/dev-loop-context.md 2>/dev/null
+# Compute dlc-build base artifacts dir (no suffix — search all ticket subdirs)
+DLCBUILD_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null || echo "")
+ls "${DLCBUILD_DIR}"/*/dev-loop-context.md 2>/dev/null | sort -r | head -1
 ```
 
-If found: read `dev-loop-context.md` and extract plan items and modified files that are
-relevant to the bug area (match file names or area keywords from bug description).
+If found: read the most recent `*/dev-loop-context.md` (from the sorted glob above) and extract plan items relevant to the bug area
 
 If not found: skip — omit "Recent Build Context" section from output.
 
@@ -86,7 +87,7 @@ rtk grep -n "^export|^class|^function|^const.*=.*=>" --include="*.ts" {affected_
 `debug-context.md` is created by dlc-debug Phase 0 Step 4 before this agent runs.
 
 Build the `## Shared Context` section from your gathered data (Steps 1–4), then
-append it to `debug-context.md` using `Bash`. Construct each section with real values —
+append it to `{Artifacts Dir}/debug-context.md` using `Bash`. Construct each section with real values —
 do NOT write placeholder text like `{timestamp}` or `{description}`.
 
 Required structure (include only sections with data; see Required Sections below):
@@ -117,7 +118,7 @@ Append the constructed section using Bash (one `printf` or multiple `echo >>` ca
 If `debug-context.md` does not exist (crash recovery): create a skeleton first:
 
 ```bash
-printf '# Debug Context\n**Bug:** %s\n' "{bug_description}" > {project_root}/debug-context.md
+printf '# Debug Context\n**Bug:** %s\n' "{bug_description}" > "{Artifacts Dir}/debug-context.md"
 ```
 
 Then append the `## Shared Context` section as above.
