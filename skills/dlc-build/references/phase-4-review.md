@@ -29,7 +29,7 @@ Determine diff size first: `git diff {base_branch}...HEAD --stat | tail -1`
 
 > **Quick mode override:** In Quick mode, use lead self-review (Solo Self-Review Checklist) for diffs ≤100 lines — no teammate spawning. Only spawn reviewers for Quick mode diffs >100 lines.
 
-Load debate protocol for 2-round debate cases: check `../dlc-review/references/debate-protocol.md` first; if not found (dlc-review not installed), use built-in fallback: each reviewer presents findings → others respond once → lead consolidates with consensus notes.
+Load debate protocol for 2-round debate cases: [../../references/debate-protocol.md](../../references/debate-protocol.md) (shared with dlc-review — always available).
 
 **CONTEXT-REQUEST handling:** If a reviewer sends a `CONTEXT-REQUEST:` message before submitting findings, lead reads the requested file and sends the relevant section back via SendMessage. Reviewer proceeds after receiving context. If context unavailable, respond: "Proceed without it — note low-confidence in the finding."
 

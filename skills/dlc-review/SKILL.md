@@ -17,7 +17,7 @@ Invoke as `/dlc-review [pr-number] [jira-key?] [Author|Reviewer]`
 
 | File |
 | --- |
-| [debate-protocol.md](references/debate-protocol.md) |
+| [debate-protocol.md](../../references/debate-protocol.md) |
 | [teammate-prompts.md](references/teammate-prompts.md) |
 | [review-output-format.md](../../references/review-output-format.md) |
 | [review-conventions.md](../../references/review-conventions.md) |
