@@ -34,8 +34,8 @@ Invoke as `/dlc-debug [bug-description-or-jira-key] [--quick?]`
 
 **Bug:** $ARGUMENTS | **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
-**Recent commits:** !`rtk git log --oneline -5 2>/dev/null`
-**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null`
+**Recent commits:** !`git log --oneline -5 2>/dev/null || true`
+**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
 
 **Args:** `$0`=bug description (required) · `$1`=`--quick` (optional, skip DX Analyst) · `$2`=`--review` (optional, add Fix Reviewer after Fixer)
 **Modes:** Full = Investigator + DX Analyst + Fixer · Quick = Investigator + Fixer (DX checklist only)

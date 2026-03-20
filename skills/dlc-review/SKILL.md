@@ -32,10 +32,10 @@ Invoke as `/dlc-review [pr-number] [jira-key?] [Author|Reviewer]`
 **PR:** #$0 | **Mode:** $2 (default: Author)
 **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
-**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null`
-**Diff stat:** !`gh pr diff $0 --stat 2>/dev/null || rtk git diff main...HEAD --stat 2>/dev/null`
-**PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null`
-**Changed files:** !`gh pr diff $0 --name-only 2>/dev/null`
+**Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
+**Diff stat:** !`gh pr diff $0 --stat 2>/dev/null || git diff main...HEAD --stat 2>/dev/null || true`
+**PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null || true`
+**Changed files:** !`gh pr diff $0 --name-only 2>/dev/null || true`
 
 **Args:** `$0`=PR# (required) · `$1`=Jira key or Author/Reviewer · `$2`=Author/Reviewer
 **Modes:** Author = fix code · Reviewer = comment only (in Thai)
