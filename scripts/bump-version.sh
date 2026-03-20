@@ -9,9 +9,10 @@
 #
 # Steps:
 #   1. Validate version + working tree clean
-#   2. Update plugin.json and marketplace.json
-#   3. Commit, tag v<new>, push --tags
-#   4. Create GitHub release with auto-generated notes
+#   2. Auto-generate CHANGELOG entry from git log + release title, confirm
+#   3. Update plugin.json, marketplace.json, CHANGELOG.md
+#   4. Commit, tag v<new>, push --tags
+#   5. Create GitHub release with auto-generated notes
 
 set -euo pipefail
 
@@ -102,7 +103,34 @@ read -r -p "Release title (e.g. 'Centralized Artifact Paths'): " RELEASE_TITLE
 [[ -n "$RELEASE_TITLE" ]] || die "Release title cannot be empty"
 echo ""
 
-# ── 1. update JSON files ──────────────────────────────────────────────────────
+# ── 1. auto-generate CHANGELOG entry ─────────────────────────────────────────
+
+TODAY=$(date +%Y-%m-%d)
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+# Collect commits since last tag (skip chore: bump version commits)
+if [ -n "$LAST_TAG" ]; then
+  COMMITS=$(git log "${LAST_TAG}..HEAD" --oneline --no-merges \
+    | grep -v "^[a-f0-9]* chore: bump version" \
+    | sed 's/^[a-f0-9]* /- /' \
+    || true)
+else
+  COMMITS=$(git log --oneline --no-merges | sed 's/^[a-f0-9]* /- /' || true)
+fi
+
+CHANGELOG_ENTRY="## [$NEW_VERSION] — $TODAY
+
+### $RELEASE_TITLE
+${COMMITS:+
+$COMMITS}"
+
+echo "  CHANGELOG entry preview:"
+echo "────────────────────────────────────────────"
+echo "$CHANGELOG_ENTRY"
+echo "────────────────────────────────────────────"
+echo ""
+
+# ── 2. update JSON files ──────────────────────────────────────────────────────
 
 info "Updating .claude-plugin/plugin.json..."
 update_json_version ".claude-plugin/plugin.json" "$NEW_VERSION"
@@ -118,6 +146,7 @@ echo ""
 echo "────────────────────────────────────────────"
 echo "  Files to commit:"
 git diff --name-only | sed 's/^/    /'
+echo "    CHANGELOG.md"
 echo ""
 echo -e "  Tag    : ${GREEN}v${NEW_VERSION}${NC}"
 echo -e "  Title  : v${NEW_VERSION} — ${RELEASE_TITLE}"
@@ -126,10 +155,31 @@ echo ""
 read -r -p "Commit, tag v$NEW_VERSION, push, and create GitHub release? [y/N] " CONFIRM
 [[ "$CONFIRM" =~ ^[Yy]$ ]] || { warn "Aborted — changes left unstaged"; exit 0; }
 
-# ── 3. commit + tag + push ────────────────────────────────────────────────────
+# ── 3. update CHANGELOG.md ────────────────────────────────────────────────────
+
+info "Updating CHANGELOG.md..."
+# Prepend new entry after the first line (# Changelog header)
+python3 - "$CHANGELOG_ENTRY" <<'PY'
+import sys
+entry = sys.argv[1]
+with open("CHANGELOG.md", "r") as f:
+    lines = f.readlines()
+# Insert before the first ## [ version entry (after header + intro paragraph)
+insert_at = len(lines)
+for i, line in enumerate(lines):
+    if line.startswith("## ["):
+        insert_at = i
+        break
+lines.insert(insert_at, entry + "\n")
+with open("CHANGELOG.md", "w") as f:
+    f.writelines(lines)
+PY
+ok "CHANGELOG.md updated"
+
+# ── 4. commit + tag + push ────────────────────────────────────────────────────
 
 info "Committing..."
-git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+git add .claude-plugin/plugin.json .claude-plugin/marketplace.json CHANGELOG.md
 git commit -m "chore: bump version to $NEW_VERSION"
 ok "Committed"
 
