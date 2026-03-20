@@ -1,9 +1,17 @@
 {
   "name": "dev-loop",
-  "description": "A Claude Code plugin powering the Development Loop Cycle (DLC) — structured skills for building, reviewing, responding, and debugging. Includes DLC workflow skills (dlc-build, dlc-review, dlc-respond, dlc-debug), utility skills, custom agents, workflow automation hooks, and output styles.",
-  "version": "0.5.0",
+  "description": "A Claude Code plugin powering the Development Loop Cycle (DLC) \u2014 structured skills for building, reviewing, responding, and debugging. Includes DLC workflow skills (dlc-build, dlc-review, dlc-respond, dlc-debug), utility skills, custom agents, workflow automation hooks, and output styles.",
+  "version": "0.6.0",
   "license": "MIT",
-  "keywords": ["skills", "dlc", "pr-review", "dev-loop", "debug", "productivity", "workflow"],
+  "keywords": [
+    "skills",
+    "dlc",
+    "pr-review",
+    "dev-loop",
+    "debug",
+    "productivity",
+    "workflow"
+  ],
   "author": {
     "name": "kobig",
     "url": "https://github.com/wasikarn"
