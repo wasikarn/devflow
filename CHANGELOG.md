@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.18] — 2026-03-23
+
+### feat(agents): add code-simplifier — post-review polish pass + dlc-build Phase 5 integration
+
+- docs: add code-simplifier to agents table in CLAUDE.md
+- fix(dlc-build): clarify code-simplifier invocation syntax and validate fallback in Step 5.5
+- feat(dlc-build): add Step 5.5 optional simplification pass before shipping
+- fix(agents): tighten code-simplifier git scope and naming constraint
+- feat(agents): add code-simplifier — post-review polish pass (clarity + maintainability, no behavior changes)
+
 ## [0.6.17] — 2026-03-23
 
 ### dlc-build: Clarifying Questions Gate + Architecture Options (data-driven expert recommendations)
