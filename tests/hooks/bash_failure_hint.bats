@@ -16,7 +16,7 @@ run_hook() {
 @test "command not found triggers install hint" {
   run run_hook '{"error":"bats: command not found","tool_input":{"command":"bats test.sh"},"is_interrupt":false}'
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "not found" ]]
+  [[ "$output" =~ "Check if it's installed" ]]
 }
 
 @test "permission denied triggers chmod hint" {
