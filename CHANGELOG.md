@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.19] — 2026-03-23
+
+### feat: add code-explorer + comment-analyzer agents, error-handling review lens, jira-sync ADF + atlassian-pm integration
+
+- feat(agents): improve jira-sync — ADF via atlassian-pm spawn, HR6 cache_invalidate, AC coverage check, optional transition
+- feat(dlc-build): add error-handling review lens + Lens Selection table; add code-explorer + comment-analyzer to CLAUDE.md
+- feat(agents): add comment-analyzer — verify comment accuracy and detect comment rot
+- feat(agents): add code-explorer — trace feature execution paths and architecture
+
 ## [0.6.18] — 2026-03-23
 
 ### feat(agents): add code-simplifier — post-review polish pass + dlc-build Phase 5 integration
