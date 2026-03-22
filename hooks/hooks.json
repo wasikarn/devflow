@@ -27,6 +27,12 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "async": true,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/cleanup-artifacts.sh",
+            "timeout": 15
           }
         ]
       }

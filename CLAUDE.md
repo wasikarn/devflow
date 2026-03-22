@@ -88,7 +88,7 @@ Hooks live at `hooks/`. All hooks are registered in `hooks/hooks.json` and distr
 
 | Event | Matcher | Script |
 | --- | --- | --- |
-| `SessionStart` | `startup` | `check-deps.sh`, `session-start-context.sh` |
+| `SessionStart` | `startup` | `check-deps.sh`, `session-start-context.sh`, `cleanup-artifacts.sh` (async) |
 | `UserPromptSubmit` | — | `skill-routing.sh` |
 | `PreToolUse` | `Edit\|Write` | `protect-files.sh` |
 | `PostToolUse` | `Edit\|Write` | _(inline markdownlint)_ |

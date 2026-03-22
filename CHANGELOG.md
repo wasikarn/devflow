@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### feat(hooks): auto-cleanup stale artifact files on session start
+
+- feat(hooks): add `cleanup-artifacts.sh` — removes `.md` artifact files older than `DEV_LOOP_ARTIFACT_TTL_DAYS` days (default: 7) from `~/.claude/plugins/data/dev-loop-dev-loop/`
+- chore(hooks): register cleanup hook as async `SessionStart` in `hooks.json`
+- docs(CLAUDE.md): update hooks table to include `cleanup-artifacts.sh`
+
 ## [0.6.14] — 2026-03-22
 
 ### feat(agents): extend metrics-analyst to parse and report new quality signal fields
