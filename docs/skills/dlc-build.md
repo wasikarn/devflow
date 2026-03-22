@@ -18,8 +18,8 @@ structured phases with quality gates — not for quick one-line edits.
 | Phase | What happens |
 | --- | --- |
 | **0 — Triage** | Reads Jira AC (if key given), checks if task is clear |
-| **1 — Research** | Bootstrap + Explorer agents map affected files |
-| **2 — Plan** | Plan-challenger reviews the implementation plan |
+| **1 — Research** | Bootstrap + Explorer agents map affected files; Step 3.5: Clarifying Questions Gate (evidence-based, Full mode only) |
+| **2 — Plan** | Step 1: Architecture Decision (Minimal vs Clean, user selects, Full mode only); Plan-challenger reviews the implementation plan |
 | **3 — Implement** | Implementer agents write code with TDD |
 | **4 — Review** | 3 parallel reviewer agents debate findings |
 | **5 — Falsify** | Falsification agent challenges findings |

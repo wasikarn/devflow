@@ -167,3 +167,9 @@ Full gate details: [references/phase-gates.md](references/phase-gates.md)
 - **Research phase can exceed context budget on large repos** — the Explorer spawns multiple subagents to read files; on repos with hundreds of relevant files this burns context fast. Use `--quick` for small tasks; save `--full` for cross-cutting changes.
 - **Artifacts live outside the project repo** — `dev-loop-context.md`, `research.md`, and `review-findings-*.md` are written to `{artifacts_dir}` (from `scripts/artifact-dir.sh`), not the working directory. Plan file goes to `~/.claude/plans/`. Don't look for them in the project root.
 - **Max 3 review iterations is enforced** — if Critical findings remain after iteration 3, the skill escalates with 4 options rather than looping further. This is intentional: 3+ iterations signals a design problem, not a fix problem.
+- **Clarifying Questions are evidence-gated** — every question in Step 3.5 must cite a `file:line`
+  from `research.md`. The gate is a no-op if research found no ambiguities; it never asks hypothetical
+  questions. Quick and Hotfix modes skip it entirely.
+- **Architecture Options require Full mode + research** — the Minimal/Clean architect agents read
+  `research.md` to ground their proposals. Without research data, recommendations would be guesses.
+  That is why Quick mode (no research phase) skips ArchOpts entirely.
