@@ -2,11 +2,17 @@
 
 Skip this phase entirely in Quick mode → go to Phase 2.
 
-## Step 0: Bootstrap (before explorers)
+## Step 0: Bootstrap (concurrent with explorers)
 
-Dispatch `dev-loop-bootstrap` agent (Haiku) with the task description as argument. Wait for completion (timeout: 60s) — output written to `{artifacts_dir}/bootstrap-context.md`. Read that file and inject its contents into ALL explorer prompts as a `BOOTSTRAP CONTEXT:` section. This eliminates redundant project-structure reads across explorers.
+Dispatch `dev-loop-bootstrap` agent (Haiku) with the task description. **Do not wait** — proceed immediately to Step 1 to spawn the explorer team while bootstrap runs.
 
-**Bootstrap fallback:** If bootstrap doesn't complete within 60s or crashes: proceed without it. Set `BOOTSTRAP CONTEXT: (not available — explorers gather context independently)` in explorer prompts. Explorers are self-sufficient; bootstrap is an optimization, not a requirement.
+When bootstrap completes: read `{artifacts_dir}/bootstrap-context.md` and send its contents to each explorer teammate via `SendMessage`:
+
+```text
+BOOTSTRAP CONTEXT: {contents of bootstrap-context.md}
+```
+
+**Bootstrap fallback:** If bootstrap errors or produces no output within 60s of its spawn: log "bootstrap timed out" in `dev-loop-context.md` and skip. Do not retry. Explorers continue with `BOOTSTRAP CONTEXT: (not available — explorers gather context independently)`.
 
 ## Step 1: Create Explorer Team
 
