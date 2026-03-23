@@ -68,7 +68,13 @@ Drop findings below the role threshold before consolidation. Hard Rule violation
 
 ## Review Output
 
-Write findings to `{artifacts_dir}/review-findings-{iteration}.md` per [../../../references/review-output-format.md](../../../references/review-output-format.md). Full mode iter 1 with 3 reviewers: dispatch `review-consolidator` agent with raw findings inline — removes main context bias from ranking and saves Sonnet tokens on mechanical dedup work. For 1–2 reviewer cases, lead consolidates inline (no agent). If agent errors → dedup, pattern-cap, sort, and signal-check inline per [review-conventions.md](../../../references/review-conventions.md).
+Write findings to `{artifacts_dir}/review-findings-{iteration}.md` per [../../../references/review-output-format.md](../../../references/review-output-format.md).
+
+- **Iter 1 (3 reviewers):** After falsification pass (Phase 4.5), dispatch `review-consolidator` with the post-verdict findings table.
+- **Iter 2+ (2 reviewers):** Dispatch `review-consolidator` immediately when the second reviewer's findings arrive — lead reads findings while agent runs in parallel. No falsification pass.
+- **1 reviewer:** Lead consolidates inline (no agent).
+
+If agent errors → dedup, pattern-cap, sort, and signal-check inline per [review-conventions.md](../../../references/review-conventions.md).
 
 **Phase 4 status line** (output before findings table — no prose paragraph):
 `### Phase 4 Complete — N findings consolidated · Proceeding to Phase 5`
