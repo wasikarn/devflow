@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.21] — 2026-03-23
+
+### fix: post-audit accuracy — workflow phase references, CLAUDE.md, README
+
+- **fix(dlc-review):** deduplicate Phase 0.05 rows in operational.md — split into 0.05A (pr-review-bootstrap) and 0.05B (Jira fetch concurrent)
+- **fix:** resolve stale Phase 0.6 references in `jira-integration.md` and `operational.md` — updated to Phase 0.05 after parallelization merge
+- **fix(CLAUDE.md):** code-simplifier phase label corrected (Phase 5 → Phase 5.5); commands list updated to include `dlc-status` and `hook-test`
+- **fix(README):** version badge updated to 0.6.20; Repo Structure expanded with 4 missing skills (careful, freeze, dlc-metrics, dlc-onboard); `dlc-metrics.jsonl` path corrected
+- **fix(agents):** review-consolidator description updated to reflect iter 2+ usage
+- **fix(dlc-build):** reference table updated — review-consolidator now shows iter 1 and iter 2+
+
 ## [0.6.20] — 2026-03-23
 
 ### Performance
