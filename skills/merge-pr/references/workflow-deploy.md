@@ -11,34 +11,17 @@ Both modes share the same production deploy pattern. Differences are documented 
 | Backport target | release branch (if active) else `develop` | `develop` (skip if origin was `develop`) |
 | fix_shas capture | Yes — before version bump | No |
 
+On any step failure → load [rollback-guide.md](rollback-guide.md) and show the matching recovery procedure.
+
 ---
 
 ## Pre-deploy Safety Checks (Mode 2/3 only)
 
-Run BEFORE creating any branch to avoid dangling remote branches on abort:
-
-1. Dirty tree check (already done in SKILL.md pre-checks)
-2. CI check (already done in SKILL.md pre-checks)
-3. Concurrent hotfix check (already done in SKILL.md pre-checks)
+Already performed in SKILL.md pre-checks: dirty tree, CI, concurrent hotfix.
 
 ---
 
-## Shared Steps
-
-### [1/15] Read current version
-
-```bash
-node -e "console.log(require('./package.json').version)"
-```
-
-Store as `{current_version}`.
-
-**Mode 2:** next = patch increment (1.2.3 → 1.2.4)
-**Mode 3:** next = minor increment (1.2.3 → 1.3.0), reset patch to 0
-
----
-
-### [2/15] Prepare branch
+## [1/14] Prepare branch
 
 **Mode 2 (hotfix):** Rebase with `main` if not up-to-date:
 
@@ -49,14 +32,6 @@ git log --oneline origin/main..HEAD
 
 If behind: `git rebase origin/main`
 Abort on conflict: "Rebase conflict with main. Resolve manually then re-run /merge-pr"
-
-Then capture fix commit SHAs BEFORE the version bump commit (required for cherry-pick order):
-
-```bash
-git log --reverse --pretty=%H origin/main..HEAD
-```
-
-Store as `{fix_shas}` (space-separated, chronological oldest-first). These are the commits to backport.
 
 **Mode 3 (release from develop):** If on `develop`, create and push release branch first:
 
@@ -69,72 +44,76 @@ If already on `release/*` → skip branch creation, use current branch.
 
 ---
 
-### [3/15] Bump version in package.json
+## [2/14] Detect version + compute next
 
-Edit `package.json` — update the `"version"` field to `{next_version}`.
+Load [version-detector.md](version-detector.md) and follow Steps 1–2:
 
-Use `Read` to get current content, then `Edit` to replace the version string. Do not use `npm version` (it auto-commits and may interfere).
-
-Verify:
-
-```bash
-node -e "console.log(require('./package.json').version)"
-```
+- Detect `{version_file}` and read `{current_version}`
+- Compute `{next_version}` (patch for Mode 2, minor for Mode 3)
 
 ---
 
-### [4/15] Update CHANGELOG.md
+## [3/14] Capture fix_shas (Mode 2 only)
 
-Load [changelog-format.md](changelog-format.md) for format reference.
-
-Generate draft entries from git log:
-
-**Mode 2:**
+Before the version bump commit, capture fix commit SHAs in chronological order:
 
 ```bash
-git log --pretty=format:"- %s" {fix_shas}
+git log --reverse --pretty=%H origin/main..HEAD
 ```
 
-(Pass space-separated SHAs, one per invocation via `git show --format="- %s" --no-patch SHA` if multi-line needed)
+Store as `{fix_shas}` (space-separated, chronological oldest-first). These are the commits to
+backport — must be captured BEFORE the version bump commit.
 
-**Mode 3:**
-
-```bash
-git log --pretty=format:"- %s" origin/main..HEAD
-```
-
-Add new section at the top of CHANGELOG.md (after the `# Changelog` header):
-
-```markdown
-## [{next_version}] - {today_date}
-### Fixed          ← Mode 2
-### Added          ← Mode 3 (use appropriate sections)
-- {generated entries — edit as needed}
-```
-
-Show draft to user, then call `AskUserQuestion` (question: "Review CHANGELOG entries — proceed?",
-header: "CHANGELOG", options: `[{ label: "Looks good, continue" }, { label: "Abort" }]`).
-Abort if "Abort".
+Skip this step for Mode 3.
 
 ---
 
-### [5/15] Commit version bump
+## [4/14] Generate CHANGELOG
+
+Load [changelog-writer.md](changelog-writer.md) and follow its algorithm (Steps 1–9).
+
+Inputs available: `{next_version}`, `{fix_shas}` (Mode 2), today's date.
+Output: `{changelog_file}` updated with new version section, `[Unreleased]` section removed.
+
+No user prompt — show generated section in progress output and proceed.
+
+---
+
+## [5/14] Write version bump
+
+Load [version-detector.md](version-detector.md) and follow Steps 3–4:
+
+- Write `{next_version}` to `{version_file}` using the Edit tool
+- Verify write-back — abort if mismatch
+
+---
+
+## [6/14] Commit version bump + capture SHA
 
 ```bash
 git commit -am "chore: bump version to {next_version}"
 ```
 
+Immediately after:
+
+```bash
+git rev-parse HEAD
+```
+
+Store as `{version_bump_sha}` (required for Mode 3 backport cherry-pick).
+
 ---
 
-### [6/15] Show confirmation gate
+## [7/14] Confirmation Gate
 
 ```text
 === merge-pr: Ready to execute ===
 Mode:    {Hotfix|Release} deploy
 Branch:  {branch} → main
-Version: {current} → {next_version}
+Version: {current_version} → {next_version}
 Tag:     v{next_version}
 Backport: {backport_target}
+PR:      #{pr_number}
 ```
 
 Call `AskUserQuestion` (question: "Proceed with merge?", header: "Confirm",
@@ -142,7 +121,7 @@ options: Yes/No as defined in SKILL.md § Confirmation Gate). Abort if "No, abor
 
 ---
 
-### [7/15] Create/update PR to main and merge
+## [8/14] Create/update PR to main and merge
 
 Check if PR to main already exists:
 
@@ -156,7 +135,7 @@ If no PR exists, create one:
 gh pr create --base main --head {branch} --title "chore: release v{next_version}" --body "Release v{next_version}"
 ```
 
-Note: do NOT use `--fill` together with `--title` — they conflict. Use `--title` + `--body` directly.
+Note: do NOT use `--fill` together with `--title` — they conflict.
 
 Merge:
 
@@ -166,7 +145,7 @@ gh pr merge --admin --merge --delete-branch
 
 ---
 
-### [8/15] Checkout main and pull
+## [9/14] Checkout main and pull
 
 Required before tagging — local checkout is still on the deploy branch after remote merge:
 
@@ -176,30 +155,43 @@ git checkout main && git pull origin main
 
 ---
 
-### [9/15] Delete local deploy branch
+## [10/14] Delete local deploy branch
 
 ```bash
 git branch -d {deploy_branch}
 ```
 
-Use `-d` (not `-D`) to confirm the branch was fully merged. If `-d` fails → partial-failure: warn user and continue (do not abort — tag and backport are still needed).
+Use `-d` (not `-D`) to confirm the branch was fully merged. If `-d` fails → warn and continue
+(tag and backport are still needed).
 
 ---
 
-### [10/15] Create and push annotated tag
+## [11/14] Create and push annotated tag
 
 ```bash
 git tag -a v{next_version} -m "Release v{next_version}"
 git push origin v{next_version}
 ```
 
-Abort if tag already exists: "Tag v{next_version} already exists. This should not happen — investigate before continuing."
+Abort if tag already exists: "Tag v{next_version} already exists. Investigate before continuing."
 
 ---
 
-### [11/15] Detect backport target
+## [12/14] Post-merge integrations
 
-**Mode 2 (hotfix):**
+Load [post-merge-integrations.md](post-merge-integrations.md) and follow Steps 1–3:
+
+- Detect `{repo}` via `gh repo view`
+- Create GitHub Release with CHANGELOG notes (auto, non-blocking)
+- Post Jira comment if `{jira_key}` in `$ARGUMENTS` (auto, non-blocking)
+
+---
+
+## [13/14] Backport
+
+**Detect backport target:**
+
+Mode 2 (hotfix):
 
 ```bash
 git branch -r | grep "origin/release/" | head -1
@@ -208,17 +200,12 @@ git branch -r | grep "origin/release/" | head -1
 If result non-empty → backport to that release branch (strip `origin/` prefix).
 Else → backport to `develop`.
 
-**Mode 3 (release):**
+Mode 3 (release):
 
-If origin was `develop` (user ran from develop and we created the release branch) → SKIP backport entirely. Develop is already the ancestor.
+If origin was `develop` (we created the release branch here) → SKIP backport entirely.
+If origin was `release/*` → backport `{version_bump_sha}` to `develop`.
 
-If origin was `release/*` → backport version-bump commit(s) to `develop`.
-
-To detect: check if `{backport_target}` == `develop` and original branch was `develop` → skip.
-
----
-
-### [12/15] Create backport branch
+**Create backport branch:**
 
 ```bash
 git checkout -b backport/{original_branch_suffix}
@@ -226,53 +213,40 @@ git checkout -b backport/{original_branch_suffix}
 
 Example: `hotfix/ABC-456-fix-crash` → `backport/hotfix-ABC-456-fix-crash`
 
----
-
-### [13/15] Cherry-pick commits
-
-**Mode 2:** Cherry-pick all `{fix_shas}` in chronological order (oldest-first, captured in step 2):
+**Cherry-pick:**
 
 ```bash
-git cherry-pick $fix_shas
-```
+# Mode 2:
+git cherry-pick $fix_shas   # unquoted — shell word-splitting enumerates SHAs
 
-Note: `$fix_shas` must be unquoted for shell word-splitting to enumerate SHAs correctly.
-
-**Mode 3:** Cherry-pick the version-bump commit only:
-
-```bash
+# Mode 3:
 git cherry-pick {version_bump_sha}
 ```
 
-On conflict → abort cherry-pick: `git cherry-pick --abort`. Continue to step 14 but skip auto-merge.
+On conflict → `git cherry-pick --abort`. Continue to push/PR steps but skip auto-merge.
 
----
-
-### [14/15] Push backport branch and create/merge PR
-
-Push:
+**Push and create PR:**
 
 ```bash
 git push -u origin backport/{suffix}
+
+gh pr create --base {backport_target} --head backport/{suffix} \
+  --title "backport: {original_branch_suffix}" \
+  --body "Backport of {original_branch} to {backport_target}"
 ```
 
-Create PR:
-
-```bash
-gh pr create --base {backport_target} --head backport/{suffix} --title "backport: {original_branch_suffix}" --body "Backport of {original_branch} to {backport_target}"
-```
-
-If no cherry-pick conflict → merge immediately:
+If no cherry-pick conflict → auto-merge:
 
 ```bash
 gh pr merge --admin --merge --delete-branch
 ```
 
-If cherry-pick conflict occurred → do NOT auto-merge. Report: "Backport PR #{n} created but has conflicts — manual resolution needed before merging."
+If cherry-pick conflict occurred → do NOT auto-merge. Report:
+"Backport PR #{n} created but has conflicts — load rollback-guide.md for resolution steps."
 
 ---
 
-### [15/15] Post-merge verification
+## [14/14] Post-merge verification + final summary
 
 ```bash
 git tag -l v{next_version}
@@ -280,11 +254,13 @@ git branch -r | grep {deploy_branch} || echo "remote branch deleted ✓"
 gh pr list --base {backport_target} --state merged --search "backport"
 ```
 
-Report results in final summary:
+Print final summary:
 
 ```text
 ✓ Merged: {branch} → main
 ✓ Branch deleted: {branch}
 ✓ Tag: v{next_version}
+✓ GitHub Release: v{next_version}
 ✓ Backport: #{backport_pr} → {backport_target}
+✓ Jira: {jira_key} commented   (if applicable)
 ```
