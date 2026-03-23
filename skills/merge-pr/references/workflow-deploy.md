@@ -55,6 +55,8 @@ Load [version-detector.md](version-detector.md) and follow Steps 1–2:
 
 ## [3/14] Capture fix_shas (Mode 2 only)
 
+**Mode 2 only — skip this step for Mode 3.**
+
 Before the version bump commit, capture fix commit SHAs in chronological order:
 
 ```bash
@@ -63,8 +65,6 @@ git log --reverse --pretty=%H origin/main..HEAD
 
 Store as `{fix_shas}` (space-separated, chronological oldest-first). These are the commits to
 backport — must be captured BEFORE the version bump commit.
-
-Skip this step for Mode 3.
 
 ---
 
@@ -223,7 +223,7 @@ git cherry-pick $fix_shas   # unquoted — shell word-splitting enumerates SHAs
 git cherry-pick {version_bump_sha}
 ```
 
-On conflict → `git cherry-pick --abort`. Continue to push/PR steps but skip auto-merge.
+On conflict → `git cherry-pick --abort`. The backport branch now has no commits (cherry-pick was aborted). Push the empty branch and create the PR — the engineer will resolve conflicts in the PR by pushing fixes manually.
 
 **Push and create PR:**
 
@@ -251,7 +251,11 @@ If cherry-pick conflict occurred → do NOT auto-merge. Report:
 ```bash
 git tag -l v{next_version}
 git branch -r | grep {deploy_branch} || echo "remote branch deleted ✓"
+# If backport was auto-merged (no conflict):
 gh pr list --base {backport_target} --state merged --search "backport"
+
+# If backport has conflicts (PR open, not merged):
+gh pr list --base {backport_target} --state open --search "backport"
 ```
 
 Print final summary:
@@ -261,6 +265,7 @@ Print final summary:
 ✓ Branch deleted: {branch}
 ✓ Tag: v{next_version}
 ✓ GitHub Release: v{next_version}
-✓ Backport: #{backport_pr} → {backport_target}
+✓ Backport: #{backport_pr} → {backport_target}   (if no conflict)
+⚠ Backport: PR #{backport_pr} created with conflicts — resolve manually   (if conflict occurred)
 ✓ Jira: {jira_key} commented   (if applicable)
 ```
