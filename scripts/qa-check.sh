@@ -29,73 +29,86 @@ PASS=0
 FAIL=0
 SKIP=0
 
-pass() { echo -e "  ${GREEN}✓${NC} $*"; PASS=$((PASS + 1)); }
-fail() { echo -e "  ${RED}✗${NC} $*"; FAIL=$((FAIL + 1)); }
-skip() { echo -e "  ${YELLOW}–${NC} $*"; SKIP=$((SKIP + 1)); }
-section() { echo ""; echo -e "${CYAN}$*${NC}"; }
+# Parallel-safe output helpers.
+# When run in a subshell, OUTFILE and RESULTFILE are set per-check.
+# Fallback to /dev/stdout (direct output) and /dev/null (discard count) when unset.
+# SC2329: functions are invoked indirectly via "check_${N}" subshells and restored below.
+# shellcheck disable=SC2329
+pass()    { echo -e "  ${GREEN}✓${NC} $*" >> "${OUTFILE:-/dev/stdout}"; echo "PASS" >> "${RESULTFILE:-/dev/null}"; }
+# shellcheck disable=SC2329
+fail()    { echo -e "  ${RED}✗${NC} $*"   >> "${OUTFILE:-/dev/stdout}"; echo "FAIL" >> "${RESULTFILE:-/dev/null}"; }
+# shellcheck disable=SC2329
+skip()    { echo -e "  ${YELLOW}–${NC} $*" >> "${OUTFILE:-/dev/stdout}"; echo "SKIP" >> "${RESULTFILE:-/dev/null}"; }
+# shellcheck disable=SC2329
+section() { echo ""                         >> "${OUTFILE:-/dev/stdout}"; echo -e "${CYAN}$*${NC}" >> "${OUTFILE:-/dev/stdout}"; }
 
-# ── 1. shellcheck ─────────────────────────────────────────────────────────────
+# Temp dir for parallel check output isolation
+QA_TMPDIR=$(mktemp -d)
+trap 'rm -rf "$QA_TMPDIR"' EXIT
 
-section "1. shellcheck"
+# ── check functions ────────────────────────────────────────────────────────────
 
-if ! command -v shellcheck > /dev/null 2>&1; then
-  skip "shellcheck not installed — skipping"
-else
-  HOOKS_DIR="$PLUGIN_DIR/hooks"
-  SCRIPTS_DIR="$PLUGIN_DIR/scripts"
+check_1() {
+  section "1. shellcheck"
 
-  SH_FILES=()
-  while IFS= read -r -d '' f; do SH_FILES+=("$f"); done \
-    < <(find "$HOOKS_DIR" "$SCRIPTS_DIR" -name "*.sh" -print0 2>/dev/null | sort -z)
-
-  if [ ${#SH_FILES[@]} -eq 0 ]; then
-    skip "No .sh files found"
-  elif shellcheck "${SH_FILES[@]}" 2>&1; then
-    pass "shellcheck — ${#SH_FILES[@]} scripts OK"
+  if ! command -v shellcheck > /dev/null 2>&1; then
+    skip "shellcheck not installed — skipping"
   else
-    fail "shellcheck — errors found in one or more scripts"
+    HOOKS_DIR="$PLUGIN_DIR/hooks"
+    SCRIPTS_DIR="$PLUGIN_DIR/scripts"
+
+    SH_FILES=()
+    while IFS= read -r -d '' f; do SH_FILES+=("$f"); done \
+      < <(find "$HOOKS_DIR" "$SCRIPTS_DIR" -name "*.sh" -print0 2>/dev/null | sort -z)
+
+    if [ ${#SH_FILES[@]} -eq 0 ]; then
+      skip "No .sh files found"
+    elif shellcheck "${SH_FILES[@]}" >> "${OUTFILE:-/dev/stdout}" 2>&1; then
+      pass "shellcheck — ${#SH_FILES[@]} scripts OK"
+    else
+      fail "shellcheck — errors found in one or more scripts"
+    fi
   fi
-fi
+}
 
-# ── 2. markdownlint ───────────────────────────────────────────────────────────
+check_2() {
+  section "2. markdownlint"
 
-section "2. markdownlint"
-
-if ! command -v markdownlint-cli2 > /dev/null 2>&1; then
-  skip "markdownlint-cli2 not installed — skipping"
-else
-  MD_OUTPUT=$(cd "$PLUGIN_DIR" && markdownlint-cli2 "**/*.md" 2>&1 || true)
-  MD_ERRORS=$(echo "$MD_OUTPUT" | grep "^Summary:" | grep -oE '[0-9]+' | head -1 || true)
-  MD_FILES=$(echo "$MD_OUTPUT" | grep "^Linting:" | grep -oE '[0-9]+' | head -1 || true)
-  if [ "${MD_ERRORS:-0}" -eq 0 ]; then
-    pass "markdownlint — ${MD_FILES:-?} files, 0 errors"
+  if ! command -v markdownlint-cli2 > /dev/null 2>&1; then
+    skip "markdownlint-cli2 not installed — skipping"
   else
-    fail "markdownlint — $MD_ERRORS error(s) across $MD_FILES file(s)"
-    echo "$MD_OUTPUT" | grep -v "^Finding:\|^Linting:\|^Summary:\|markdownlint-cli2" | head -20 || true
+    MD_OUTPUT=$(cd "$PLUGIN_DIR" && markdownlint-cli2 "**/*.md" 2>&1 || true)
+    MD_ERRORS=$(echo "$MD_OUTPUT" | grep "^Summary:" | grep -oE '[0-9]+' | head -1 || true)
+    MD_FILES=$(echo "$MD_OUTPUT" | grep "^Linting:" | grep -oE '[0-9]+' | head -1 || true)
+    if [ "${MD_ERRORS:-0}" -eq 0 ]; then
+      pass "markdownlint — ${MD_FILES:-?} files, 0 errors"
+    else
+      fail "markdownlint — $MD_ERRORS error(s) across $MD_FILES file(s)"
+      echo "$MD_OUTPUT" | grep -v "^Finding:\|^Linting:\|^Summary:\|markdownlint-cli2" | head -20 >> "${OUTFILE:-/dev/stdout}" || true
+    fi
   fi
-fi
+}
 
-# ── 3. plugin validate ────────────────────────────────────────────────────────
+check_3() {
+  section "3. plugin validate"
 
-section "3. plugin validate"
-
-if ! command -v claude > /dev/null 2>&1; then
-  skip "claude CLI not found — skipping"
-else
-  VALIDATE_OUT=$(claude plugin validate "$PLUGIN_DIR" 2>&1)
-  if echo "$VALIDATE_OUT" | grep -q "Validation passed"; then
-    pass "claude plugin validate"
+  if ! command -v claude > /dev/null 2>&1; then
+    skip "claude CLI not found — skipping"
   else
-    fail "claude plugin validate — see output:"
-    echo "$VALIDATE_OUT"
+    VALIDATE_OUT=$(claude plugin validate "$PLUGIN_DIR" 2>&1)
+    if echo "$VALIDATE_OUT" | grep -q "Validation passed"; then
+      pass "claude plugin validate"
+    else
+      fail "claude plugin validate — see output:"
+      echo "$VALIDATE_OUT" >> "${OUTFILE:-/dev/stdout}"
+    fi
   fi
-fi
+}
 
-# ── 4. broken relative links ──────────────────────────────────────────────────
+check_4() {
+  section "4. relative links"
 
-section "4. relative links"
-
-BROKEN_LINKS=$(python3 - "$PLUGIN_DIR" <<'PY'
+  BROKEN_LINKS=$(python3 - "$PLUGIN_DIR" <<'PY'
 import os, re, subprocess, sys
 
 root = sys.argv[1]
@@ -135,25 +148,25 @@ for filepath in md_files:
 for b in broken:
     print(b)
 PY
-)
+  )
 
-if [ -z "$BROKEN_LINKS" ]; then
-  pass "relative links — 0 broken"
-else
-  LINK_COUNT=$(echo "$BROKEN_LINKS" | wc -l | tr -d ' ')
-  fail "relative links — $LINK_COUNT broken link(s):"
-  echo "$BROKEN_LINKS"
-fi
+  if [ -z "$BROKEN_LINKS" ]; then
+    pass "relative links — 0 broken"
+  else
+    LINK_COUNT=$(echo "$BROKEN_LINKS" | wc -l | tr -d ' ')
+    fail "relative links — $LINK_COUNT broken link(s):"
+    echo "$BROKEN_LINKS" >> "${OUTFILE:-/dev/stdout}"
+  fi
+}
 
-# ── 5. hooks.json script references ──────────────────────────────────────────
+check_5() {
+  section "5. hooks.json script references"
 
-section "5. hooks.json script references"
-
-HOOKS_JSON="$PLUGIN_DIR/hooks/hooks.json"
-if [ ! -f "$HOOKS_JSON" ]; then
-  fail "hooks/hooks.json not found"
-else
-  MISSING_HOOKS=$(python3 - "$HOOKS_JSON" "$PLUGIN_DIR" <<'PY'
+  HOOKS_JSON="$PLUGIN_DIR/hooks/hooks.json"
+  if [ ! -f "$HOOKS_JSON" ]; then
+    fail "hooks/hooks.json not found"
+  else
+    MISSING_HOOKS=$(python3 - "$HOOKS_JSON" "$PLUGIN_DIR" <<'PY'
 import json, os, sys, re
 
 hooks_json, plugin_dir = sys.argv[1], sys.argv[2]
@@ -177,51 +190,51 @@ for event, entries in data.get('hooks', {}).items():
 for m in missing:
     print(m)
 PY
-  )
+    )
 
-  if [ -z "$MISSING_HOOKS" ]; then
-    pass "hooks.json — all script references found"
-  else
-    COUNT=$(echo "$MISSING_HOOKS" | wc -l | tr -d ' ')
-    fail "hooks.json — $COUNT missing script(s):"
-    echo "$MISSING_HOOKS"
-  fi
-fi
-
-# ── 6. SKILL.md frontmatter ───────────────────────────────────────────────────
-
-section "6. SKILL.md frontmatter"
-
-SKILLS_DIR="$PLUGIN_DIR/skills"
-FM_ISSUES=""
-if [ -d "$SKILLS_DIR" ]; then
-  for skill_dir in "$SKILLS_DIR"/*/; do
-    skill_name=$(basename "$skill_dir")
-    skill_file="$skill_dir/SKILL.md"
-    if [ ! -f "$skill_file" ]; then
-      FM_ISSUES="${FM_ISSUES}    MISSING SKILL.md: $skill_name\n"
-      continue
+    if [ -z "$MISSING_HOOKS" ]; then
+      pass "hooks.json — all script references found"
+    else
+      COUNT=$(echo "$MISSING_HOOKS" | wc -l | tr -d ' ')
+      fail "hooks.json — $COUNT missing script(s):"
+      echo "$MISSING_HOOKS" >> "${OUTFILE:-/dev/stdout}"
     fi
-    for field in name description; do
-      grep -q "^$field:" "$skill_file" || FM_ISSUES="${FM_ISSUES}    MISSING $field: $skill_name/SKILL.md\n"
+  fi
+}
+
+check_6() {
+  section "6. SKILL.md frontmatter"
+
+  SKILLS_DIR="$PLUGIN_DIR/skills"
+  FM_ISSUES=""
+  if [ -d "$SKILLS_DIR" ]; then
+    for skill_dir in "$SKILLS_DIR"/*/; do
+      skill_name=$(basename "$skill_dir")
+      skill_file="$skill_dir/SKILL.md"
+      if [ ! -f "$skill_file" ]; then
+        FM_ISSUES="${FM_ISSUES}    MISSING SKILL.md: $skill_name\n"
+        continue
+      fi
+      for field in name description; do
+        grep -q "^$field:" "$skill_file" || FM_ISSUES="${FM_ISSUES}    MISSING $field: $skill_name/SKILL.md\n"
+      done
     done
-  done
-fi
+  fi
 
-if [ -z "$FM_ISSUES" ]; then
-  SKILL_COUNT=$(find "$SKILLS_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
-  pass "SKILL.md frontmatter — $SKILL_COUNT skills OK"
-else
-  fail "SKILL.md frontmatter issues:"
-  printf "%b" "$FM_ISSUES"
-fi
+  if [ -z "$FM_ISSUES" ]; then
+    SKILL_COUNT=$(find "$SKILLS_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+    pass "SKILL.md frontmatter — $SKILL_COUNT skills OK"
+  else
+    fail "SKILL.md frontmatter issues:"
+    printf "%b" "$FM_ISSUES" >> "${OUTFILE:-/dev/stdout}"
+  fi
+}
 
-# ── 7. agent frontmatter + models ─────────────────────────────────────────────
+check_7() {
+  section "7. agent frontmatter + models"
 
-section "7. agent frontmatter + models"
-
-AGENTS_DIR="$PLUGIN_DIR/agents"
-AGENT_ISSUES=$(python3 - "$AGENTS_DIR" <<'PY'
+  AGENTS_DIR="$PLUGIN_DIR/agents"
+  AGENT_ISSUES=$(python3 - "$AGENTS_DIR" <<'PY'
 import os, sys, re
 
 agents_dir = sys.argv[1]
@@ -249,26 +262,26 @@ for fname in sorted(os.listdir(agents_dir)):
 for i in issues:
     print(i)
 PY
-)
+  )
 
-if [ -z "$AGENT_ISSUES" ]; then
-  AGENT_COUNT=$(find "$AGENTS_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-  pass "agent frontmatter — $AGENT_COUNT agents OK"
-else
-  COUNT=$(echo "$AGENT_ISSUES" | wc -l | tr -d ' ')
-  fail "agent issues ($COUNT):"
-  echo "$AGENT_ISSUES"
-fi
+  if [ -z "$AGENT_ISSUES" ]; then
+    AGENT_COUNT=$(find "$AGENTS_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    pass "agent frontmatter — $AGENT_COUNT agents OK"
+  else
+    COUNT=$(echo "$AGENT_ISSUES" | wc -l | tr -d ' ')
+    fail "agent issues ($COUNT):"
+    echo "$AGENT_ISSUES" >> "${OUTFILE:-/dev/stdout}"
+  fi
+}
 
-# ── 8. plugin.json required fields ───────────────────────────────────────────
+check_8() {
+  section "8. plugin.json"
 
-section "8. plugin.json"
-
-PLUGIN_JSON="$PLUGIN_DIR/.claude-plugin/plugin.json"
-if [ ! -f "$PLUGIN_JSON" ]; then
-  fail "plugin.json not found"
-else
-  PLUGIN_ISSUES=$(python3 - "$PLUGIN_JSON" <<'PY'
+  PLUGIN_JSON="$PLUGIN_DIR/.claude-plugin/plugin.json"
+  if [ ! -f "$PLUGIN_JSON" ]; then
+    fail "plugin.json not found"
+  else
+    PLUGIN_ISSUES=$(python3 - "$PLUGIN_JSON" <<'PY'
 import json, sys
 required = ['name', 'version', 'description', 'author', 'license']
 with open(sys.argv[1]) as f:
@@ -277,64 +290,108 @@ missing = [k for k in required if k not in d]
 for m in missing:
     print(f"    MISSING field: {m}")
 PY
-  )
+    )
 
-  if [ -z "$PLUGIN_ISSUES" ]; then
-    VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_JSON'))['version'])")
-    pass "plugin.json — version $VERSION, all required fields present"
-  else
-    fail "plugin.json:"
-    echo "$PLUGIN_ISSUES"
+    if [ -z "$PLUGIN_ISSUES" ]; then
+      VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_JSON'))['version'])")
+      pass "plugin.json — version $VERSION, all required fields present"
+    else
+      fail "plugin.json:"
+      echo "$PLUGIN_ISSUES" >> "${OUTFILE:-/dev/stdout}"
+    fi
   fi
-fi
+}
 
-# ── 9. CHANGELOG version ──────────────────────────────────────────────────────
+check_9() {
+  PLUGIN_JSON="$PLUGIN_DIR/.claude-plugin/plugin.json"
 
-section "9. CHANGELOG"
+  section "9. CHANGELOG"
 
-CHANGELOG="$PLUGIN_DIR/CHANGELOG.md"
-if [ ! -f "$CHANGELOG" ]; then
-  fail "CHANGELOG.md not found"
-else
-  VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_JSON'))['version'])" 2>/dev/null || echo "?")
-  if grep -q "\[$VERSION\]" "$CHANGELOG"; then
-    pass "CHANGELOG.md — v$VERSION entry found"
+  CHANGELOG="$PLUGIN_DIR/CHANGELOG.md"
+  if [ ! -f "$CHANGELOG" ]; then
+    fail "CHANGELOG.md not found"
   else
-    fail "CHANGELOG.md — missing entry for v$VERSION"
+    VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_JSON'))['version'])" 2>/dev/null || echo "?")
+    if grep -q "\[$VERSION\]" "$CHANGELOG"; then
+      pass "CHANGELOG.md — v$VERSION entry found"
+    else
+      fail "CHANGELOG.md — missing entry for v$VERSION"
+    fi
   fi
-fi
+}
 
-# ── 10. required files ────────────────────────────────────────────────────────
+check_10() {
+  section "10. required files"
 
-section "10. required files"
+  for required_file in LICENSE README.md; do
+    if [ -f "$PLUGIN_DIR/$required_file" ]; then
+      pass "$required_file found"
+    else
+      fail "$required_file missing"
+    fi
+  done
+}
 
-for required_file in LICENSE README.md; do
-  if [ -f "$PLUGIN_DIR/$required_file" ]; then
-    pass "$required_file found"
+check_11() {
+  section "11. CLAUDE.md size (< 200 lines)"
+
+  SIZE_ISSUES=""
+  while IFS= read -r -d '' f; do
+    lines=$(wc -l < "$f")
+    rel=$(python3 -c "import os; print(os.path.relpath('$f', '$PLUGIN_DIR'))")
+    if [ "$lines" -gt 200 ]; then
+      SIZE_ISSUES="${SIZE_ISSUES}    LARGE ($lines lines): $rel\n"
+    fi
+  done < <(find "$PLUGIN_DIR" -name "CLAUDE.md" -print0 2>/dev/null)
+
+  if [ -z "$SIZE_ISSUES" ]; then
+    pass "all CLAUDE.md files within 200-line budget"
   else
-    fail "$required_file missing"
+    fail "CLAUDE.md size issues:"
+    printf "%b" "$SIZE_ISSUES" >> "${OUTFILE:-/dev/stdout}"
+  fi
+}
+
+# ── parallel execution (checks 1–11) ─────────────────────────────────────────
+
+for N in 1 2 3 4 5 6 7 8 9 10 11; do
+  OUTFILE="$QA_TMPDIR/check-${N}.out"
+  RESULTFILE="$QA_TMPDIR/check-${N}.result"
+  (
+    export OUTFILE RESULTFILE
+    "check_${N}"
+  ) &
+done
+
+# Wait for all parallel checks to complete
+set +e
+wait
+set -e
+
+# Print results in order
+for N in 1 2 3 4 5 6 7 8 9 10 11; do
+  cat "$QA_TMPDIR/check-${N}.out" 2>/dev/null || true
+done
+
+# Sum counters from result files
+for N in 1 2 3 4 5 6 7 8 9 10 11; do
+  RESULTFILE="$QA_TMPDIR/check-${N}.result"
+  if [ -f "$RESULTFILE" ]; then
+    while IFS= read -r verdict; do
+      case "$verdict" in
+        PASS) PASS=$((PASS + 1)) ;;
+        FAIL) FAIL=$((FAIL + 1)) ;;
+        SKIP) SKIP=$((SKIP + 1)) ;;
+      esac
+    done < "$RESULTFILE"
   fi
 done
 
-# ── 11. CLAUDE.md size ────────────────────────────────────────────────────────
-
-section "11. CLAUDE.md size (< 200 lines)"
-
-SIZE_ISSUES=""
-while IFS= read -r -d '' f; do
-  lines=$(wc -l < "$f")
-  rel=$(python3 -c "import os; print(os.path.relpath('$f', '$PLUGIN_DIR'))")
-  if [ "$lines" -gt 200 ]; then
-    SIZE_ISSUES="${SIZE_ISSUES}    LARGE ($lines lines): $rel\n"
-  fi
-done < <(find "$PLUGIN_DIR" -name "CLAUDE.md" -print0 2>/dev/null)
-
-if [ -z "$SIZE_ISSUES" ]; then
-  pass "all CLAUDE.md files within 200-line budget"
-else
-  fail "CLAUDE.md size issues:"
-  printf "%b" "$SIZE_ISSUES"
-fi
+# ── restore direct-output helpers for sequential check 12 ─────────────────────
+pass()    { echo -e "  ${GREEN}✓${NC} $*"; PASS=$((PASS + 1)); }
+fail()    { echo -e "  ${RED}✗${NC} $*";   FAIL=$((FAIL + 1)); }
+skip()    { echo -e "  ${YELLOW}–${NC} $*"; SKIP=$((SKIP + 1)); }
+section() { echo ""; echo -e "${CYAN}$*${NC}"; }
 
 # ── 12. bats hook tests ───────────────────────────────────────────────────────
 
