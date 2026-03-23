@@ -15,9 +15,9 @@ Detect at Prerequisite Check and inform user of mode.
 | Phase | Agent Teams | Subagent | Solo |
 | --- | --- | --- | --- |
 | Phase 0: Worktree Setup | ✅ | ✅ | ✅ |
-| Phase 0.05: Bootstrap | ✅ | ✅ (or fallback) | ❌ skip |
+| Phase 0.05A: pr-review-bootstrap | ✅ | ✅ (or fallback) | ❌ skip |
+| Phase 0.05B: Jira fetch (concurrent, if key) | ✅ if Jira key | ✅ if Jira key | ✅ if Jira key |
 | Phase 0.1: Scope Assessment | ✅ | ✅ | ✅ |
-| Phase 0.05: Parallel Context Bootstrap | ✅ if Jira key | ✅ if Jira key | ✅ if Jira key |
 | Phase 1: Project Detection | ✅ | ✅ | ✅ |
 | Phase 2: Independent Review | ✅ (3 teammates) | ✅ (3 subagents) | ✅ (lead only, sequential) |
 | Phase 3: Debate | ✅ | ❌ skip (no messaging) | ❌ skip |
