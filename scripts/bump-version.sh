@@ -118,6 +118,33 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   die "Working tree has uncommitted changes — commit or stash first"
 fi
 
+# ── verify gh auth account ────────────────────────────────────────────────────
+
+REPO_OWNER=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['author']['url'].split('/')[-1])" 2>/dev/null || echo "")
+if [[ -n "$REPO_OWNER" ]]; then
+  GH_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
+  if [[ -n "$GH_USER" && "$GH_USER" != "$REPO_OWNER" ]]; then
+    die "gh auth is logged in as '$GH_USER' but repo owner is '$REPO_OWNER' — run: gh auth switch --user $REPO_OWNER"
+  fi
+fi
+
+# ── verify plugin.json and marketplace.json versions are in sync ──────────────
+
+MARKETPLACE_VERSION=$(python3 -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); print(d.get('plugins', [{}])[0].get('version', d.get('version','')))" 2>/dev/null || echo "")
+if [[ -n "$MARKETPLACE_VERSION" && "$MARKETPLACE_VERSION" != "$CURRENT" ]]; then
+  warn "marketplace.json version ($MARKETPLACE_VERSION) differs from plugin.json ($CURRENT)"
+  warn "This can happen when version was bumped manually without using this script."
+  if [[ "$AUTO_YES" -eq 0 ]]; then
+    read -r -p "Fix marketplace.json to $CURRENT and continue? [y/N] " FIX_SYNC
+    [[ "$FIX_SYNC" =~ ^[Yy]$ ]] || die "Aborted — fix marketplace.json manually first"
+  fi
+  info "Fixing marketplace.json version to $CURRENT..."
+  update_json_version ".claude-plugin/marketplace.json" "$CURRENT"
+  git add .claude-plugin/marketplace.json
+  git commit -m "fix: sync marketplace.json version to $CURRENT"
+  ok "marketplace.json synced to $CURRENT"
+fi
+
 # ── qa check ──────────────────────────────────────────────────────────────────
 
 info "Running QA checks..."
@@ -252,6 +279,15 @@ RELEASE_URL=$(gh release create "v$NEW_VERSION" \
   --generate-notes)
 ok "Release: $RELEASE_URL"
 
+# ── 5. refresh local marketplace cache ───────────────────────────────────────
+
+info "Refreshing local marketplace cache..."
+if claude plugin marketplace update dev-loop 2>&1 | grep -q "Successfully updated"; then
+  ok "Marketplace cache refreshed → ready to install v$NEW_VERSION"
+else
+  warn "Marketplace cache refresh may have failed — run manually: claude plugin marketplace update dev-loop"
+fi
+
 # ── done ──────────────────────────────────────────────────────────────────────
 
 echo ""
@@ -260,11 +296,9 @@ echo ""
 echo "  Next steps:"
 echo ""
 echo -e "  ${CYAN}Fresh install:${NC}"
-echo "    claude plugin marketplace update dev-loop"
 echo "    claude plugin install dev-loop@dev-loop"
 echo ""
 echo -e "  ${CYAN}Update existing:${NC}"
-echo "    claude plugin marketplace update dev-loop"
 echo "    claude plugin update dev-loop@dev-loop"
 echo ""
 echo "  Then restart Claude Code to load v$NEW_VERSION"
