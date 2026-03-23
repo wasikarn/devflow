@@ -4,7 +4,7 @@
 
 **A Claude Code plugin for structured development, PR review, and debugging — powered by Agent Teams.**
 
-[![Version](https://img.shields.io/badge/version-0.6.19-blue?style=flat-square)](https://github.com/wasikarn/dev-loop/releases)
+[![Version](https://img.shields.io/badge/version-0.6.20-blue?style=flat-square)](https://github.com/wasikarn/dev-loop/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-12-blue?style=flat-square)](#skills)
 [![Agents](https://img.shields.io/badge/agents-23-purple?style=flat-square)](#agents)
@@ -333,7 +333,7 @@ Maps causal loops, identifies feedback cycles, and surfaces second-order effects
 
 #### `dlc-metrics` — Retrospective Report
 
-Reads `~/.claude/projects/.../dlc-metrics.jsonl` and produces a retrospective: iteration counts, critical finding categories, recurrent issues, and Hard Rule candidates.
+Reads `~/.claude/dlc-metrics.jsonl` and produces a retrospective: iteration counts, critical finding categories, recurrent issues, and Hard Rule candidates.
 
 ```bash
 /dev-loop:dlc-metrics
@@ -646,7 +646,11 @@ dev-loop/
 │   ├── merge-pr/
 │   ├── optimize-context/
 │   ├── env-heal/
-│   └── systems-thinking/
+│   ├── systems-thinking/
+│   ├── dlc-metrics/
+│   ├── dlc-onboard/
+│   ├── careful/
+│   └── freeze/
 ├── agents/                   # Custom subagent definitions (.md files)
 ├── hooks/                    # Plugin-distributed lifecycle hook scripts
 │   └── hooks.json            # Plugin hook registry (auto-loaded on install)

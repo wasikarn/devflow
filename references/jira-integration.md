@@ -50,7 +50,7 @@ When using `issue-bootstrap` (option 1), all fields above are already extracted 
 
 ## dlc-review: AC Verification
 
-**Phase 0.6: Ticket Understanding** (between Phase 0.1: PR Scope Assessment and Phase 1: Project Detection)
+**Phase 0.05: Parallel Context Bootstrap — Jira Fetch** (runs concurrently with Phase 0.1: PR Scope Assessment)
 
 1. Fetch ticket per Detection & Fetch above
 2. Summarize ticket context:

@@ -17,7 +17,7 @@ Detect at Prerequisite Check and inform user of mode.
 | Phase 0: Worktree Setup | ✅ | ✅ | ✅ |
 | Phase 0.05: Bootstrap | ✅ | ✅ (or fallback) | ❌ skip |
 | Phase 0.1: Scope Assessment | ✅ | ✅ | ✅ |
-| Phase 0.6: Ticket Understanding | ✅ if Jira key | ✅ if Jira key | ✅ if Jira key |
+| Phase 0.05: Parallel Context Bootstrap | ✅ if Jira key | ✅ if Jira key | ✅ if Jira key |
 | Phase 1: Project Detection | ✅ | ✅ | ✅ |
 | Phase 2: Independent Review | ✅ (3 teammates) | ✅ (3 subagents) | ✅ (lead only, sequential) |
 | Phase 3: Debate | ✅ | ❌ skip (no messaging) | ❌ skip |
@@ -34,7 +34,7 @@ If session compacts mid-workflow, re-read in order:
 3. Progress tracker in conversation — current phase
 4. Phase 2 progress table from conversation — which teammates completed (prevents re-running finished reviews)
 5. Re-run `pr-review-bootstrap` agent if `{bootstrap_context}` is lost — avoids 3x diff reads
-6. AC checklist from Phase 0.6 output in conversation — if Jira key was provided
+6. AC checklist from Phase 0.05 output in conversation — if Jira key was provided
 
 ## Success Criteria
 
