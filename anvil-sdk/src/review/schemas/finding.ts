@@ -16,3 +16,5 @@ export const FindingArraySchema = z.array(FindingSchema)
 
 // Export as JSON Schema for SDK outputFormat
 export const findingArrayJsonSchema = z.toJSONSchema(FindingArraySchema)
+
+export type Finding = z.infer<typeof FindingSchema>

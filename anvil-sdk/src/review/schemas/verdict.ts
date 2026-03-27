@@ -10,3 +10,5 @@ export const VerdictSchema = z.object({
 
 export const VerdictArraySchema = z.array(VerdictSchema)
 export const verdictArrayJsonSchema = z.toJSONSchema(VerdictArraySchema)
+
+export type Verdict = z.infer<typeof VerdictSchema>

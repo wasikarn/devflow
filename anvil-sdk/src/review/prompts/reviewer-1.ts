@@ -7,7 +7,7 @@ export function buildReviewer1Prompt(config: {
 }): string {
   return `You are reviewing code changes for correctness and security issues.
 
-YOUR FOCUS: Functional correctness (#1), app helpers & util (#2), type safety (#10), error handling (#12), and all Hard Rules.
+YOUR FOCUS: Functional correctness (#1), app helpers & util (#2), type safety (#10), error handling, and all Hard Rules.
 
 HARD RULES:
 ${config.hardRules}
@@ -42,5 +42,10 @@ TYPE SAFETY (#10): Beyond \`as any\`, flag:
 
 LOGIC VERIFICATION: For each changed function, trace edge inputs (n=0, n=null, empty array).
 Never auto-confirm implementation correctness — trace 2-3 edge cases explicitly.
+
+ERROR HANDLING: For all changed code paths:
+1. Flag swallowed errors — catch blocks that log-and-continue without re-throwing or surfacing to the caller
+2. Flag error messages that lack context (operation name, input values, affected resource)
+3. Flag async errors without proper typed handling (unhandled promise rejections, missing error type narrowing in catch)
 `
 }

@@ -1,26 +1,11 @@
+import type { Finding } from './review/schemas/finding.js'
+
 export type ReviewRole = 'correctness' | 'architecture' | 'dx'
 export type Severity = 'critical' | 'warning' | 'info'
 export type VerdictType = 'SUSTAINED' | 'DOWNGRADED' | 'REJECTED'
 
-export interface Finding {
-  severity: Severity
-  rule: string
-  file: string
-  line: number | null
-  confidence: number
-  issue: string
-  fix: string
-  isHardRule: boolean
-  crossDomain?: string
-}
-
-export interface Verdict {
-  findingIndex: number
-  originalSummary: string
-  verdict: VerdictType
-  newSeverity?: Severity
-  rationale: string
-}
+export type { Finding } from './review/schemas/finding.js'
+export type { Verdict } from './review/schemas/verdict.js'
 
 export interface FileDiff {
   path: string
