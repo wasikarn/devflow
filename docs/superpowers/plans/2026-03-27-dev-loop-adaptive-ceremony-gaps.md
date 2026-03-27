@@ -403,7 +403,7 @@ Edit `skills/dlc-build/references/phase-9-ship.md`. After the closing `}` of the
 ```markdown
 ## Step 8: Lens Update Check (Full mode only)
 
-Per [workflow-modes.md](workflow-modes.md): Micro, Quick, and Hotfix → skip this step entirely.
+Per [workflow-modes.md](../../../skills/build/references/workflow-modes.md): Micro, Quick, and Hotfix → skip this step entirely.
 
 **Full mode:** Check entry count in `{artifacts_dir}/dlc-metrics.jsonl`:
 

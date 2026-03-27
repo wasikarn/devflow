@@ -135,7 +135,7 @@ If TeamCreate tool is not available → check graceful degradation:
 - If neither → "Running in solo mode. All phases executed by lead sequentially."
 ```
 
-See [references/operational.md](references/operational.md) for degradation behavior details.
+See [operational.md](operational.md) for degradation behavior details.
 
 ## Constraints
 
@@ -164,7 +164,7 @@ See [references/operational.md](references/operational.md) for degradation behav
 | Assess → Escalate (STOP) | iteration_count = 3, still Critical | Lead |
 | Ship → Done | User selects completion option | User |
 
-Full gate details: [references/phase-gates.md](references/phase-gates.md)
+Full gate details: [phase-gates.md](phase-gates.md)
 
 ## Gotchas
 

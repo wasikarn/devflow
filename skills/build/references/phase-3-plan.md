@@ -73,7 +73,7 @@ Update `plan_file:` in `{artifacts_dir}/anvil-context.md` to `{artifacts_dir}/{d
 
 **Full mode only:** Immediately spawn `plan-challenger` agent with the plan file path + `{artifacts_dir}/research.md`. Do **not** wait — continue to Step 3 (readiness gate) while plan-challenger runs.
 
-Plan-challenger uses **dual-lens** challenge (see [agents/plan-challenger.md](../../../../agents/plan-challenger.md)):
+Plan-challenger uses **dual-lens** challenge (see [agents/plan-challenger.md](../../../agents/plan-challenger.md)):
 
 - **Minimal-lens:** "What can be removed and still satisfy ALL must_haves.truths?" — ≥2 findings required
 - **Clean-lens:** "What should be refactored BEFORE implementing to avoid accruing debt?" — ≥1 finding required

@@ -72,7 +72,7 @@ gh pr list --author @me --state open --json number,title,headRefName,createdAt \
 
 **2c — Jira Context** (skip if no Jira key in `$ARGUMENTS`):
 
-Follow [jira-integration](../../../jira-integration/SKILL.md) §build:
+Follow [jira-integration](../../jira-integration/SKILL.md) §build:
 
 1. Fetch ticket → extract AC and subtasks
 2. AC items become plan task constraints (Phase 3)

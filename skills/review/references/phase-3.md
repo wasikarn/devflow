@@ -6,7 +6,7 @@ Before spawning reviewers, count changed files from the already-loaded PR diff s
 
 | Diff files (from header) | Lens injection |
 | --- | --- |
-| <30 | Domain-scoped — inject assigned lenses per teammate per [teammate-prompts.md](references/teammate-prompts.md) lens table |
+| <30 | Domain-scoped — inject assigned lenses per teammate per [teammate-prompts.md](teammate-prompts.md) lens table |
 | 30–50 | Reduced — inject max 1 lens per teammate: T1→security, T2→performance, T3→frontend (if applicable) |
 | >50 | Skip all lenses — Hard Rules only; notify user: "Large diff (N files) — lenses skipped, Hard Rules only" |
 
@@ -37,7 +37,7 @@ Anchor to these before assigning any severity. When in doubt, use Warning over C
 
 ## Step 2: Create the team
 
-Create an agent team named `review-pr-$0` with 3 reviewer teammates using prompts from [teammate-prompts.md](references/teammate-prompts.md):
+Create an agent team named `review-pr-$0` with 3 reviewer teammates using prompts from [teammate-prompts.md](teammate-prompts.md):
 
 - **Teammate 1 — Correctness & Security:** Focus on correctness (#1, #2), type safety (#10), error handling (#12)
 - **Teammate 2 — Architecture & Performance:** Focus on N+1 (#3), DRY (#4), flatten (#5), SOLID (#6), elegance (#7)
