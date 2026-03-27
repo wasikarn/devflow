@@ -21,7 +21,7 @@ IFS=$'\t' read -r TOOL_NAME SKILL_NAME < <(jq_fields '.tool_name' '.tool_input.s
 # Falls back to the conventional path for local dev (symlinked, not installed).
 DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/anvil-anvil}"
 mkdir -p "$DATA_DIR"
-LOG="${ANVIL_USAGE_LOG:-$DATA_DIR/skill-usage.tsv}"
+LOG="${ANVIL_USAGE_LOG:-${DEV_LOOP_USAGE_LOG:-$DATA_DIR/skill-usage.tsv}}"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 printf '%s\t%s\n' "$TIMESTAMP" "$SKILL_NAME" >> "$LOG"
