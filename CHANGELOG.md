@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] — 2026-03-28
+
+### feat!: rename plugin dev-loop → anvil, drop dlc- prefix
+
+BREAKING CHANGE: Plugin renamed from `dev-loop` to `anvil`. All `dlc-*` skill names
+dropped in favour of unprefixed names under the `anvil` namespace.
+
+- Plugin name: `dev-loop` → `anvil` (`/anvil:build`, `/anvil:review`, etc.)
+- Skills renamed: `dlc-build` → `build`, `dlc-review` → `review`, `dlc-respond` → `respond`,
+  `dlc-debug` → `debug`, `dlc-metrics` → `metrics`, `dlc-onboard` → `onboard`, `dlc-status` → `status`
+- Bootstrap agents renamed: `dlc-*-bootstrap` → `anvil-*-bootstrap`
+- Artifact paths: `.claude/dlc-build/` → `.claude/anvil-build/`, `dlc-metrics.jsonl` → `anvil-metrics.jsonl`
+- Env vars: `DEV_LOOP_ARTIFACT_TTL_DAYS` → `ANVIL_ARTIFACT_TTL_DAYS` (backward-compat fallback retained),
+  `DEV_LOOP_USAGE_LOG` → `ANVIL_USAGE_LOG` (backward-compat fallback retained)
+- Data path: `~/.claude/plugins/data/dev-loop-dev-loop/` → `~/.claude/plugins/data/anvil-anvil/`
+
 ## [0.6.23] — 2026-03-23
 
 ### perf: domain-scoped lens injection — reduce session token usage ~60%
