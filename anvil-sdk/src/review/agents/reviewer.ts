@@ -68,5 +68,6 @@ export function createReviewer(params: {
     prompt,
     tools: ['Read', 'Grep', 'Glob'],
     model: 'claude-sonnet-4-5',
+    maxTurns: 15,
   }
 }
