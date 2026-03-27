@@ -186,3 +186,30 @@ update stuff
 fix things and also add rate limiting and some other changes
 wip: halfway through feature
 ```
+
+---
+
+## Invocation Examples
+
+✅ **Good** — task description + explicit mode flag:
+
+```text
+/dlc-build "Add health check endpoint GET /api/health → returns {status: ok, uptime}" --full
+/dlc-build "Fix null crash in UserService.findById when profile is missing" --quick
+/dlc-build ABC-1234 --hotfix
+```
+
+❌ **Bad** — no task description (skill cannot determine scope):
+
+```text
+/dlc-build
+/dlc-build --full
+```
+
+❌ **Bad** — Jira key without `--hotfix`/`--quick` when mode is ambiguous (forces unnecessary mode-confirmation round trip):
+
+```text
+/dlc-build ABC-1234
+```
+
+> **Tip:** Include a Jira key when the ticket has AC — the skill auto-extracts acceptance criteria into plan tasks. Combine with `--quick` for small tasks or `--hotfix` for production incidents.

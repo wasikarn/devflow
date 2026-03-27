@@ -20,8 +20,6 @@ You are a **Staff Software Engineer** — the lead running a structured, multi-p
 
 **Tone:** Methodical and precise. Document decisions, flag blockers early, escalate when stuck.
 
----
-
 # Team Dev Loop — Full Development Workflow
 
 Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]`
@@ -33,10 +31,6 @@ Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hot
 **Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build "$0" 2>/dev/null || echo ""`
 
 **Args:** `$0`=task description or Jira key (required) · `$1`=`--micro` | `--quick` | `--full` | `--hotfix` (optional — auto-detected if omitted)
-
-Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
-
----
 
 ## Phase Flow
 
@@ -51,7 +45,7 @@ Loop: Phase 3 ↔ 3.5 ↔ 4 ↔ 5 (max 3 shared iterations)
 | 2 | Fix findings | 2 / 1 / 1 | Focused (1 round, Full mode only) |
 | 3 | Remaining fixes | 1 / 1 / 1 | None (spot-check only) |
 
----
+See [references/operational.md](references/operational.md) for prerequisites, constraints, fallback behavior, and gotchas.
 
 ## Reference Loading (on demand only)
 
@@ -82,96 +76,3 @@ Loop: Phase 3 ↔ 3.5 ↔ 4 ↔ 5 (max 3 shared iterations)
 | [../../references/jira-integration.md](../../references/jira-integration.md) | Jira key in `$ARGUMENTS` |
 | [references/pr-template.md](references/pr-template.md) | Entering Phase 6 |
 | [references/examples.md](references/examples.md) | When assessing research/plan/implementation quality or checking for YAGNI violations |
-
-## Invocation Examples
-
-✅ **Good** — task description + explicit mode flag:
-
-```text
-/dlc-build "Add health check endpoint GET /api/health → returns {status: ok, uptime}" --full
-/dlc-build "Fix null crash in UserService.findById when profile is missing" --quick
-/dlc-build ABC-1234 --hotfix
-```
-
-❌ **Bad** — no task description (skill cannot determine scope):
-
-```text
-/dlc-build
-/dlc-build --full
-```
-
-❌ **Bad** — Jira key without `--hotfix`/`--quick` when mode is ambiguous (forces unnecessary mode-confirmation round trip):
-
-```text
-/dlc-build ABC-1234
-```
-
-> **Tip:** Include a Jira key when the ticket has AC — the skill auto-extracts acceptance criteria into plan tasks. Combine with `--quick` for small tasks or `--hotfix` for production incidents.
-
----
-
-## Fallback Behavior
-
-**Jira unreachable:** If Jira fetch fails — proceed with task description as acceptance criteria. Note `[Jira: UNAVAILABLE]` in dev-loop-context.md.
-
-**Mode confirmation timeout:** If user doesn't respond to mode selection within 1 message → default to Full mode and proceed. Note the auto-selection in the triage output.
-
----
-
-## Prerequisite Check
-
-Before anything, verify agent teams are available:
-
-```text
-If TeamCreate tool is not available → check graceful degradation:
-- If Task (subagent) tool is available → "Agent Teams not enabled. Running in subagent mode."
-- If neither → "Running in solo mode. All phases executed by lead sequentially."
-```
-
-See [references/operational.md](references/operational.md) for degradation behavior details.
-
----
-
-## Constraints
-
-- **Max 3 teammates concurrent** — more adds coordination overhead without proportional value
-- **Workers READ-ONLY during review** — no workers alive during Phase 4; reviewers never modify files
-- **Lead is sole writer of dev-loop-context.md** — workers SendMessage; lead updates the file
-- **Artifacts persist on disk** — `dev-loop-context.md`, plan file, `research.md`, `review-findings-*.md` survive context compression
-- **YAGNI** — implement only what the task requires; speculative abstractions are review findings
-- **Artifacts path** — ALL artifacts live at `{artifacts_dir}/{date}-{task-slug}/` (from `scripts/artifact-dir.sh dlc-build`); includes plan.md, research.md, verify-results.md, review-findings-*.md, dev-loop-context.md. `~/.claude/plans/` is no longer used.
-
----
-
-## Gate Summary
-
-| Transition | Key condition | Who decides |
-| --- | --- | --- |
-| Triage → Research/Plan | Blast-radius scored, mode confirmed | User |
-| Research → Plan | research.md complete + validator PASS (+ GO/NO-GO Full) | User (Full) / Lead (Quick) |
-| Plan → Implement | Plan written to artifacts_dir + must_haves.truths + challenger (Full) | User (Full) / Lead auto (Micro/Quick) |
-| Implement → Verify | All tasks done + validate + workers shut down | Lead |
-| Verify → Review | All truths PASS + key_links verified | Lead |
-| Verify → Implement | ANY truth FAIL (Quick/Full, iteration_count < 3) | Lead (targeted) |
-| Review Stage 1 → Stage 2 | Spec compliance PASS | Lead |
-| Review Stage 1 FAIL → Implement | Spec non-compliance — return to Phase 3 | Lead |
-| Review → Assess | Findings consolidated | Lead |
-| Assess → Loop | Critical found, iteration_count < 3 | Lead |
-| Assess → Ship | Zero Critical (or user accepts) | User/Lead |
-| Assess → Escalate (STOP) | iteration_count = 3, still Critical | Lead |
-| Ship → Done | User selects completion option | User |
-
-Full gate details: [references/phase-gates.md](references/phase-gates.md)
-
-## Gotchas
-
-- **Agent Teams required for parallel phases** — without `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, the skill degrades to subagent or solo mode; phases that rely on parallel workers run sequentially, increasing token cost and time.
-- **Phase 0 AC validation skips silently if Jira key is invalid** — if the key doesn't exist or Jira is unreachable, the skill proceeds using the raw task description as AC. Verify the Jira key resolves before invoking to avoid a silent no-op on acceptance criteria.
-- **Research phase can exceed context budget on large repos** — the Explorer spawns multiple subagents to read files; on repos with hundreds of relevant files this burns context fast. Use `--quick` for small tasks; save `--full` for cross-cutting changes.
-- **All artifacts in one folder** — `dev-loop-context.md`, `research.md`, `plan.md`, `verify-results.md`, and `review-findings-*.md` all live at `{artifacts_dir}/{date}-{task-slug}/`. `~/.claude/plans/` is no longer used by dlc-build for new runs.
-- **Max 3 iterations is shared** — Phase 3.5 loops, Stage 1 FAIL loops, and review loops all consume the same `iteration_count` counter (max 3). This prevents runaway costs from multiple loop types each believing they have their own budget.
-- **Phase 3.5 is mandatory** — every Implement → Review transition must pass through Phase 3.5 Verify. Skipping it after a Stage 1 FAIL is not permitted.
-- **[NEEDS CLARIFICATION] replaces ClarifyQ** — clarifying questions are embedded as tokens in research.md (max 3, each with file:line evidence). No separate ClarifyQ phase. Quick and Hotfix modes use Lite research with no clarification tokens.
-- **plan-challenger is Full mode only** — Micro and Quick modes write plans directly without a challenge step. Running plan-challenger on Micro/Quick adds overhead that defeats their purpose.
-- **Auto-transition requires a Jira key + at least one Jira integration** — Step 2a transitions the Jira card to In Progress automatically after mode is confirmed. Uses atlassian-pm path if `issue-bootstrap` was available in Step 1c; falls back to `mcp-atlassian` (`jira_transition_issue`) if atlassian-pm is not installed; skips silently if neither is reachable.
-- **WIP limit enforcement only on the atlassian-pm path** — the `pre_wip_limit_check` hook fires only when atlassian-pm is installed. On the mcp-atlassian fallback path, there is no WIP gate — the transition proceeds unconditionally.
