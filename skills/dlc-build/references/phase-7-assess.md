@@ -1,4 +1,4 @@
-# Phase 5: Assess (Lead Only)
+# Phase 7: Assess (Lead Only)
 
 Read ONLY `{artifacts_dir}/review-findings-{N}.md` (the consolidated file) — do not re-read raw reviewer outputs. Raw findings are available on-demand if a specific finding needs deeper investigation.
 
@@ -10,11 +10,11 @@ There is ONE shared `iteration_count` in `dev-loop-context.md` (max 3). All loop
 
 | Event | Increments iteration_count? |
 | ------- | :---------------------------: |
-| Phase 3.5 ANY FAIL → Phase 3 targeted re-entry | Yes |
-| Phase 4 Stage 1 FAIL → Phase 3 | Yes |
-| Phase 4 Critical finding → Phase 3 | Yes |
+| Phase 5 ANY FAIL → Phase 4 targeted re-entry | Yes |
+| Phase 6 Stage 1 FAIL → Phase 4 | Yes |
+| Phase 6 Critical finding → Phase 4 | Yes |
 
-Lead increments `iteration_count` BEFORE returning to Phase 3.
+Lead increments `iteration_count` BEFORE returning to Phase 4.
 If `iteration_count` reaches 3: present options to user instead of looping automatically.
 
 Apply decision tree from [phase-gates.md](phase-gates.md) §Assess→Loop Decision.
@@ -33,7 +33,7 @@ FIFO cap: 50 entries total — if file exceeds 50 rows (excluding header), remov
 
 **GATE:** Loop decision made → update `Phase: assess` (or `Phase: ship` if exiting) in dev-loop-context.md → proceed accordingly.
 
-## Step 5.5: Simplification Pass (Ship path only)
+## Step 7.5: Simplification Pass (Ship path only)
 
 Per [workflow-modes.md](workflow-modes.md): Micro=Skip, Quick=Optional, Full=Default when Critical=0.
 
@@ -50,7 +50,7 @@ Call AskUserQuestion:
 - question: "Zero critical findings — code is shippable. Run a simplification pass before shipping to improve clarity and maintainability?"
 - options: [
     { label: "Run simplification", description: "Spawn code-simplifier on changed files — clarity improvements only, no behavior changes" },
-    { label: "Ship as-is", description: "Skip — proceed to Phase 6 directly" }
+    { label: "Ship as-is", description: "Skip — proceed to Phase 8 directly" }
   ]
 
 **If "Run simplification":**
@@ -59,7 +59,7 @@ Call AskUserQuestion:
 2. Spawn `code-simplifier` agent with task text: `"Simplify changed files: <space-separated file list>"` — the agent treats the task text as its `$ARGUMENTS` and uses it instead of its fallback git diff scope
 3. Wait for agent completion
 4. Run validate command from `dev-loop-context.md` → `validate:` field — confirm no regressions introduced. If `validate:` is empty, use fallback: `npx tsc --noEmit && npx eslint . --ext .ts,.tsx`
-5. If validate passes → proceed to Phase 6
-6. If validate fails → revert simplifier changes (`git checkout HEAD -- <changed-files>`), note in context, proceed to Phase 6 with original code
+5. If validate passes → proceed to Phase 8
+6. If validate fails → revert simplifier changes (`git checkout HEAD -- <changed-files>`), note in context, proceed to Phase 8 with original code
 
-**If "Ship as-is":** Proceed to Phase 6 directly.
+**If "Ship as-is":** Proceed to Phase 8 directly.

@@ -1,7 +1,7 @@
-# Phase 0: Triage (Lead Only)
+# Phase 1: Triage (Lead Only)
 
 ```text
-Phase 0 Flow:
+Phase 1 Flow:
 Step 0: Resume check ──→ existing context? ──→ Yes: ask to resume / No: proceed
     ↓
 Step 1: Parallel triage (all concurrent)
@@ -48,12 +48,12 @@ Run steps 1a, 1b, 1c concurrently — all are read-only and independent:
 
 **1a — Detect Project:** Use the `Project` JSON from the header (output of `detect-project.sh`). It contains: `project`, `repo`, `validate`, `base_branch`, `branch`.
 
-After detecting the project, also **detect domain lenses** from the task description and file extensions: if task mentions auth/API/security → load [review-lenses/security.md](review-lenses/security.md); SQL/DB/migration → [review-lenses/database.md](review-lenses/database.md); React/Next.js/frontend → [review-lenses/frontend.md](review-lenses/frontend.md); performance/bundle/query → [review-lenses/performance.md](review-lenses/performance.md); TypeScript types → [review-lenses/typescript.md](review-lenses/typescript.md). Multiple lenses can stack. Inject into `{domain_lenses}` placeholder in reviewer prompts at Phase 4.
+After detecting the project, also **detect domain lenses** from the task description and file extensions: if task mentions auth/API/security → load [review-lenses/security.md](review-lenses/security.md); SQL/DB/migration → [review-lenses/database.md](review-lenses/database.md); React/Next.js/frontend → [review-lenses/frontend.md](review-lenses/frontend.md); performance/bundle/query → [review-lenses/performance.md](review-lenses/performance.md); TypeScript types → [review-lenses/typescript.md](review-lenses/typescript.md). Multiple lenses can stack. Inject into `{domain_lenses}` placeholder in reviewer prompts at Phase 6.
 
 - If `validate` is empty → add to confirmation prompt: "No validate command detected. What should I run to verify? (e.g. `npm test`)"
 - Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md`:
   - Exists → load it + note checklist.md and examples.md paths
-  - Not exists → use Generic Hard Rules (as defined in dlc-review Phase 1)
+  - Not exists → use Generic Hard Rules (as defined in dlc-review Phase 2)
 
 **1b — Pending PRs Check:**
 
@@ -75,7 +75,7 @@ gh pr list --author @me --state open --json number,title,headRefName,createdAt \
 Follow [../../../references/jira-integration.md](../../../references/jira-integration.md) §dlc-build:
 
 1. Fetch ticket → extract AC and subtasks
-2. AC items become plan task constraints (Phase 2)
+2. AC items become plan task constraints (Phase 3)
 3. Jira context staged for `dev-loop-context.md` (Step 3)
 
 **1d — Duplicate Detection** (skip if no Jira key; run in parallel with 1a–1c):
@@ -244,11 +244,11 @@ tasks_completed: []
 ---
 ```
 
-Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Update `phase:` field at every gate transition. **Lead is sole writer of this file** — update `tasks_completed:` when workers send completion messages (prevents YAML race from parallel workers). Update `plan_file:` with the plan path immediately after Phase 2 creates the plan file.
+Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Update `phase:` field at every gate transition. **Lead is sole writer of this file** — update `tasks_completed:` when workers send completion messages (prevents YAML race from parallel workers). Update `plan_file:` with the plan path immediately after Phase 3 creates the plan file.
 
 ## Step 4: Initialize Progress Tracker
 
-Post a checkbox list in conversation: Phase 0 (done), Phase 1 (Full/Quick only), Phase 2, Loop iterations 1-3 with nested Phase 3/3.5/4/5, Phase 6. Update checkboxes as each phase completes.
+Post a checkbox list in conversation: Phase 1 (done), Phase 2 (Full/Quick only), Phase 3, Loop iterations 1-3 with nested Phase 4/5/6/7, Phase 8. Update checkboxes as each phase completes.
 
 Write dlc-metrics entry to `{artifacts_dir}/dlc-metrics.jsonl` (append, create if missing):
 

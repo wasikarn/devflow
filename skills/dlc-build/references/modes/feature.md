@@ -1,6 +1,6 @@
 # Mode: Feature (Full)
 
-Loaded by Phase 0 after Full mode is confirmed.
+Loaded by Phase 1 after Full mode is confirmed.
 
 ## Branch Strategy
 
@@ -17,7 +17,7 @@ git checkout -b feature/ABC-XXX-{slug}   # Jira key present
 
 Slug rules: lowercase, hyphens only, max 40 chars.
 
-## Phase 1 Discovery Guidance
+## Phase 2 Discovery Guidance
 
 Before dispatching explorer teammates, answer these questions from the task description and any Jira context:
 

@@ -1,6 +1,6 @@
 # Mode: Quick
 
-Loaded by Phase 0 after Quick mode is confirmed. Covers bug fixes, small refactors, and PR comment fixes.
+Loaded by Phase 1 after Quick mode is confirmed. Covers bug fixes, small refactors, and PR comment fixes.
 
 ## Branch Strategy
 
@@ -17,9 +17,9 @@ git checkout -b bugfix/ABC-XXX-{slug}   # Jira key present
 
 Slug rules: lowercase, hyphens only, max 40 chars.
 
-## Phase 2 Pre-Steps
+## Phase 3 Pre-Steps
 
-Apply the reproduce pre-steps **only when the task is a bug fix**. For refactors and PR comment fixes, skip directly to Phase 2.
+Apply the reproduce pre-steps **only when the task is a bug fix**. For refactors and PR comment fixes, skip directly to Phase 3.
 
 ### If task is a bug fix
 
@@ -29,6 +29,6 @@ Before writing plan tasks:
    - Input / request that causes the bug
    - Observed vs expected behaviour
 2. **Identify root cause** — pinpoint the suspected `file:line` with reasoning. State your hypothesis explicitly.
-3. **Confirm reproduction** — do not proceed to Phase 2 until the bug is reproducible.
+3. **Confirm reproduction** — do not proceed to Phase 3 until the bug is reproducible.
 
 Plan tasks must fix the root cause, not just the visible symptom.

@@ -1,8 +1,8 @@
-# Phase 6: Ship (Lead Only)
+# Phase 8: Ship (Lead Only)
 
 ## Step 1: Present Summary
 
-Load [pr-template.md](pr-template.md) now. Present the Phase 6 Summary (task, mode, iterations, final status, iteration history table).
+Load [pr-template.md](pr-template.md) now. Present the Phase 8 Summary (task, mode, iterations, final status, iteration history table).
 
 ## Step 1.5: Comprehension Gate
 
@@ -31,7 +31,7 @@ Present options to user:
 1. **Create PR** — generate PR using template, push branch, open with `gh pr create`
 2. **Merge to base** — squash merge current branch into `{base_branch}` from Project JSON
 3. **Keep branch** — leave as-is for manual review
-4. **Restart loop** — return to Phase 3 with additional changes
+4. **Restart loop** — return to Phase 4 with additional changes
 
 Load [pr-template.md](pr-template.md) for PR title format, description template (Thai), `gh pr create` command, and Hotfix Backport steps.
 
@@ -43,7 +43,7 @@ If `pr-description-writer` agent (atlassian-pm plugin) is available AND a Jira k
 1. Spawn `pr-description-writer` — pass `<branch-name> <jira-key>` as arguments
 2. Capture the output: description draft + any scope drift findings
 3. **If scope drift detected** → surface findings to user before creating PR; let them acknowledge
-   or return to Phase 3 via "Restart loop" option. A PR with known scope drift should not be silently opened.
+   or return to Phase 4 via "Restart loop" option. A PR with known scope drift should not be silently opened.
 4. Pass the description as `--body` argument to `gh pr create`
 
 If `pr-description-writer` is not available, fall back to `pr-template.md` manual template (current behavior).
@@ -54,7 +54,7 @@ If `pr-description-writer` is not available, fall back to `pr-template.md` manua
 2. Update `Phase: complete` in `{artifacts_dir}/{date}-{task-slug}/dev-loop-context.md`
 3. Delete checkpoint tags: `git tag -d $(git tag -l 'dlc-checkpoint-iter-*')`
 4. Archive artifacts to final location:
-   - All artifacts already live at `{artifacts_dir}/{date}-{task-slug}/` from Phase 0 (plan.md, research.md, verify-results.md, review-findings-*.md, dev-loop-context.md)
+   - All artifacts already live at `{artifacts_dir}/{date}-{task-slug}/` from Phase 1 (plan.md, research.md, verify-results.md, review-findings-*.md, dev-loop-context.md)
    - After ship: move the entire folder to `{artifacts_dir}/archive/{date}-{task-slug}/`
 
 ```bash

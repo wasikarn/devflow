@@ -1,6 +1,6 @@
-# Phase 3.5: Verify (NEW PHASE)
+# Phase 5: Verify
 
-Runs after all Phase 3 workers complete, before Phase 4 review.
+Runs after all Phase 4 workers complete, before Phase 6 review.
 Lead agent runs this phase directly — no new subagent needed.
 
 Update `phase: verify` in `{artifacts_dir}/dev-loop-context.md`.
@@ -9,13 +9,13 @@ Update `phase: verify` in `{artifacts_dir}/dev-loop-context.md`.
 
 Per [workflow-modes.md](workflow-modes.md):
 
-| Mode | Phase 3.5 behavior |
+| Mode | Phase 5 behavior |
 | ------ | ------------------- |
 | Micro | Lightweight: verify the 1 truth passes (run test / check output). No loop. On fail → escalate immediately. |
 | Quick | Full verification. 1 re-entry loop allowed. On STILL FAILING → escalate. |
 | Full | Full verification. 1 re-entry loop allowed. On STILL FAILING → escalate with 3 options. |
 
-Micro never loops back to Phase 3 — surface failure immediately.
+Micro never loops back to Phase 4 — surface failure immediately.
 
 ---
 
@@ -46,15 +46,15 @@ For each `key_link`:
 
 ## Verdict and Escalation
 
-**ALL PASS:** Update checkboxes in plan.md truths → proceed to Phase 4.
+**ALL PASS:** Update checkboxes in plan.md truths → proceed to Phase 6.
 
 **ANY FAIL — Quick/Full:**
 
-- Targeted re-entry to Phase 3:
+- Targeted re-entry to Phase 4:
   - Identify which plan.md tasks cover the failed truths
   - Spawn workers for ONLY those tasks — do NOT re-spawn workers for passing truths
-  - This counts as 1 loop (max 1 Phase 3.5-triggered re-entry)
-  - **Also increments the shared `iteration_count`** (max 3 total) — a Phase 3.5 failure IS a Phase 3 failure
+  - This counts as 1 loop (max 1 Phase 5-triggered re-entry)
+  - **Also increments the shared `iteration_count`** (max 3 total) — a Phase 5 failure IS a Phase 4 failure
 
 **ANY FAIL — Micro:**
 
@@ -68,7 +68,7 @@ Escalate with options:
 ```text
 "Truths [N, M] still failing after targeted re-entry.
 (a) Continue to review with known gaps
-(b) Redesign — go back to Phase 2 (plan revision)
+(b) Redesign — go back to Phase 3 (plan revision)
 (c) Abort"
 ```
 
@@ -78,13 +78,13 @@ Escalate with options:
 
 ## Redesign Path (option b)
 
-When user picks (b) — go back to Phase 2:
+When user picks (b) — go back to Phase 3:
 
 **Prerequisite:** `redesign_count` must be < 1. If `redesign_count ≥ 1`, offer only (a) or (c).
 
 **Artifact handling:**
 
-- `research.md` → regenerate (Phase 3 changed the code; research may be stale)
+- `research.md` → regenerate (Phase 4 changed the code; research may be stale)
 - `plan.md` → regenerate (truths may need revision)
 - `verify-results.md` → preserve (contains failure evidence for re-planning)
 - Code changes from failed attempt → lead decides: revert or keep as scaffolding
@@ -104,7 +104,7 @@ When user picks (b) — go back to Phase 2:
 Write `{artifacts_dir}/verify-results.md`:
 
 ```markdown
-## Phase 3.5 Verification Results
+## Phase 5 Verification Results
 
 ### Truth 1: [description]
 Status: ✅ PASS

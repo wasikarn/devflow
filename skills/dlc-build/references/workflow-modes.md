@@ -1,6 +1,6 @@
 # Workflow Modes
 
-Auto-classification via blast-radius scoring (Phase 0). User can confirm or override.
+Auto-classification via blast-radius scoring (Phase 1). User can confirm or override.
 All phase files reference this matrix — do not redefine mode behavior inline.
 
 ---
@@ -60,22 +60,22 @@ Single source of truth for per-phase behavior. Phase files reference by phase na
 
 | Phase | Micro | Quick | Full | Hotfix |
 | ------- | ------- | ------- | ------ | ------- |
-| 0: Triage | Blast-radius → Micro auto | Blast-radius → confirm | Blast-radius → confirm | --hotfix bypasses scoring |
-| 1: Research | **Skip** | **Lite** (WHAT/WHY, ~250 lines, 1 explorer) | **Deep** (delta markers + [NEEDS CLARIFICATION] + GO/NO-GO, 1–2 explorers) | Skip |
-| 2: Plan | 1 truth, no gate | 2–3 truths, no user gate | 3–5 truths, user gate | 1–2 truths, no gate |
-| 2: Plan-challenger | **Skip** | **Skip** | **Run** (dual-lens) | Skip |
-| 3: Implement workers | 1 worker, `effort: low` | 1–2 waves, `effort: medium` | Multi-wave, `effort: high` | 1 worker, `effort: high` |
-| 3.5: Verify | Lightweight (1 truth, escalate on fail — no loop) | Full (1 re-entry loop) | Full (1 re-entry loop) | Lightweight |
-| 4: Review Stage 1 | Run | Run | Run | Run |
-| 4: Review Stage 2 | 1 reviewer (self-review ≤50 lines) | 1–2 reviewers (see diff scale) | 3 reviewers + debate | 2 reviewers max (no DX) |
-| 5.5: Simplify | **Skip** | Optional (Critical=0 required) | Default (Critical=0 required) | Skip |
-| 6: metrics-analyst | **Skip** | **Skip** | Run if ≥5 entries | Skip |
+| 1: Triage | Blast-radius → Micro auto | Blast-radius → confirm | Blast-radius → confirm | --hotfix bypasses scoring |
+| 2: Research | **Skip** | **Lite** (WHAT/WHY, ~250 lines, 1 explorer) | **Deep** (delta markers + [NEEDS CLARIFICATION] + GO/NO-GO, 1–2 explorers) | Skip |
+| 3: Plan | 1 truth, no gate | 2–3 truths, no user gate | 3–5 truths, user gate | 1–2 truths, no gate |
+| 3: Plan-challenger | **Skip** | **Skip** | **Run** (dual-lens) | Skip |
+| 4: Implement workers | 1 worker, `effort: low` | 1–2 waves, `effort: medium` | Multi-wave, `effort: high` | 1 worker, `effort: high` |
+| 5: Verify | Lightweight (1 truth, escalate on fail — no loop) | Full (1 re-entry loop) | Full (1 re-entry loop) | Lightweight |
+| 6: Review Stage 1 | Run | Run | Run | Run |
+| 6: Review Stage 2 | 1 reviewer (self-review ≤50 lines) | 1–2 reviewers (see diff scale) | 3 reviewers + debate | 2 reviewers max (no DX) |
+| 7: Simplify (optional sub-step) | **Skip** | Optional (Critical=0 required) | Default (Critical=0 required) | Skip |
+| 8: metrics-analyst | **Skip** | **Skip** | Run if ≥5 entries | Skip |
 
 ---
 
 ## PhaseVerdict Schema
 
-Three phases emit a PhaseVerdict: Phase 1 (GO/NO-GO), Phase 2 (readiness), Phase 3.5 (verify).
+Three phases emit a PhaseVerdict: Phase 2 (GO/NO-GO), Phase 3 (readiness), Phase 5 (verify).
 All use the same schema and escalation contract. Reference by name; do not redefine inline.
 
 ```text
@@ -115,7 +115,7 @@ Reviewer count is determined by diff size, subject to Mode Capability Matrix cap
 
 ## Hotfix Mode
 
-`--hotfix` bypasses Phase 0 triage. Not affected by blast-radius scoring or downgrade protection.
+`--hotfix` bypasses Phase 1 triage. Not affected by blast-radius scoring or downgrade protection.
 
 - Branch from `main` (not `develop`) — `git checkout main && git pull`
 - Scope is the broken code path **only** — no refactoring, no unrelated improvements

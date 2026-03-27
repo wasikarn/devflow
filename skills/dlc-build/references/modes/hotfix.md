@@ -1,6 +1,6 @@
 # Mode: Hotfix
 
-Loaded by Phase 0 after Hotfix mode is confirmed. For urgent production bugs only.
+Loaded by Phase 1 after Hotfix mode is confirmed. For urgent production bugs only.
 
 ## Branch Strategy
 
@@ -19,7 +19,7 @@ Slug rules: lowercase, hyphens only, max 40 chars.
 
 **Backport:** After merging to `main`, open a second PR targeting `develop` via cherry-pick. If conflicts arise, note them in the PR and assign resolution to the author.
 
-## Phase 2 Pre-Steps
+## Phase 3 Pre-Steps
 
 Before writing plan tasks:
 

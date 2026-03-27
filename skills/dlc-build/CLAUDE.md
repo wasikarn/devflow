@@ -18,12 +18,11 @@ Uses dynamic team roster (explorers, workers, reviewers) with iterative implemen
 | Reference | When to use |
 | --- | --- |
 | `references/phase-gates.md` | Modifying gate conditions or escalation protocol |
-| `references/phase-{0-6}-*.md` | Modifying a specific phase's logic — one file per phase |
-| `references/phase-35-verify.md` | Modifying Phase 3.5 Verify logic (NEW) |
-| `references/explorer-prompts.md` | Modifying explorer prompts (Phase 1) |
-| `references/worker-prompts.md` | Modifying worker implementation prompt (Phase 3 iter 1) |
-| `references/fixer-prompts.md` | Modifying fixer prompt (Phase 3 iter 2+) |
-| `references/reviewer-prompts.md` | Modifying reviewer prompts (Phase 4) |
+| `references/phase-{1-8}-*.md` | Modifying a specific phase's logic — one file per phase |
+| `references/explorer-prompts.md` | Modifying explorer prompts (Phase 2) |
+| `references/worker-prompts.md` | Modifying worker implementation prompt (Phase 4 iter 1) |
+| `references/fixer-prompts.md` | Modifying fixer prompt (Phase 4 iter 2+) |
+| `references/reviewer-prompts.md` | Modifying reviewer prompts (Phase 6) |
 | `references/reviewer-shared-rules.md` | Shared reviewer rules/output format (referenced by each reviewer template) |
 | `references/workflow-modes.md` | Modifying Full/Quick/Hotfix classification + mode decision tree |
 | `references/review-lenses/` | Domain-specific review checklists (security/perf/frontend/DB/TypeScript) |
@@ -31,20 +30,19 @@ Uses dynamic team roster (explorers, workers, reviewers) with iterative implemen
 | `../../references/review-conventions.md` | Shared review conventions (labels, dedup, strengths) |
 | `references/operational.md` | Graceful Degradation, Crash Recovery, Regression Gate, Solo findings |
 | `../../references/review-output-format.md` | Review output format template |
-| `../../references/debate-protocol.md` | Adversarial debate rules (fallback in phase-4-review.md) |
+| `../../references/debate-protocol.md` | Adversarial debate rules (fallback in phase-6-review.md) |
 | `../../docs/superpowers/specs/2026-03-19-dlc-workflow-quality-improvements-round2-design.md` | Behavioral anchor rubric for scoring dimensions — see Round 2 spec |
 
 ## Skill Architecture
 
 - `SKILL.md` — overview, phase flow, reference table, constraints, gate summary (~100 lines)
-- `references/phase-{0-6}-*.md` — phase-specific instructions (load on demand)
-- `references/phase-35-verify.md` — NEW Phase 3.5 Verify (must_haves.truths + test meaningfulness)
+- `references/phase-{1-8}-*.md` — phase-specific instructions (load on demand)
 - Role-specific prompt files: explorer, worker, fixer, reviewer
-- `references/review-lenses/` — domain checklists injected into reviewer prompts at Phase 4
+- `references/review-lenses/` — domain checklists injected into reviewer prompts at Phase 6
 - `references/phase-gates.md` — gate conditions for every phase transition
 - `references/explorer-prompts.md`, `references/worker-prompts.md`, `references/fixer-prompts.md`, `references/reviewer-prompts.md` — role-specific prompt templates
 - `references/workflow-modes.md` — Mode Capability Matrix (Micro/Quick/Full/Hotfix), blast-radius scoring, PhaseVerdict schema
-- Reuses `dlc-review` pattern for Phase 4 Stage 2 (review + debate)
+- Reuses `dlc-review` pattern for Phase 6 Stage 2 (review + debate)
 - Project-specific Hard Rules loaded from `.claude/skills/review-rules/hard-rules.md` in the target project
 
 ## Validate After Changes
@@ -66,10 +64,10 @@ ls -la ~/.claude/skills/dlc-build
 
 - Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` — degrades gracefully to subagent or solo mode
 - Agent Teams have no session resumption — if lead crashes, artifacts on disk enable manual recovery
-- Workers and reviewers are never alive simultaneously — workers during Phase 3, reviewers during Phase 4
+- Workers and reviewers are never alive simultaneously — workers during Phase 4, reviewers during Phase 6
 - Review scope narrows each iteration: 3 reviewers → 2 → 1, full debate → focused → spot-check
 - Hard Rules cannot be dropped via debate — only reclassified with evidence
 - Max 3 loop iterations enforced — prevents runaway token usage
 - Artifacts written to **`{artifacts_dir}/{date}-{slug}/`** (path from `scripts/artifact-dir.sh dlc-build`): `dev-loop-context.md`, `research.md`, `plan.md`, `verify-results.md`, `review-findings-*.md`. All artifacts in one folder — `~/.claude/plans/` is no longer used.
-- Team cleanup must be done by lead in Phase 6 — teammates don't self-terminate
+- Team cleanup must be done by lead in Phase 8 — teammates don't self-terminate
 - One team per session — cannot run multiple dlc-build in parallel

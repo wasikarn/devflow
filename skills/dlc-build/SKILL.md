@@ -34,10 +34,10 @@ Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hot
 
 ## Phase Flow
 
-Phase 0 → [1: Research] → 2: Plan → 3: Implement → **3.5: Verify** → 4: Review → 5: Assess → [5.5: Simplify] → 6: Ship
+Phase 1 → [2: Research] → 3: Plan → 4: Implement → 5: Verify → 6: Review → 7: Assess → 8: Ship
 (brackets = mode-conditional; see [Mode Capability Matrix](references/workflow-modes.md))
 
-Loop: Phase 3 ↔ 3.5 ↔ 4 ↔ 5 (max 3 shared iterations)
+Loop: Phase 4 ↔ 5 ↔ 6 ↔ 7 (max 3 shared iterations)
 
 | Iter | Implement | Reviewers (Full / Quick / Micro) | Debate |
 | --- | --- | --- | --- |
@@ -51,28 +51,28 @@ See [references/operational.md](references/operational.md) for prerequisites, co
 
 | File / Agent | Load when |
 | --- | --- |
-| [references/phase-0-triage.md](references/phase-0-triage.md) | Entering Phase 0 |
-| [references/phase-1-research.md](references/phase-1-research.md) | Entering Phase 1 (Quick/Full mode) |
-| [references/phase-2-plan.md](references/phase-2-plan.md) | Entering Phase 2 |
-| [references/phase-3-implement.md](references/phase-3-implement.md) | Entering Phase 3 |
-| [references/phase-35-verify.md](references/phase-35-verify.md) | Entering Phase 3.5 (NEW) |
-| [references/phase-4-review.md](references/phase-4-review.md) | Entering Phase 4 |
-| [references/phase-5-assess.md](references/phase-5-assess.md) | Entering Phase 5 |
-| [references/phase-6-ship.md](references/phase-6-ship.md) | Entering Phase 6 |
-| [references/workflow-modes.md](references/workflow-modes.md) | Phase 0 — mode classification |
-| [references/modes/micro.md](references/modes/micro.md) · [references/modes/feature.md](references/modes/feature.md) · [references/modes/quick.md](references/modes/quick.md) · [references/modes/hotfix.md](references/modes/hotfix.md) | Phase 0 Step 2.5 — load the file matching the confirmed mode |
-| [references/operational.md](references/operational.md) | Phase 0 (degradation) + Phase 3 end (Verification Gate) + on crash |
+| [references/phase-1-triage.md](references/phase-1-triage.md) | Entering Phase 1 |
+| [references/phase-2-research.md](references/phase-2-research.md) | Entering Phase 2 (Quick/Full mode) |
+| [references/phase-3-plan.md](references/phase-3-plan.md) | Entering Phase 3 |
+| [references/phase-4-implement.md](references/phase-4-implement.md) | Entering Phase 4 |
+| [references/phase-5-verify.md](references/phase-5-verify.md) | Entering Phase 5 |
+| [references/phase-6-review.md](references/phase-6-review.md) | Entering Phase 6 |
+| [references/phase-7-assess.md](references/phase-7-assess.md) | Entering Phase 7 |
+| [references/phase-8-ship.md](references/phase-8-ship.md) | Entering Phase 8 |
+| [references/workflow-modes.md](references/workflow-modes.md) | Phase 1 — mode classification |
+| [references/modes/micro.md](references/modes/micro.md) · [references/modes/feature.md](references/modes/feature.md) · [references/modes/quick.md](references/modes/quick.md) · [references/modes/hotfix.md](references/modes/hotfix.md) | Phase 1 Step 2.5 — load the file matching the confirmed mode |
+| [references/operational.md](references/operational.md) | Phase 1 (degradation) + Phase 4 end (Verification Gate) + on crash |
 | [references/phase-gates.md](references/phase-gates.md) | At each phase transition |
-| [references/explorer-prompts.md](references/explorer-prompts.md) | Entering Phase 1 |
-| [references/worker-prompts.md](references/worker-prompts.md) | Entering Phase 3 iter 1 |
-| [references/fixer-prompts.md](references/fixer-prompts.md) | Entering Phase 3 iter 2+ |
-| [references/reviewer-prompts.md](references/reviewer-prompts.md) | Entering Phase 4 |
-| [references/reviewer-shared-rules.md](references/reviewer-shared-rules.md) | Phase 4 — shared reviewer rules/output format (referenced by reviewer templates) |
-| [references/review-lenses/frontend.md](references/review-lenses/frontend.md) · [security.md](references/review-lenses/security.md) · [database.md](references/review-lenses/database.md) · [performance.md](references/review-lenses/performance.md) · [typescript.md](references/review-lenses/typescript.md) · [error-handling.md](references/review-lenses/error-handling.md) · [api-design.md](references/review-lenses/api-design.md) · [observability.md](references/review-lenses/observability.md) | Phase 4 — domain lenses injected per diff content (see Lens Selection in reviewer-prompts.md) |
-| `review-consolidator` agent | Phase 4 iter 1 (3 reviewers) and iter 2+ (2 reviewers) — consolidate findings |
-| [../../references/review-conventions.md](../../references/review-conventions.md) | Entering Phase 4 |
-| [../../references/review-output-format.md](../../references/review-output-format.md) | Entering Phase 4 |
-| [../../references/debate-protocol.md](../../references/debate-protocol.md) | Phase 4 iter 1 debate only (fallback in phase-4-review.md) |
+| [references/explorer-prompts.md](references/explorer-prompts.md) | Entering Phase 2 |
+| [references/worker-prompts.md](references/worker-prompts.md) | Entering Phase 4 iter 1 |
+| [references/fixer-prompts.md](references/fixer-prompts.md) | Entering Phase 4 iter 2+ |
+| [references/reviewer-prompts.md](references/reviewer-prompts.md) | Entering Phase 6 |
+| [references/reviewer-shared-rules.md](references/reviewer-shared-rules.md) | Phase 6 — shared reviewer rules/output format (referenced by reviewer templates) |
+| [references/review-lenses/frontend.md](references/review-lenses/frontend.md) · [security.md](references/review-lenses/security.md) · [database.md](references/review-lenses/database.md) · [performance.md](references/review-lenses/performance.md) · [typescript.md](references/review-lenses/typescript.md) · [error-handling.md](references/review-lenses/error-handling.md) · [api-design.md](references/review-lenses/api-design.md) · [observability.md](references/review-lenses/observability.md) | Phase 6 — domain lenses injected per diff content (see Lens Selection in reviewer-prompts.md) |
+| `review-consolidator` agent | Phase 6 iter 1 (3 reviewers) and iter 2+ (2 reviewers) — consolidate findings |
+| [../../references/review-conventions.md](../../references/review-conventions.md) | Entering Phase 6 |
+| [../../references/review-output-format.md](../../references/review-output-format.md) | Entering Phase 6 |
+| [../../references/debate-protocol.md](../../references/debate-protocol.md) | Phase 6 iter 1 debate only (fallback in phase-6-review.md) |
 | [../../references/jira-integration.md](../../references/jira-integration.md) | Jira key in `$ARGUMENTS` |
-| [references/pr-template.md](references/pr-template.md) | Entering Phase 6 |
+| [references/pr-template.md](references/pr-template.md) | Entering Phase 8 |
 | [references/examples.md](references/examples.md) | When assessing research/plan/implementation quality or checking for YAGNI violations |

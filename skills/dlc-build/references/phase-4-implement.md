@@ -1,4 +1,4 @@
-# Phase 3: Implement
+# Phase 4: Implement
 
 Before starting each iteration: `git tag dlc-checkpoint-iter-{N}` — enables instant rollback via `git checkout dlc-checkpoint-iter-{N}`.
 
@@ -42,7 +42,7 @@ The worker contract is bidirectional. Lead uses these schemas when spawning work
 Lead reads `assigned_tasks_status` to update `completed_tasks[]` for the next wave.
 PARTIAL or BLOCKED tasks are re-queued as sequential (no [P] marker).
 Lead infers TDD compliance from the SEQUENCE ORDER — not from the label alone.
-If VIOLATED: log in `dev-loop-context.md` under `tdd_violations[]`; surface to user at Phase 6 summary (informational, not a blocker).
+If VIOLATED: log in `dev-loop-context.md` under `tdd_violations[]`; surface to user at Phase 8 summary (informational, not a blocker).
 
 ---
 
@@ -78,7 +78,7 @@ On validate failure: see Checkpoint Recovery in [operational.md](operational.md)
 
 ## Iteration 2+: Fix Findings
 
-Load [fixer-prompts.md](fixer-prompts.md) now. Create 1 fixer. Fixer receives ONLY failed must_haves.truths (from Phase 3.5) or unresolved Critical/Warning findings (from Phase 4) — targeted re-entry, not full re-implementation.
+Load [fixer-prompts.md](fixer-prompts.md) now. Create 1 fixer. Fixer receives ONLY failed must_haves.truths (from Phase 5) or unresolved Critical/Warning findings (from Phase 6) — targeted re-entry, not full re-implementation.
 
 Fix order: Critical → Warning. Each fix = separate commit.
 
@@ -87,23 +87,23 @@ If same finding fails 3× → see 3-Fix Rule in [operational.md](operational.md)
 
 ---
 
-## Worker Shutdown (before Phase 3.5)
+## Worker Shutdown (before Phase 5)
 
 Verify all workers sent final `<worker_completion>` messages. Shut down worker team. Workers and reviewers must never be alive simultaneously.
 
-**GATE:** All tasks done + validate passes + all workers shut down → proceed to **Phase 3.5: Verify**.
+**GATE:** All tasks done + validate passes + all workers shut down → proceed to **Phase 5: Verify**.
 
 ---
 
-## Phase 3 Output
+## Phase 4 Output
 
 When all tasks complete and validate passes:
 
 ```markdown
-### Phase 3: Implement Complete
+### Phase 4: Implement Complete
 | Task | Status | Commit | TDD |
 |---|---|---|---|
 | {task name} | ✅ | {short sha} | FOLLOWED |
 | {task name} | ✅ | {short sha} | FOLLOWED |
-→ Validate passes · Workers shut down · Proceeding to Phase 3.5 (Verify)
+→ Validate passes · Workers shut down · Proceeding to Phase 5 (Verify)
 ```

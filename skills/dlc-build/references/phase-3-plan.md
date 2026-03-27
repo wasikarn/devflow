@@ -1,4 +1,4 @@
-# Phase 2: Plan (Lead Only)
+# Phase 3: Plan (Lead Only)
 
 ## Step 1: Write Plan
 
@@ -93,7 +93,7 @@ Plan-challenger uses **dual-lens** challenge (see [agents/plan-challenger.md](..
 
 **PhaseVerdict** per [workflow-modes.md](workflow-modes.md).
 
-**Micro / Quick:** No gate. Proceed to Phase 3 automatically.
+**Micro / Quick:** No gate. Proceed to Phase 4 automatically.
 
 **Full mode:**
 
@@ -103,6 +103,6 @@ Plan-challenger uses **dual-lens** challenge (see [agents/plan-challenger.md](..
 4. If user requests plan changes: apply edits, re-run EnterPlanMode/ExitPlanMode cycle, re-spawn plan-challenger against revised plan
 5. If all CHALLENGED items are SUSTAINED or user overrides with explicit justification → proceed
 
-**GATE (Full mode):** plan-challenger addressed + user approves final plan → proceed to Phase 3.
+**GATE (Full mode):** plan-challenger addressed + user approves final plan → proceed to Phase 4.
 
 Emit Readiness Verdict in plan.md `## Readiness Verdict` section. If NEEDS WORK or NOT READY, do not proceed without explicit user decision.

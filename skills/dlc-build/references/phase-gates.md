@@ -13,7 +13,7 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 | Implement → Verify | All tasks done + validate passes + workers shut down | Lead (automated) |
 | Verify → Review | All must_haves.truths PASS + all key_links present | Lead (automated) |
 | Verify → Implement (loop) | ANY truth FAIL (Quick/Full, iteration_count < 3) | Lead (targeted re-entry) |
-| Verify → Phase 2 (redesign) | STILL FAILING + user picks redesign + redesign_count < 1 | User |
+| Verify → Phase 3 (redesign) | STILL FAILING + user picks redesign + redesign_count < 1 | User |
 | Review → Assess | Findings consolidated + Stage 1 PASS | Lead |
 | Review → Implement (Stage 1 FAIL) | Stage 1 FAIL (test file missing or spec non-compliance) | Lead (automated) |
 | Assess → Implement (loop) | Critical found, iteration_count < 3 | Lead (automated) |
@@ -25,7 +25,7 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 
 ## Gate Details
 
-### Triage → Research (or Plan for Micro)
+### Phase 1 (Triage) → Phase 2 (Research) or Phase 3 (Plan for Micro)
 
 - [ ] Project detected and conventions loaded
 - [ ] Blast-radius scored (5 factors, 0–5)
@@ -34,7 +34,7 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 - [ ] User acknowledges mode selection
 - **Micro:** Skip directly to Plan (no research)
 
-### Research → Plan
+### Phase 2 (Research) → Phase 3 (Plan)
 
 - [ ] `research.md` written with structured findings
 - [ ] Every section cites file:line references
@@ -43,7 +43,7 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 - **Full (Deep):** GO/NO-GO verdict READY (or user explicitly accepts NEEDS WORK / NOT READY)
 - [ ] Any `[NEEDS CLARIFICATION]` tokens in research.md presented to user if verdict is READY
 
-### Plan → Implement
+### Phase 3 (Plan) → Phase 4 (Implement)
 
 - [ ] Plan written to `{artifacts_dir}/{date}-{task-slug}/plan.md`
 - [ ] `must_haves.truths` block present (Micro:1, Quick:2–3, Full:3–5)
@@ -53,7 +53,7 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 - **Full:** User explicitly approves plan (Readiness Verdict = READY or user overrides)
 - **Micro/Quick:** Lead proceeds automatically — no user gate required
 
-### Implement → Verify (Phase 3 → Phase 3.5)
+### Phase 4 (Implement) → Phase 5 (Verify)
 
 - [ ] All assigned tasks in `worker_completion` status DONE (not PARTIAL or BLOCKED)
 - [ ] Project validate command passes
@@ -64,42 +64,42 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 
 Lead verifies: `git diff {base_branch}...HEAD --stat` (scope) + `git log --oneline {base_branch}..HEAD` (commit-per-task).
 
-### Verify → Review (Phase 3.5 → Phase 4)
+### Phase 5 (Verify) → Phase 6 (Review)
 
 - [ ] All must_haves.truths: ✅ PASS (test meaningfulness check passed)
 - [ ] All key_links: verified in actual code with file:line
 - [ ] `verify-results.md` written to `{artifacts_dir}/{date}-{task-slug}/`
 
-### Verify → Implement (Phase 3.5 loop — targeted re-entry)
+### Phase 5 (Verify) → Phase 4 (Implement) loop — targeted re-entry
 
 - [ ] ANY truth FAIL or SHALLOW
 - [ ] iteration_count < 3
-- [ ] This is the first Phase 3.5 loop (max 1 Phase 3.5-triggered re-entry)
-- Lead increments `iteration_count` before re-entering Phase 3
+- [ ] This is the first Phase 5 loop (max 1 Phase 5-triggered re-entry)
+- Lead increments `iteration_count` before re-entering Phase 4
 - Workers spawned for ONLY the tasks covering failed truths
 
-### Verify → Phase 2 (redesign path)
+### Phase 5 (Verify) → Phase 3 (redesign path)
 
-- [ ] STILL FAILING after 1 Phase 3.5 loop
+- [ ] STILL FAILING after 1 Phase 5 loop
 - [ ] User explicitly picks option (b) redesign
 - [ ] redesign_count < 1 (only 1 redesign allowed)
 - Prior artifacts archived with `-attempt-1` suffix
 - `redesign_count` incremented in dev-loop-context.md
 
-### Review → Assess
+### Phase 6 (Review) → Phase 7 (Assess)
 
 - [ ] Stage 1 compliance check PASSED
 - [ ] All Stage 2 reviewers completed (per mode scale)
 - [ ] Debate rounds completed (Full iter 1: full, iter 2+: focused/none)
 - [ ] Findings consolidated, `review-findings-N.md` written
 
-### Review → Implement (Stage 1 FAIL)
+### Phase 6 (Review) → Phase 4 (Implement) — Stage 1 FAIL
 
 - [ ] Stage 1 FAIL detected (test file missing, spec non-compliance, or hard-rule violation)
-- Lead increments `iteration_count` before returning to Phase 3
-- Mandatory path: Phase 3 → Phase 3.5 → Phase 4 Stage 1 (Phase 3.5 cannot be skipped)
+- Lead increments `iteration_count` before returning to Phase 4
+- Mandatory path: Phase 4 → Phase 5 → Phase 6 Stage 1 (Phase 5 cannot be skipped)
 
-### Assess → Loop Decision
+### Phase 7 (Assess) → Loop Decision
 
 Decision tree:
 
@@ -128,11 +128,11 @@ If iteration_count ≥ 2 AND Critical count(iter N) ≥ Critical count(iter N-1)
   header: "Stall detected", options: [
     { label: "Continue loop", description: "Force another fix iteration" },
     { label: "Switch to diagnosis mode", description: "Run /dlc-debug to investigate root cause" },
-    { label: "Rethink approach", description: "Return to Phase 2 with findings as input" }
+    { label: "Rethink approach", description: "Return to Phase 3 with findings as input" }
   ]
 ```
 
-### Ship → Done
+### Phase 8 (Ship) → Done
 
 - [ ] Summary presented with iteration count and TDD violations (if any)
 - [ ] User selects via AskUserQuestion — question: "Implementation complete. What next?", header: "Ship",
@@ -153,7 +153,7 @@ When iteration_count = 3 and still Critical findings:
 3. Call AskUserQuestion — question: "Iteration 3 still has Critical findings. How to proceed?",
    header: "Escalation", options: [
      { label: "Continue manually", description: "Lead takes over fixing directly" },
-     { label: "Rethink approach", description: "Return to Phase 2 with findings as input" },
+     { label: "Rethink approach", description: "Return to Phase 3 with findings as input" },
      { label: "Ship with known issues", description: "User accepts risk of shipping Critical findings" },
      { label: "Abort", description: "Discard branch entirely" }
    ]

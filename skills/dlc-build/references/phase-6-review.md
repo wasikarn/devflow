@@ -1,4 +1,4 @@
-# Phase 4: Review
+# Phase 6: Review
 
 Load [reviewer-prompts.md](reviewer-prompts.md), [../../../references/review-conventions.md](../../../references/review-conventions.md), [../../../references/review-output-format.md](../../../references/review-output-format.md) before starting.
 
@@ -8,7 +8,7 @@ Before spawning any Stage 2 reviewers, lead runs Stage 1 compliance check direct
 
 Stage 1 checks (in order):
 
-1. **must_haves coverage** — are all truths from Phase 3.5 verified in the diff?
+1. **must_haves coverage** — are all truths from Phase 5 verified in the diff?
 2. **hard-rules.md compliance** — every rule respected? Cite violations with file:line.
 3. **Test file presence** — for every new behavior in diff, is there a corresponding test file change?
    A diff with only production code changes (no test file) fails Stage 1 immediately.
@@ -18,9 +18,9 @@ Stage 1 checks (in order):
    - Quick: does diff stay within the files from research.md Context section?
    - Micro: skip scope fidelity (no research.md exists for Micro)
 
-**Stage 1 FAIL:** Return to Phase 3 immediately. Do NOT proceed to Stage 2.
-Mandatory path: Phase 3 (fix) → **Phase 3.5 (verify again)** → Phase 4 Stage 1 (check again).
-Increment `iteration_count` in dev-loop-context.md before returning to Phase 3.
+**Stage 1 FAIL:** Return to Phase 4 immediately. Do NOT proceed to Stage 2.
+Mandatory path: Phase 4 (fix) → **Phase 5 (verify again)** → Phase 6 Stage 1 (check again).
+Increment `iteration_count` in dev-loop-context.md before returning to Phase 4.
 
 **Stage 1 PASS:** Proceed to Stage 2.
 
@@ -119,18 +119,18 @@ Drop findings below the role threshold before consolidation. Hard Rule violation
 
 Write findings to `{artifacts_dir}/review-findings-{iteration}.md` per [../../../references/review-output-format.md](../../../references/review-output-format.md).
 
-- **Iter 1 (3 reviewers):** After falsification pass (Phase 4.5), dispatch `review-consolidator` with the post-verdict findings table.
+- **Iter 1 (3 reviewers):** After falsification pass (Phase 6.5), dispatch `review-consolidator` with the post-verdict findings table.
 - **Iter 2+ (2 reviewers):** Dispatch `review-consolidator` immediately when the second reviewer's findings arrive — lead reads findings while agent runs in parallel. No falsification pass.
 - **1 reviewer:** Lead consolidates inline (no agent).
 
 If agent errors → dedup, pattern-cap, sort, and signal-check inline per [review-conventions.md](../../../references/review-conventions.md).
 
-**Phase 4 status line** (output before findings table — no prose paragraph):
-`### Phase 4 Complete — N findings consolidated · Proceeding to Phase 5`
+**Phase 6 status line** (output before findings table — no prose paragraph):
+`### Phase 6 Complete — N findings consolidated · Proceeding to Phase 7`
 
 **GATE:** Findings consolidated → update `Phase: review` in dev-loop-context.md → proceed to Assess.
 
-## Phase 4.5: Falsification Pass (Full mode iter 1 only)
+## Phase 6.5: Falsification Pass (Full mode iter 1 only)
 
 After debate completes but **before** dispatching `review-consolidator`, spawn the `falsification-agent` (defined in `agents/falsification-agent.md`) with the raw pre-consolidation findings table inline.
 
@@ -149,7 +149,7 @@ Pass to the agent:
 | DOWNGRADED {new severity} | Update severity in findings table |
 | REJECTED | Remove from findings table |
 
-Note rejected count in the Phase 4 status line: `(N findings rejected by Falsification Pass)`.
+Note rejected count in the Phase 6 status line: `(N findings rejected by Falsification Pass)`.
 
 Then proceed to dispatch `review-consolidator` with the post-verdict findings table.
 

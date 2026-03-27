@@ -1,10 +1,10 @@
-# Phase 1: Research
+# Phase 2: Research
 
 Mode behavior per [workflow-modes.md](workflow-modes.md):
 
 | Mode | Research |
 | ------ | ---------- |
-| Micro | **Skip** — proceed directly to Phase 2 |
+| Micro | **Skip** — proceed directly to Phase 3 |
 | Quick | **Lite** — WHAT/WHY only, ~250 lines, 1 explorer |
 | Full | **Deep** — delta markers + [NEEDS CLARIFICATION] + GO/NO-GO verdict, 1–2 explorers |
 
@@ -130,12 +130,12 @@ Run `research-validator` agent with path `{artifacts_dir}/research.md`. If resul
 
 ## Step 4: GO/NO-GO (Full mode only — PhaseVerdict)
 
-Full mode only. Quick and Micro proceed to Phase 2 automatically.
+Full mode only. Quick and Micro proceed to Phase 3 automatically.
 
 See PhaseVerdict schema in [workflow-modes.md](workflow-modes.md). Behavior:
 
 ```text
-READY      → proceed to Phase 2 automatically
+READY      → proceed to Phase 3 automatically
 
 NEEDS WORK → present issues found
              "Research found X concerns before implementation:
@@ -153,18 +153,18 @@ NOT READY  → present blocking issues
 ```
 
 If `[NEEDS CLARIFICATION]` tokens exist in research.md and the verdict is READY, present them as part of the READY output:
-"Research is complete. Before Phase 2, {N} clarifying question(s) were flagged: [list]. Proceed or answer first?"
+"Research is complete. Before Phase 3, {N} clarifying question(s) were flagged: [list]. Proceed or answer first?"
 
 ---
 
-## Phase 1 Output
+## Phase 2 Output
 
-When Phase 1 completes, output this summary — not prose:
+When Phase 2 completes, output this summary — not prose:
 
 ```markdown
-### Phase 1 Complete
+### Phase 2 Complete
 | Explorer | Files read | Key findings |
 |---|---|---|
 | Explorer 1 | N files | {top finding — one line} |
-→ research.md written ({mode}: {Lite|Deep}) · Proceeding to Phase 2
+→ research.md written ({mode}: {Lite|Deep}) · Proceeding to Phase 3
 ```
