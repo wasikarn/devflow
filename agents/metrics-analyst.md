@@ -3,7 +3,7 @@ name: metrics-analyst
 description: "Reads ~/.claude/dlc-metrics.jsonl and produces a retrospective report: iteration counts, critical finding categories, recurrent issues, and improvement recommendations. Use after multiple dlc-build or dlc-review runs to identify recurring workflow patterns and surface candidates for new Hard Rules."
 tools: Bash, Read
 model: haiku
-disallowedTools: Edit, Write
+disallowedTools: Edit
 maxTurns: 5
 ---
 
@@ -12,6 +12,13 @@ maxTurns: 5
 Turn accumulated dlc-metrics.jsonl data into actionable retrospective insights.
 
 ## Steps
+
+### 0. Parse Arguments
+
+`$ARGUMENTS` may contain an `artifacts_dir` path passed by dlc-build Phase 9 (e.g. `/path/to/.claude/dlc-build/2026-03-27-task-slug/`).
+
+If `$ARGUMENTS` is a valid directory path: set `session_dir = $ARGUMENTS`. Skip to Step 1.
+If `$ARGUMENTS` is empty or not a valid directory path: set `session_dir = null`. Steps 1–4 run normally; Step 5 is skipped.
 
 ### 1. Read Metrics File
 
@@ -95,3 +102,71 @@ Omit this table if fewer than 3 data points have the relevant fields (older entr
 ```
 
 Omit sections where data is insufficient (< 3 data points for a pattern).
+
+### 5. Session Lens Update Check (only when session_dir is set)
+
+Skip this step if `session_dir` is null.
+
+**5a. Extract finding categories from this session:**
+
+Read all `{session_dir}/review-findings-*.md` files (glob for multiple iterations). For each
+finding in the consolidated output, extract the category label if present (e.g., `[SECURITY]`,
+`[TYPE_SAFETY]`, `[ERROR_HANDLING]`, `[PERFORMANCE]`, `[NULL_CHECK]`). If no bracket label,
+fall back to the reviewer role name (`Correctness`, `Architecture`, `DX`).
+Collect a deduplicated list of finding categories for this session.
+
+Skip this step (output: `No review findings found in {session_dir}`) if no review-findings
+files exist in session_dir.
+
+**5b. Check for recurrence across last 5 Full-mode sessions:**
+
+From dlc-metrics.jsonl entries already read in Step 1, filter to the 5 most recent entries
+where `"mode": "full"` (or `"Full"`). Extract their date values.
+
+For each category from 5a: scan the dlc-metrics.jsonl entries for those 5 dates for
+any matching category signal. Note: if finding-category data is not present in
+dlc-metrics.jsonl entries (older format), count only the current session as 1 hit and
+note the limitation. A category needs ≥3 hits across the 5 sessions to trigger.
+
+**5c. If ANY category hits ≥3 of the last 5 Full-mode sessions:**
+
+Write `{session_dir}/lens-update-suggestion.md`:
+
+````markdown
+## Lens Update Suggestion
+
+Generated: {ISO date}
+Pattern: [{category}] appeared in {count}/5 recent Full-mode sessions
+
+### Recurring Finding: {category}
+
+Sessions: {list of dates where it appeared}
+
+Sample finding from this session:
+> {quote one representative finding with file:line}
+
+### Suggested Action
+
+Review lens: {lens file that covers this category — e.g. `error-handling.md` for ERROR_HANDLING}
+Consider adding a Hard Rule or Warning pattern for this finding to:
+- `.claude/skills/review-rules/hard-rules.md` (project-wide), or
+- The relevant `review-lenses/*.md` file (category-specific)
+
+**This is a suggestion only — never auto-applied. Review and approve before any changes.**
+````
+
+Then output to conversation:
+
+```text
+⚠️  Recurring pattern: [{category}] found in {count}/5 recent Full-mode sessions.
+Suggestion saved to: {session_dir}/lens-update-suggestion.md
+```
+
+**5d. If fewer than 5 Full-mode entries in dlc-metrics.jsonl:**
+
+Output: `Lens update check skipped — fewer than 5 Full-mode sessions in history ({count} found).`
+Then exit Step 5.
+
+**5e. If no categories reach ≥3 hits:**
+
+Silent pass — output nothing.
