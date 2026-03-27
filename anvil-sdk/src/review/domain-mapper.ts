@@ -79,7 +79,6 @@ function getRolesForFile(file: FileDiff): Set<ReviewRole> {
 /**
  * Maps file diffs to reviewer domain buckets.
  * Files matching multiple domains go into ALL matching buckets (overlap policy).
- * lenses field is populated empty — filled later by orchestrator.
  */
 export function mapToDomains(files: FileDiff[]): DiffBucket[] {
   const buckets: Record<ReviewRole, FileDiff[]> = {
@@ -103,7 +102,6 @@ export function mapToDomains(files: FileDiff[]): DiffBucket[] {
     return {
       role,
       files,
-      lenses: [],
       totalLines: files.reduce((sum, f) => sum + f.diffLineCount, 0),
     }
   })

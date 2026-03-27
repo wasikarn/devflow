@@ -33,6 +33,7 @@ export function createReviewer(params: {
   bucket: DiffBucket
   hardRules: string
   dismissedPatterns: string
+  model: 'sonnet' | 'opus' | 'haiku'
 }): AgentDefinition {
   const lensContent = getLensesForRole(params.bucket.role)
 
@@ -67,7 +68,7 @@ export function createReviewer(params: {
     description: `Code reviewer: ${params.bucket.role}`,
     prompt,
     tools: ['Read', 'Grep', 'Glob'],
-    model: 'claude-sonnet-4-5',
+    model: params.model,
     maxTurns: 15,
   }
 }

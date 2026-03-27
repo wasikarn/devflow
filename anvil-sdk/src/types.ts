@@ -18,7 +18,6 @@ export interface FileDiff {
 export interface DiffBucket {
   role: ReviewRole
   files: FileDiff[]
-  lenses: string[]
   totalLines: number
 }
 
