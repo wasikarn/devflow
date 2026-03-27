@@ -173,7 +173,7 @@ async function main(): Promise<void> {
 
   // Falsification
   let verdicts: Awaited<ReturnType<typeof runFalsification>> = []
-  if (parsed.falsification && mustFalsify.length > 0) {
+  if (!config.noFalsification && mustFalsify.length > 0) {
     verdicts = await runFalsification({ findings: mustFalsify, config })
   }
 

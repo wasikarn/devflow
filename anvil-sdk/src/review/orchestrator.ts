@@ -48,11 +48,14 @@ async function runSingleReviewer(params: {
         const result = msg as SDKResultSuccess
 
         const raw = result.structured_output
+        if (raw === undefined || raw === null) {
+          throw new Error('[sdk-review] reviewer returned no structured_output — budget may have been exceeded or outputFormat was rejected')
+        }
         const parsed = FindingArraySchema.safeParse(raw)
         if (parsed.success) {
           findings = parsed.data
         } else {
-          console.warn('[sdk-review] structured_output failed validation:', parsed.error.issues)
+          throw new Error(`[sdk-review] structured_output failed schema validation: ${JSON.stringify(parsed.error.issues)}`)
         }
 
         totalCost = result.total_cost_usd
