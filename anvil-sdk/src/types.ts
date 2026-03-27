@@ -1,11 +1,11 @@
+export type { Finding } from './review/schemas/finding.js'
+export type { Verdict } from './review/schemas/verdict.js'
+
 import type { Finding } from './review/schemas/finding.js'
 
 export type ReviewRole = 'correctness' | 'architecture' | 'dx'
 export type Severity = 'critical' | 'warning' | 'info'
 export type VerdictType = 'SUSTAINED' | 'DOWNGRADED' | 'REJECTED'
-
-export type { Finding } from './review/schemas/finding.js'
-export type { Verdict } from './review/schemas/verdict.js'
 
 export interface FileDiff {
   path: string
