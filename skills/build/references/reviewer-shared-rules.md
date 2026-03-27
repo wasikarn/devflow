@@ -12,7 +12,7 @@ Common rules and output format shared across all reviewer roles. Referenced from
 
 Hard Rule violations bypass all thresholds — always report regardless of confidence.
 
-> **dlc-review divergence:** `dlc-review/references/teammate-prompts.md` uses a flat threshold of 80 for all teammates (not per-role). This is intentional — dlc-review runs adversarial debate to filter noise post-review, so a uniform threshold is sufficient. dlc-build has no debate phase, so per-role calibration matters more.
+> **review divergence:** `review/references/teammate-prompts.md` uses a flat threshold of 80 for all teammates (not per-role). This is intentional — review runs adversarial debate to filter noise post-review, so a uniform threshold is sufficient. build has no debate phase, so per-role calibration matters more.
 
 ## Structured Evidence Block (Required Before Each Finding)
 

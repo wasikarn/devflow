@@ -1,15 +1,15 @@
-# dlc-review skill
+# review skill
 
 Experimental Agent Teams-based PR review with adversarial debate.
 Uses 3 reviewer teammates that challenge each other's findings instead of 7 parallel subagents.
 
 ## How It Differs from Other Skills
 
-| Aspect | dlc-review | dlc-build | dlc-debug |
+| Aspect | review | build | debug |
 | --- | --- | --- | --- |
 | Scope | PR review + debate | Full dev loop | Debug + DX harden |
 | Execution | 3 teammates (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer |
-| False positives | Adversarial debate | Embedded (reuses dlc-review) | N/A (no review phase) |
+| False positives | Adversarial debate | Embedded (reuses review) | N/A (no review phase) |
 | Project scope | Auto-detects project | Auto-detects project | Auto-detects project |
 | Feature status | Experimental | Experimental | Experimental |
 
@@ -21,7 +21,7 @@ Uses 3 reviewer teammates that challenge each other's findings instead of 7 para
 | `../../review-conventions/SKILL.md` | Shared review conventions (labels, dedup, strengths) |
 | `../../review-output-format/SKILL.md` | Output format template |
 | `references/operational.md` | Graceful Degradation, Context Compression Recovery, Success Criteria |
-| `../../docs/superpowers/specs/2026-03-19-dlc-workflow-quality-improvements-round2-design.md` | Behavioral anchor rubric for scoring dimensions — see Round 2 spec |
+| `../../docs/superpowers/specs/2026-03-19-anvil-workflow-quality-improvements-round2-design.md` | Behavioral anchor rubric for scoring dimensions — see Round 2 spec |
 
 ## Skill Architecture
 
@@ -34,13 +34,13 @@ Uses 3 reviewer teammates that challenge each other's findings instead of 7 para
 
 ```bash
 # Lint all markdown in this skill
-npx markdownlint-cli2 "skills/dlc-review/**/*.md"
+npx markdownlint-cli2 "skills/review/**/*.md"
 
 # Verify skill symlink exists
-ls -la ~/.claude/skills/dlc-review
+ls -la ~/.claude/skills/review
 
 # Test invocation (requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1):
-# /dlc-review <pr-number> [Author|Reviewer]
+# /review <pr-number> [Author|Reviewer]
 ```
 
 ## Gotchas
@@ -51,7 +51,7 @@ ls -la ~/.claude/skills/dlc-review
 - Hard Rules cannot be dropped via debate — only reclassified with evidence
 - Max 2 debate rounds enforced by lead — prevents runaway token usage
 - Team cleanup must be done by lead, not teammates
-- One team per session — cannot run multiple dlc-review in parallel
+- One team per session — cannot run multiple review in parallel
 - Phase 1 Bootstrap uses `pr-review-bootstrap` agent (Haiku) — if unavailable, teammates gather context themselves
 - Pre-Debate Triage skips debate for Auto-pass (Hard Rule + conf ≥90) and Auto-drop (Info + conf <80) findings
 - Dismissed findings persist at `{review_memory_dir}/review-dismissed.md` — cap 50 entries FIFO

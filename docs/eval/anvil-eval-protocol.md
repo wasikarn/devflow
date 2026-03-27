@@ -1,7 +1,7 @@
-# DLC Eval Suite Protocol
+# Anvil Eval Suite Protocol
 
-**Purpose:** Reproducible before/after measurement for DLC workflow quality improvements.
-**Spec:** `docs/superpowers/specs/2026-03-19-dlc-workflow-quality-improvements-round2-design.md`
+**Purpose:** Reproducible before/after measurement for Anvil workflow quality improvements.
+**Spec:** `docs/superpowers/specs/2026-03-19-anvil-workflow-quality-improvements-round2-design.md`
 
 ---
 
@@ -55,7 +55,7 @@ For each PR in the suite, document expected findings using this template:
 ## Run Procedure
 
 1. Check out the target PR branch: `gh pr checkout {pr_number}`
-2. Run `/dlc-review {pr_number}` in the project directory
+2. Run `/review {pr_number}` in the project directory
 3. For each finding in the output, classify as:
    - **True positive** — matches an expected finding (file:line within ±5 lines)
    - **False positive** — not in expected findings list

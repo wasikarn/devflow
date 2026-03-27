@@ -65,7 +65,7 @@ if [[ $PROMPT_LOWER =~ $RE_BUG ]] \
   add_hint "[skill-hint:fix-bug]
 Sequence: systematic-debugging → TDD → verification-before-completion
 Skip systematic-debugging: root cause already stated explicitly (not a guess)
-Alt (complex): dlc-debug — parallel root cause + DX analysis"
+Alt (complex): debug — parallel root cause + DX analysis"
 fi
 
 # --- finish-feature (priority 2) ---
@@ -83,12 +83,12 @@ if [[ $PROMPT_LOWER =~ $RE_REVIEW_EN ]] \
    || [[ $PROMPT =~ ดู\ PR|ดู\ code|ตรวจ\ code|ตรวจ\ PR ]]; then
   add_hint "[skill-hint:review-pr]
 Run IN PARALLEL (all independent):
-  code quality    → dlc-review             (this plugin)
+  code quality    → review             (this plugin)
   error handling  → silent-failure-hunter  (pr-review-toolkit plugin)
   test coverage   → pr-test-analyzer       (pr-review-toolkit plugin)
   type design     → type-design-analyzer   (pr-review-toolkit plugin, only if new types added)
   polish          → code-simplifier        (pr-review-toolkit plugin, run last)
-Adversarial option: dlc-review (adversarial debate, 3 reviewers)"
+Adversarial option: review (adversarial debate, 3 reviewers)"
 fi
 
 # --- write-tests ---
@@ -97,7 +97,7 @@ if [[ $PROMPT_LOWER =~ $RE_TESTS_EN ]] \
   add_hint "[skill-hint:write-tests]
 Options:
   Find gaps:  test-quality-reviewer agent — identifies missing tests in current diff
-  Full TDD:   dlc-build --quick with test-only scope — spec then implement"
+  Full TDD:   build --quick with test-only scope — spec then implement"
 fi
 
 # --- pr-triage / work-context ---
@@ -150,14 +150,14 @@ Skip brainstorming: if scope is already clear from description"
 fi
 
 # --- jira-key (atlassian-pm hint) ---
-# Detects Jira key in prompt with implementation/review intent → suggest /dlc-build ABC-XXX
+# Detects Jira key in prompt with implementation/review intent → suggest /build ABC-XXX
 # Detects story creation intent → suggest story-writer agent (atlassian-pm)
 if [[ $PROMPT =~ $RE_JIRA_KEY ]]; then
   JIRA_KEY="${BASH_REMATCH[0]}"
   if [[ $PROMPT_LOWER =~ $RE_JIRA_INTENT ]]; then
     add_hint "[skill-hint:jira-workflow]
 Detected Jira key: ${JIRA_KEY}
-Suggested: /dlc-build ${JIRA_KEY}  — reads AC from Jira, builds plan, implements, ships
+Suggested: /build ${JIRA_KEY}  — reads AC from Jira, builds plan, implements, ships
 Enhanced if atlassian-pm plugin installed: issue-bootstrap agent provides parent epic + linked issues automatically"
   fi
 fi
@@ -165,7 +165,7 @@ fi
 if [[ $PROMPT_LOWER =~ $RE_JIRA_CREATE ]]; then
   add_hint "[skill-hint:jira-story-creation]
 Use: story-writer agent (atlassian-pm plugin) — generates ADF-formatted Jira stories/subtasks
-If atlassian-pm not installed: describe requirements as a checklist and use /dlc-build to implement"
+If atlassian-pm not installed: describe requirements as a checklist and use /build to implement"
 fi
 
 # --- start-feature (priority 4) ---
@@ -177,18 +177,18 @@ if [[ $PROMPT_LOWER =~ $RE_FEATURE_EN ]] \
   if [[ $PROMPT_LOWER =~ unfamiliar|research ]] \
      || [[ $PROMPT =~ ไม่คุ้น|ศึกษา|ไม่รู้ ]]; then
     add_hint "[skill-hint:start-feature]
-Alt (unfamiliar/complex): dlc-build → writing-plans → using-git-worktrees → TDD"
+Alt (unfamiliar/complex): build → writing-plans → using-git-worktrees → TDD"
   elif [[ $PROMPT_LOWER =~ team|parallel ]] \
        || [[ $PROMPT =~ ช่วยกัน ]]; then
     add_hint "[skill-hint:start-feature]
-Alt (team): dlc-build — full development loop with agent teams"
+Alt (team): build — full development loop with agent teams"
   else
     add_hint "[skill-hint:start-feature]
 Sequence: brainstorming → writing-plans → using-git-worktrees → TDD
 Skip brainstorming: full design already described this session
 Skip worktree:     user says hotfix / small fix / one-liner
-Alt (unfamiliar):  dlc-build → writing-plans → using-git-worktrees → TDD
-Alt (team):        dlc-build"
+Alt (unfamiliar):  build → writing-plans → using-git-worktrees → TDD
+Alt (team):        build"
   fi
 fi
 

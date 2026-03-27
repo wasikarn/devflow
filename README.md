@@ -55,7 +55,7 @@ gh auth login
 claude plugin marketplace add wasikarn/dev-loop
 claude plugin install dev-loop
 
-# 5. Enable Agent Teams (required for DLC skills)
+# 5. Enable Agent Teams (required for Anvil skills)
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 
@@ -90,14 +90,14 @@ brew install jq gh git
 | Tool | Why it's needed |
 | --- | --- |
 | `jq` | All lifecycle hooks depend on it — missing breaks every hook |
-| `gh` (authenticated) | DLC skills need it to fetch PR diffs, post comments, and merge PRs |
-| `git` | All DLC skills and hooks depend on git |
+| `gh` (authenticated) | Anvil skills need it to fetch PR diffs, post comments, and merge PRs |
+| `git` | All Anvil skills and hooks depend on git |
 
 **Recommended — plugin degrades gracefully without these:**
 
 | Tool | Without it | Install |
 | --- | --- | --- |
-| `rtk` | DLC skills work but produce higher token usage | `brew install rtk` |
+| `rtk` | Anvil skills work but produce higher token usage | `brew install rtk` |
 | `shellcheck` | Auto-validation skipped when Claude writes `.sh` files | `brew install shellcheck` |
 | `node` + `markdownlint-cli2` | Auto-lint skipped when Claude edits `.md` files | `brew install node && npm i -g markdownlint-cli2` |
 | `fd` | Bootstrap agents fall back to slower Glob search | `brew install fd` |
@@ -129,7 +129,7 @@ claude plugin install dev-loop
 
 #### Step 5 — Enable Agent Teams
 
-DLC skills (`dlc-build`, `dlc-review`, `dlc-respond`, `dlc-debug`) spawn parallel agents using Agent Teams. Without this flag, they degrade to solo mode.
+Anvil skills (`build`, `review`, `respond`, `debug`) spawn parallel agents using Agent Teams. Without this flag, they degrade to solo mode.
 
 ```bash
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
@@ -179,9 +179,9 @@ Skills and agents take effect immediately on file change. Restart Claude Code on
 | --- | --- | --- |
 | `git` | Required | `brew install git` (usually pre-installed) |
 | `jq` | Required — all hooks fail without it | `brew install jq` |
-| `gh` (authenticated) | Required — DLC skills + merge-pr | `brew install gh && gh auth login` |
-| `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` | Required — enables Agent Teams for DLC skills | `claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1` |
-| `rtk` | Recommended — reduces token usage in DLC output | `brew install rtk` |
+| `gh` (authenticated) | Required — Anvil skills + merge-pr | `brew install gh && gh auth login` |
+| `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` | Required — enables Agent Teams for Anvil skills | `claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1` |
+| `rtk` | Recommended — reduces token usage in Anvil output | `brew install rtk` |
 | `shellcheck` | Recommended — auto-validates `.sh` files Claude writes | `brew install shellcheck` |
 | `node` + `markdownlint-cli2` | Recommended — auto-lints `.md` files Claude edits | `brew install node && npm i -g markdownlint-cli2` |
 | `fd` | Recommended — faster file search in bootstrap agents | `brew install fd` |
@@ -191,7 +191,7 @@ Skills and agents take effect immediately on file change. Restart Claude Code on
 
 ## Daily Usage
 
-Typical developer day using the DLC workflow:
+Typical developer day using the Anvil workflow:
 
 ```mermaid
 flowchart TD
@@ -208,18 +208,18 @@ flowchart TD
     DECISION -->|Review comments on my PR| RESPOND
     DECISION -->|Bug / production incident| DEBUG
 
-    BUILD["/dev-loop:dlc-build PROJ-123
+    BUILD["/dev-loop:build PROJ-123
     or: 'add X feature'
     Full loop → PR created"]
 
-    REVIEW["/dev-loop:dlc-review 42
+    REVIEW["/dev-loop:review 42
     3 reviewers → findings table
     post as GitHub review comments"]
 
-    RESPOND["/dev-loop:dlc-respond 42
+    RESPOND["/dev-loop:respond 42
     Fix all threads → commit → reply"]
 
-    DEBUG["/dev-loop:dlc-debug 'error msg'
+    DEBUG["/dev-loop:debug 'error msg'
     Root cause + DX hardening → fix PR"]
 
     BUILD --> MERGE
@@ -238,7 +238,7 @@ flowchart TD
 
 - Start every session with `/dev-loop:work-context` — shows active sprint tickets, open PRs awaiting action, and unmerged branches
 - Run `/dev-loop:careful` before risky work (migrations, force-push, DROP TABLE)
-- Use `/dev-loop:dlc-metrics` weekly to spot recurring review findings
+- Use `/dev-loop:metrics` weekly to spot recurring review findings
 
 ---
 
@@ -248,16 +248,16 @@ flowchart TD
 
 ```bash
 # 1. Build the feature
-/dev-loop:dlc-build PROJ-1234
+/dev-loop:build PROJ-1234
 # Claude fetches Jira AC → maps auth middleware → writes plan.md →
 # implements with tests → 3-reviewer debate → opens PR
 
 # 2. Address reviewer comments
-/dev-loop:dlc-respond 42
+/dev-loop:respond 42
 # Fetches open threads → fixes in parallel → commits → posts replies
 
 # 3. Final review before merge
-/dev-loop:dlc-review 42 PROJ-1234 Author
+/dev-loop:review 42 PROJ-1234 Author
 # Three agents re-examine PR against AC → debate → apply remaining fixes
 
 # 4. Merge
@@ -269,35 +269,35 @@ flowchart TD
 
 ## Skills
 
-### DLC Workflow Skills
+### Anvil Workflow Skills
 
-The four DLC skills form a complete development loop. Each runs a team of specialized agents that work in parallel, debate findings, and produce structured output.
+The four Anvil skills form a complete development loop. Each runs a team of specialized agents that work in parallel, debate findings, and produce structured output.
 
 ```mermaid
 flowchart TD
     START([New task / Jira ticket / Bug]) --> BUILD
 
-    BUILD["**dlc-build**
+    BUILD["**build**
     Research → Plan → Implement
     → Review → Ship"]
 
     BUILD -->|PR created| REVIEW
     BUILD -->|Production incident| DEBUG
 
-    REVIEW["**dlc-review**
+    REVIEW["**review**
     3 reviewers debate in parallel
     → Consensus findings table"]
 
     REVIEW -->|Review comments posted| RESPOND
 
-    RESPOND["**dlc-respond**
+    RESPOND["**respond**
     Fetch open threads → Fix in parallel
     → Commit → Reply to close threads"]
 
     RESPOND -->|All threads resolved| MERGE
     RESPOND -->|Another review cycle| REVIEW
 
-    DEBUG["**dlc-debug**
+    DEBUG["**debug**
     Investigator + DX Analyst in parallel
     → Root cause + Fix + Hardening"]
 
@@ -311,7 +311,7 @@ flowchart TD
 
 ---
 
-#### `dlc-build` — Full Development Loop
+#### `build` — Full Development Loop
 
 The primary workflow for any coding task. Runs Research → Plan → Implement → Review → Ship with an iterative fix-review loop (max 3 iterations).
 
@@ -332,10 +332,10 @@ flowchart LR
 **Domain lenses (Phase 6):** Each reviewer automatically receives domain-specific lens files based on diff content — security, database, TypeScript, frontend (RSC/App Router), error handling, API design, observability, and performance. Lens injection is automatic; no configuration needed.
 
 ```bash
-/dev-loop:dlc-build "add rate limiting to the API"
-/dev-loop:dlc-build PROJ-1234           # auto-fetches Jira AC
-/dev-loop:dlc-build PROJ-1234 --quick   # skip research for small fixes
-/dev-loop:dlc-build PROJ-1234 --hotfix  # urgent production incident
+/dev-loop:build "add rate limiting to the API"
+/dev-loop:build PROJ-1234           # auto-fetches Jira AC
+/dev-loop:build PROJ-1234 --quick   # skip research for small fixes
+/dev-loop:build PROJ-1234 --hotfix  # urgent production incident
 ```
 
 | Mode | When to use |
@@ -347,7 +347,7 @@ flowchart LR
 
 ---
 
-#### `dlc-review` — Adversarial PR Review
+#### `review` — Adversarial PR Review
 
 Three agents independently review a PR, then debate their findings to eliminate false positives. Output is a single ranked findings table with evidence-backed verdicts.
 
@@ -356,10 +356,10 @@ Three agents independently review a PR, then debate their findings to eliminate 
 **When to use:** Any pull request — quick standards check, architecture review, or multi-perspective analysis.
 
 ```bash
-/dev-loop:dlc-review 42                  # PR number
-/dev-loop:dlc-review 42 PROJ-1234        # with Jira AC verification
-/dev-loop:dlc-review 42 Author           # apply fixes directly to the branch
-/dev-loop:dlc-review 42 Reviewer         # post findings as GitHub review comments
+/dev-loop:review 42                  # PR number
+/dev-loop:review 42 PROJ-1234        # with Jira AC verification
+/dev-loop:review 42 Author           # apply fixes directly to the branch
+/dev-loop:review 42 Reviewer         # post findings as GitHub review comments
 ```
 
 | Mode | When to use |
@@ -408,30 +408,30 @@ Three agents independently review a PR, then debate their findings to eliminate 
 
 ---
 
-#### `dlc-respond` — Address PR Review Comments
+#### `respond` — Address PR Review Comments
 
 Fetches all open GitHub review threads on a PR, fixes each issue in parallel, commits the changes, and posts replies to close every thread.
 
 **When to use:** After receiving PR review feedback.
 
 ```bash
-/dev-loop:dlc-respond 42
-/dev-loop:dlc-respond 42 PROJ-1234   # with Jira AC context for prioritization
+/dev-loop:respond 42
+/dev-loop:respond 42 PROJ-1234   # with Jira AC context for prioritization
 ```
 
 ---
 
-#### `dlc-debug` — Parallel Root Cause Analysis
+#### `debug` — Parallel Root Cause Analysis
 
 Two agents run in parallel: an Investigator traces the root cause, while a DX Analyst audits the affected area across 19 DX patterns (error handling E1–E8, observability O1–O6, prevention P1–P5). A Fixer agent then applies the fix; an optional Fix Reviewer checks safety patterns including TOCTOU, null paths, and race conditions.
 
 **When to use:** Complex bugs, production incidents, or when you want to harden the affected area alongside the fix.
 
 ```bash
-/dev-loop:dlc-debug "NullPointerException in UserService"
-/dev-loop:dlc-debug PROJ-5678           # from a Jira bug ticket
-/dev-loop:dlc-debug PROJ-5678 --quick   # fix only, skip DX analysis
-/dev-loop:dlc-debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
+/dev-loop:debug "NullPointerException in UserService"
+/dev-loop:debug PROJ-5678           # from a Jira bug ticket
+/dev-loop:debug PROJ-5678 --quick   # fix only, skip DX analysis
+/dev-loop:debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
 ```
 
 ---
@@ -488,22 +488,22 @@ Maps causal loops, identifies feedback cycles, and surfaces second-order effects
 
 ---
 
-#### `dlc-metrics` — Retrospective Report
+#### `metrics` — Retrospective Report
 
 Reads `~/.claude/anvil-metrics.jsonl` and produces a retrospective: iteration counts, critical finding categories, recurrent issues, and Hard Rule candidates.
 
 ```bash
-/dev-loop:dlc-metrics
+/dev-loop:metrics
 ```
 
 ---
 
-#### `dlc-onboard` — Bootstrap a New Project
+#### `onboard` — Bootstrap a New Project
 
-Scaffolds the dev-loop ecosystem into a new project: generates `hard-rules.md` with stack-appropriate starter rules and creates the `dlc-build` artifact directory.
+Scaffolds the dev-loop ecosystem into a new project: generates `hard-rules.md` with stack-appropriate starter rules and creates the `build` artifact directory.
 
 ```bash
-/dev-loop:dlc-onboard
+/dev-loop:onboard
 ```
 
 ---
@@ -539,32 +539,32 @@ Detailed contributor docs for each skill live in `skills/<name>/CLAUDE.md`. For 
 
 ## Agents
 
-Specialized subagents spawned automatically by DLC skills. Can also be invoked directly.
+Specialized subagents spawned automatically by Anvil skills. Can also be invoked directly.
 
 | Agent | Model | Invoked by | Purpose |
 | --- | --- | --- | --- |
 | `commit-finalizer` | Haiku | Manually | Fast git commit with conventional commit formatting |
-| `anvil-build-bootstrap` | Haiku | `dlc-build` Phase 2 | Pre-gathers project structure and type definitions |
-| `anvil-debug-bootstrap` | Haiku | `dlc-debug` Phase 1 | Pre-gathers stack trace context and affected files |
-| `anvil-respond-bootstrap` | Haiku | `dlc-respond` Phase 1 | Pre-gathers open PR threads and affected files |
-| `pr-review-bootstrap` | Haiku | `dlc-review` Phase 1 | Fetches PR diff, Jira AC, and groups changed files |
-| `review-consolidator` | Haiku | `dlc-review` Phase 5 | Deduplicates and ranks findings from multiple reviewers |
-| `research-validator` | Haiku | `dlc-build` Phase 2→3 gate | Validates research.md completeness (file:line evidence) |
-| `fix-intent-verifier` | Haiku | `dlc-respond` Phase 2 | Verifies each fix addresses reviewer intent (ADDRESSED/PARTIAL/MISALIGNED) |
-| `jira-summary-poster` | Haiku | `dlc-build`/`dlc-debug` end | Posts ADF implementation summary to Jira; AC coverage check; optional status transition; spawns atlassian-pm agents when available |
+| `anvil-build-bootstrap` | Haiku | `build` Phase 2 | Pre-gathers project structure and type definitions |
+| `anvil-debug-bootstrap` | Haiku | `debug` Phase 1 | Pre-gathers stack trace context and affected files |
+| `anvil-respond-bootstrap` | Haiku | `respond` Phase 1 | Pre-gathers open PR threads and affected files |
+| `pr-review-bootstrap` | Haiku | `review` Phase 1 | Fetches PR diff, Jira AC, and groups changed files |
+| `review-consolidator` | Haiku | `review` Phase 5 | Deduplicates and ranks findings from multiple reviewers |
+| `research-validator` | Haiku | `build` Phase 2→3 gate | Validates research.md completeness (file:line evidence) |
+| `fix-intent-verifier` | Haiku | `respond` Phase 2 | Verifies each fix addresses reviewer intent (ADDRESSED/PARTIAL/MISALIGNED) |
+| `jira-summary-poster` | Haiku | `build`/`debug` end | Posts ADF implementation summary to Jira; AC coverage check; optional status transition; spawns atlassian-pm agents when available |
 | `work-context` | Haiku | Session start | Sprint tickets + PRs awaiting action + unmerged branches digest |
 | `merge-preflight` | Haiku | `merge-pr` Confirmation Gate | Pre-merge go/no-go safety checklist |
-| `metrics-analyst` | Haiku | `dlc-metrics` | Retrospective from anvil-metrics.jsonl: iteration patterns and Hard Rule candidates |
-| `falsification-agent` | Sonnet | `dlc-build` Phase 6, `dlc-review` Phase 5 | Challenges every finding — outputs SUSTAINED/DOWNGRADED/REJECTED per finding |
-| `plan-challenger` | Sonnet | `dlc-build` Phase 3 gate | Challenges plan for YAGNI/scope/ordering issues before implementation |
-| `test-quality-reviewer` | Sonnet | `dlc-review` Phase 3 | Test quality (T1–T9): behavior vs implementation, mock fidelity, assertion presence |
-| `migration-reviewer` | Sonnet | `dlc-review` Phase 3 | DB migration safety (M1–M10): DDL reversibility, FK indexes, table-lock risk |
-| `api-contract-auditor` | Sonnet | `dlc-review` Phase 3 | API breaking changes (A1–A10): removed fields, status codes, required params |
+| `metrics-analyst` | Haiku | `metrics` | Retrospective from anvil-metrics.jsonl: iteration patterns and Hard Rule candidates |
+| `falsification-agent` | Sonnet | `build` Phase 6, `review` Phase 5 | Challenges every finding — outputs SUSTAINED/DOWNGRADED/REJECTED per finding |
+| `plan-challenger` | Sonnet | `build` Phase 3 gate | Challenges plan for YAGNI/scope/ordering issues before implementation |
+| `test-quality-reviewer` | Sonnet | `review` Phase 3 | Test quality (T1–T9): behavior vs implementation, mock fidelity, assertion presence |
+| `migration-reviewer` | Sonnet | `review` Phase 3 | DB migration safety (M1–M10): DDL reversibility, FK indexes, table-lock risk |
+| `api-contract-auditor` | Sonnet | `review` Phase 3 | API breaking changes (A1–A10): removed fields, status codes, required params |
 | `skill-validator` | Sonnet | Manually | Validates SKILL.md frontmatter and description quality |
-| `project-onboarder` | Sonnet | `dlc-onboard` | Scaffolds hard-rules.md and dlc-build directory for new projects |
+| `project-onboarder` | Sonnet | `onboard` | Scaffolds hard-rules.md and build directory for new projects |
 | `code-explorer` | Sonnet | Manually | Traces execution paths and maps feature architecture — read-only, no code changes |
-| `comment-analyzer` | Sonnet | Manually / `dlc-build` Phase 4 (optional) | Verifies comment accuracy against code; flags stale references and comment rot |
-| `code-simplifier` | Sonnet | Manually / `dlc-build` Phase 7 (optional) | Simplifies recently changed code for clarity and maintainability without altering behavior |
+| `comment-analyzer` | Sonnet | Manually / `build` Phase 4 (optional) | Verifies comment accuracy against code; flags stale references and comment rot |
+| `code-simplifier` | Sonnet | Manually / `build` Phase 7 (optional) | Simplifies recently changed code for clarity and maintainability without altering behavior |
 | `code-reviewer` | Sonnet | Manually | General-purpose code reviewer with cross-session persistent memory; includes 6 inline domain lenses (security, database, TypeScript, frontend, error handling, API design) applied per diff content |
 
 ---
@@ -596,10 +596,10 @@ Distributed automatically with the plugin — no manual configuration required.
 
 | Pattern | Suggested skill |
 | --- | --- |
-| `bug`, `broken`, `failing`, `crash`, `test fail` | `dlc-debug` |
-| `ready to merge`, `feature complete`, `ready for PR` | `dlc-review` → ship workflow |
-| `review PR`, `review pull request`, `review code` | `dlc-review` |
-| `implement`, `add feature`, `build component`, `create page` | `dlc-build` |
+| `bug`, `broken`, `failing`, `crash`, `test fail` | `debug` |
+| `ready to merge`, `feature complete`, `ready for PR` | `review` → ship workflow |
+| `review PR`, `review pull request`, `review code` | `review` |
+| `implement`, `add feature`, `build component`, `create page` | `build` |
 
 ---
 
@@ -616,7 +616,7 @@ Activate an output style to change how Claude communicates throughout a session.
 
 ## Jira Integration
 
-Pass a Jira ticket key (e.g. `PROJ-123`) to any DLC skill and it auto-fetches the issue's acceptance criteria. Requires one of these MCP servers:
+Pass a Jira ticket key (e.g. `PROJ-123`) to any Anvil skill and it auto-fetches the issue's acceptance criteria. Requires one of these MCP servers:
 
 | MCP Server | Notes | Install |
 | --- | --- | --- |
@@ -639,12 +639,12 @@ claude plugin install <name>
 | --- | --- |
 | `superpowers@claude-plugins-official` | Core workflow skills — TDD, systematic debugging, verification before claiming done. Prevents common AI failure modes. |
 | `claude-mem@thedotmack` | Cross-session persistent memory. Claude remembers past decisions and project context across conversations. |
-| `qmd@qmd` | Local semantic search over your codebase and docs. Speeds up `dlc-build` research phase significantly. |
-| `feature-dev@claude-plugins-official` | Specialized subagents for feature exploration and architecture analysis. Pairs well with `dlc-build`. |
-| `commit-commands@claude-plugins-official` | Quick `/commit` and `/commit-push-pr` skills for the Ship phase of `dlc-build`. |
-| `playwright@claude-plugins-official` | Browser automation via MCP. Useful for `dlc-debug` when diagnosing UI or end-to-end failures. |
+| `qmd@qmd` | Local semantic search over your codebase and docs. Speeds up `build` research phase significantly. |
+| `feature-dev@claude-plugins-official` | Specialized subagents for feature exploration and architecture analysis. Pairs well with `build`. |
+| `commit-commands@claude-plugins-official` | Quick `/commit` and `/commit-push-pr` skills for the Ship phase of `build`. |
+| `playwright@claude-plugins-official` | Browser automation via MCP. Useful for `debug` when diagnosing UI or end-to-end failures. |
 | `typescript-lsp@claude-plugins-official` | TypeScript language server — real-time type errors and go-to-definition. Reduces hallucinated types in TypeScript projects. |
-| `pr-review-toolkit@claude-plugins-official` | Additional review agents (silent-failure hunter, type-design analyzer, test coverage analyzer). Complements `dlc-review`. |
+| `pr-review-toolkit@claude-plugins-official` | Additional review agents (silent-failure hunter, type-design analyzer, test coverage analyzer). Complements `review`. |
 
 ### Complementary MCP Servers
 
@@ -652,16 +652,16 @@ All optional — skills degrade gracefully if absent.
 
 | MCP Server | When it helps | Install |
 | --- | --- | --- |
-| `context7` | Fetches up-to-date library docs during `dlc-build` research — no more hallucinated API signatures. | [upstash/context7-mcp](https://github.com/upstash/context7-mcp) |
-| `sequential-thinking` | Structured reasoning for complex decisions. Useful in `systems-thinking` and `dlc-build` planning. | `claude mcp add sequential-thinking` |
-| `figma` | Pulls Figma frames into context. Lets `dlc-build` use actual design specs instead of descriptions. | [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) |
-| `mcp-atlassian` | Jira + Confluence access. `dlc-build` uses Confluence pages as additional AC context. | [sooperset/mcp-atlassian](https://github.com/sooperset/mcp-atlassian) |
+| `context7` | Fetches up-to-date library docs during `build` research — no more hallucinated API signatures. | [upstash/context7-mcp](https://github.com/upstash/context7-mcp) |
+| `sequential-thinking` | Structured reasoning for complex decisions. Useful in `systems-thinking` and `build` planning. | `claude mcp add sequential-thinking` |
+| `figma` | Pulls Figma frames into context. Lets `build` use actual design specs instead of descriptions. | [GLips/Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) |
+| `mcp-atlassian` | Jira + Confluence access. `build` uses Confluence pages as additional AC context. | [sooperset/mcp-atlassian](https://github.com/sooperset/mcp-atlassian) |
 
 ---
 
 ## Troubleshooting
 
-### DLC skills do nothing / no agents spawn
+### Anvil skills do nothing / no agents spawn
 
 Agent Teams must be enabled:
 
@@ -721,16 +721,16 @@ dev-loop/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest
 ├── skills/                   # Skill entry points (SKILL.md per skill)
-│   ├── dlc-build/
-│   ├── dlc-review/
-│   ├── dlc-respond/
-│   ├── dlc-debug/
+│   ├── build/
+│   ├── review/
+│   ├── respond/
+│   ├── debug/
 │   ├── merge-pr/
 │   ├── optimize-claude-md/
 │   ├── env-heal/
 │   ├── systems-thinking/
-│   ├── dlc-metrics/
-│   ├── dlc-onboard/
+│   ├── metrics/
+│   ├── onboard/
 │   ├── careful/
 │   └── freeze/
 ├── agents/                   # Custom subagent definitions (.md files)

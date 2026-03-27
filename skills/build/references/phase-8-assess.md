@@ -23,11 +23,11 @@ Update progress tracker checkboxes (iteration N: Implement tasks, Review Critica
 
 When dropping a finding (false positive, accepted risk), append it to the `## Dismissed` section in `review-findings-{N}.md` using the table format — prevents re-raising in subsequent iterations.
 
-**Cross-session persistence:** Additionally, append the dismissed finding to the centralized dlc-review dismissed log — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review` → `review-dismissed.md` (create if absent). Use this canonical format shared with dlc-review:
+**Cross-session persistence:** Additionally, append the dismissed finding to the centralized review dismissed log — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review` → `review-dismissed.md` (create if absent). Use this canonical format shared with review:
 
 | Date | Finding | File:Line | Reason | Source | Workflow |
 | --- | --- | --- | --- | --- | --- |
-| YYYY-MM-DD | {brief description} | {file}:{line} | {reason} | Lead | dlc-build |
+| YYYY-MM-DD | {brief description} | {file}:{line} | {reason} | Lead | build |
 
 FIFO cap: 50 entries total — if file exceeds 50 rows (excluding header), remove the oldest entry before appending. Duplicate entries (same File:Line) do not need to be deduplicated on write; readers treat same File:Line as the same finding.
 

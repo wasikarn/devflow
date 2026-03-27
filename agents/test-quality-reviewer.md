@@ -1,6 +1,6 @@
 ---
 name: test-quality-reviewer
-description: "Dedicated test quality reviewer for PR diffs. Checks (T1–T9): behavior-over-implementation, mock fidelity, edge case coverage, missing tests for new logic, test naming clarity, zero-assertion/mock-call-only/not.toThrow() detection (T6 Hard Rule), boundary operator coverage, stale mock contracts, and test isolation. Spawned conditionally in dlc-review Phase 2 when test files or new exported functions without spec changes are detected. Also usable standalone after any test-writing session."
+description: "Dedicated test quality reviewer for PR diffs. Checks (T1–T9): behavior-over-implementation, mock fidelity, edge case coverage, missing tests for new logic, test naming clarity, zero-assertion/mock-call-only/not.toThrow() detection (T6 Hard Rule), boundary operator coverage, stale mock contracts, and test isolation. Spawned conditionally in review Phase 2 when test files or new exported functions without spec changes are detected. Also usable standalone after any test-writing session."
 tools: Read, Grep, Glob, Bash
 model: sonnet
 disallowedTools: Edit, Write
@@ -106,7 +106,7 @@ Flag when tests share mutable state without cleanup:
 
 ### 4. Output Findings
 
-Use the standard findings table format, same as dlc-review teammates:
+Use the standard findings table format, same as review teammates:
 
 | # | Sev | Rule | File | Line | Issue | Fix |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -141,5 +141,5 @@ If TDD_SEQUENCE is inconsistent with `TDD_COMPLIANCE` label, report as a T6 Hard
 
 ## Confidence Threshold
 
-Same as dlc-review teammates: confidence >= 80 for non-trivial findings.
+Same as review teammates: confidence >= 80 for non-trivial findings.
 Hard Rule violations (T6: zero assertions / mock-call-only assertion / not.toThrow() as sole assertion / TDD_SEQUENCE inconsistency) bypass threshold.

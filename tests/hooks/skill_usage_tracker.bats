@@ -7,10 +7,10 @@ load setup
   USAGE_LOG=$(mktemp)
   run bash -c "
     ANVIL_USAGE_LOG=$USAGE_LOG \
-    bash '$HOOKS_DIR/skill-usage-tracker.sh' <<< '{\"tool_name\":\"Skill\",\"tool_input\":{\"skill\":\"dlc-build\"}}'
+    bash '$HOOKS_DIR/skill-usage-tracker.sh' <<< '{\"tool_name\":\"Skill\",\"tool_input\":{\"skill\":\"build\"}}'
   "
   [ "$status" -eq 0 ]
-  grep -q "dlc-build" "$USAGE_LOG"
+  grep -q "build" "$USAGE_LOG"
   rm -f "$USAGE_LOG"
 }
 
@@ -27,7 +27,7 @@ load setup
 
 @test "appends multiple entries without overwriting" {
   USAGE_LOG=$(mktemp)
-  for skill in dlc-build dlc-review merge-pr; do
+  for skill in build review merge-pr; do
     bash -c "
       ANVIL_USAGE_LOG=$USAGE_LOG \
       bash '$HOOKS_DIR/skill-usage-tracker.sh' <<< \

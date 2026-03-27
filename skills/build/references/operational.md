@@ -144,7 +144,7 @@ See [references/operational.md](references/operational.md) for degradation behav
 - **Lead is sole writer of anvil-context.md** — workers SendMessage; lead updates the file
 - **Artifacts persist on disk** — `anvil-context.md`, plan file, `research.md`, `review-findings-*.md` survive context compression
 - **YAGNI** — implement only what the task requires; speculative abstractions are review findings
-- **Artifacts path** — ALL artifacts live at `{artifacts_dir}/{date}-{task-slug}/` (from `scripts/artifact-dir.sh dlc-build`); includes plan.md, research.md, verify-results.md, review-findings-*.md, anvil-context.md. `~/.claude/plans/` is no longer used.
+- **Artifacts path** — ALL artifacts live at `{artifacts_dir}/{date}-{task-slug}/` (from `scripts/artifact-dir.sh build`); includes plan.md, research.md, verify-results.md, review-findings-*.md, anvil-context.md. `~/.claude/plans/` is no longer used.
 
 ## Gate Summary
 
@@ -171,7 +171,7 @@ Full gate details: [references/phase-gates.md](references/phase-gates.md)
 - **Agent Teams required for parallel phases** — without `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, the skill degrades to subagent or solo mode; phases that rely on parallel workers run sequentially, increasing token cost and time.
 - **Phase 1 AC validation skips silently if Jira key is invalid** — if the key doesn't exist or Jira is unreachable, the skill proceeds using the raw task description as AC. Verify the Jira key resolves before invoking to avoid a silent no-op on acceptance criteria.
 - **Research phase can exceed context budget on large repos** — the Explorer spawns multiple subagents to read files; on repos with hundreds of relevant files this burns context fast. Use `--quick` for small tasks; save `--full` for cross-cutting changes.
-- **All artifacts in one folder** — `anvil-context.md`, `research.md`, `plan.md`, `verify-results.md`, and `review-findings-*.md` all live at `{artifacts_dir}/{date}-{task-slug}/`. `~/.claude/plans/` is no longer used by dlc-build for new runs.
+- **All artifacts in one folder** — `anvil-context.md`, `research.md`, `plan.md`, `verify-results.md`, and `review-findings-*.md` all live at `{artifacts_dir}/{date}-{task-slug}/`. `~/.claude/plans/` is no longer used by build for new runs.
 - **Max 3 iterations is shared** — Phase 5 loops, Stage 1 FAIL loops, and review loops all consume the same `iteration_count` counter (max 3). This prevents runaway costs from multiple loop types each believing they have their own budget.
 - **Phase 5 is mandatory** — every Implement → Review transition must pass through Phase 5 Verify. Skipping it after a Stage 1 FAIL is not permitted.
 - **[NEEDS CLARIFICATION] replaces ClarifyQ** — clarifying questions are embedded as tokens in research.md (max 3, each with file:line evidence). No separate ClarifyQ phase. Quick and Hotfix modes use Lite research with no clarification tokens.

@@ -1,4 +1,4 @@
-# dlc-build — Good/Bad Examples
+# build — Good/Bad Examples
 
 Examples of what high-quality vs low-quality output looks like at each phase.
 
@@ -194,22 +194,22 @@ wip: halfway through feature
 ✅ **Good** — task description + explicit mode flag:
 
 ```text
-/dlc-build "Add health check endpoint GET /api/health → returns {status: ok, uptime}" --full
-/dlc-build "Fix null crash in UserService.findById when profile is missing" --quick
-/dlc-build ABC-1234 --hotfix
+/build "Add health check endpoint GET /api/health → returns {status: ok, uptime}" --full
+/build "Fix null crash in UserService.findById when profile is missing" --quick
+/build ABC-1234 --hotfix
 ```
 
 ❌ **Bad** — no task description (skill cannot determine scope):
 
 ```text
-/dlc-build
-/dlc-build --full
+/build
+/build --full
 ```
 
 ❌ **Bad** — Jira key without `--hotfix`/`--quick` when mode is ambiguous (forces unnecessary mode-confirmation round trip):
 
 ```text
-/dlc-build ABC-1234
+/build ABC-1234
 ```
 
 > **Tip:** Include a Jira key when the ticket has AC — the skill auto-extracts acceptance criteria into plan tasks. Combine with `--quick` for small tasks or `--hotfix` for production incidents.

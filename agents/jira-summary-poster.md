@@ -1,6 +1,6 @@
 ---
 name: jira-summary-poster
-description: "Post a structured implementation summary comment to the linked Jira ticket after completing a dev-loop task. Reads anvil-context.md or debug-context.md and posts what was implemented, files changed, and any AC deviations. When atlassian-pm plugin is available, generates ADF-formatted comment via story-writer + quality-gate agents. Use at the end of dlc-build Phase 6 or dlc-debug Phase 3 cleanup when a Jira key is present in the context artifact."
+description: "Post a structured implementation summary comment to the linked Jira ticket after completing a dev-loop task. Reads anvil-context.md or debug-context.md and posts what was implemented, files changed, and any AC deviations. When atlassian-pm plugin is available, generates ADF-formatted comment via story-writer + quality-gate agents. Use at the end of build Phase 6 or debug Phase 3 cleanup when a Jira key is present in the context artifact."
 tools: Read, Glob, Bash, mcp__mcp-atlassian__jira_get_issue, mcp__mcp-atlassian__jira_add_comment, mcp__mcp-atlassian__jira_transition_issue, mcp__mcp-atlassian__jira_get_transitions, mcp__plugin_atlassian-pm_atlassian-cache__cache_get_issue, mcp__plugin_atlassian-pm_atlassian-cache__cache_invalidate
 model: haiku
 maxTurns: 15
@@ -19,8 +19,8 @@ context artifacts — no re-reading of source files required.
 Look for the context artifact in this order:
 
 1. `$ARGUMENTS` — caller passes explicit path (preferred: `{artifacts_dir}/anvil-context.md` or `{artifacts_dir}/debug-context.md`)
-2. The most recent dlc-build artifact: run `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null` to get base dir, then glob `*/anvil-context.md` for the latest ticket
-3. The most recent dlc-debug artifact: run `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-debug 2>/dev/null` to get base dir, then glob `*/debug-context.md` for the latest date
+2. The most recent build artifact: run `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" build 2>/dev/null` to get base dir, then glob `*/anvil-context.md` for the latest ticket
+3. The most recent debug artifact: run `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" debug 2>/dev/null` to get base dir, then glob `*/debug-context.md` for the latest date
 
 If none found, output: `No context artifact found — cannot post Jira comment.` and exit.
 

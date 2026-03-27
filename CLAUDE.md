@@ -19,7 +19,7 @@ Prefer reading source before editing — key references:
 | `skills/<name>/references/checklist.md` | Per-skill review criteria with severity markers (review-pr skills) |
 | `skills/<name>/references/examples.md` | Per-skill ✅/❌ code examples for all 12 rules (review-pr skills) |
 | [`skills/review-conventions/SKILL.md`](skills/review-conventions/SKILL.md) | Comment labels, dedup protocol, strengths, PR size thresholds |
-| [`skills/dlc-build/references/review-lenses/`](skills/dlc-build/references/review-lenses/) | 8 domain lenses injected into reviewers at Phase 6 — `frontend`, `security`, `database`, `performance`, `typescript`, `error-handling`, `api-design`, `observability`. Shared by both `dlc-build` and `dlc-review`. |
+| [`skills/build/references/review-lenses/`](skills/build/references/review-lenses/) | 8 domain lenses injected into reviewers at Phase 6 — `frontend`, `security`, `database`, `performance`, `typescript`, `error-handling`, `api-design`, `observability`. Shared by both `build` and `review`. |
 
 <important if="editing or creating skills">
 
@@ -44,16 +44,16 @@ skills/<name>/
 | `optimize-claude-md` | Audit and optimize CLAUDE.md files |
 | `env-heal` | Scan and fix environment variable mismatches |
 | `merge-pr` | Git-flow merge and deploy (feature/hotfix/release modes) |
-| `dlc-build` | Full development loop (Research → Plan → Implement → Review → Ship) |
-| `dlc-review` | Adversarial PR review with 3-reviewer debate |
-| `dlc-debug` | Parallel root cause analysis + DX hardening |
-| `dlc-metrics` | Run retrospective report from anvil-metrics.jsonl — iteration counts, finding categories, recurrent issues |
-| `dlc-onboard` | Bootstrap a new project into the dev-loop ecosystem — scaffold hard-rules.md and dlc-build directories |
-| `dlc-respond` | Address PR review comments as author |
+| `build` | Full development loop (Research → Plan → Implement → Review → Ship) |
+| `review` | Adversarial PR review with 3-reviewer debate |
+| `debug` | Parallel root cause analysis + DX hardening |
+| `metrics` | Run retrospective report from anvil-metrics.jsonl — iteration counts, finding categories, recurrent issues |
+| `onboard` | Bootstrap a new project into the dev-loop ecosystem — scaffold hard-rules.md and build directories |
+| `respond` | Address PR review comments as author |
 | `systems-thinking` | Causal Loop Diagram analysis for architecture decisions |
 | `careful` | Enter careful mode — elevated confirmation threshold for destructive operations |
 | `freeze` | Freeze a file or pattern from being edited for the session |
-| `dlc-status` | Show active DLC session artifacts and current phase |
+| `status` | Show active Anvil session artifacts and current phase |
 | `plugin-qa` | Run QA check suite to verify all hooks, skills, and plugin structure |
 | `analyze-claude-features` | Audit project against official Claude Code features and score adoption coverage |
 | `review-rules` | _(background)_ 12-point review framework — preloaded into reviewer agents |
@@ -76,27 +76,27 @@ Current agents (23):
 | Agent | Model | Purpose |
 | --- | --- | --- |
 | `commit-finalizer` | haiku | Fast git commit with conventional commits format |
-| `anvil-build-bootstrap` | haiku | Pre-gather Phase 2 context before dlc-build explorer spawns |
-| `anvil-debug-bootstrap` | haiku | Pre-gather debug context before dlc-debug Investigator spawns |
-| `anvil-respond-bootstrap` | haiku | Pre-gather open PR threads + affected files before dlc-respond Fixers spawn |
+| `anvil-build-bootstrap` | haiku | Pre-gather Phase 2 context before build explorer spawns |
+| `anvil-debug-bootstrap` | haiku | Pre-gather debug context before debug Investigator spawns |
+| `anvil-respond-bootstrap` | haiku | Pre-gather open PR threads + affected files before respond Fixers spawn |
 | `pr-review-bootstrap` | haiku | Fetch PR diff + Jira AC in one pass before review |
 | `review-consolidator` | haiku | Dedup/sort multi-reviewer findings into single ranked table |
 | `research-validator` | haiku | Validate research.md completeness (file:line evidence gate) before Phase 2→3 |
-| `fix-intent-verifier` | haiku | Verify each dlc-respond fix addresses reviewer intent (ADDRESSED/PARTIAL/MISALIGNED) |
-| `jira-summary-poster` | haiku | Post structured implementation summary to Jira after dlc-build/dlc-debug completes |
+| `fix-intent-verifier` | haiku | Verify each respond fix addresses reviewer intent (ADDRESSED/PARTIAL/MISALIGNED) |
+| `jira-summary-poster` | haiku | Post structured implementation summary to Jira after build/debug completes |
 | `work-context` | haiku | Session start digest: active sprint tickets + PRs awaiting action + unmerged branches |
 | `merge-preflight` | haiku | Pre-merge go/no-go safety checklist before merge-pr Confirmation Gate |
 | `metrics-analyst` | haiku | Retrospective from anvil-metrics.jsonl: iteration patterns, recurring findings, Hard Rule candidates |
 | `falsification-agent` | sonnet | Challenges review findings before consolidation — outputs SUSTAINED/DOWNGRADED/REJECTED per finding |
-| `plan-challenger` | sonnet | Challenges dlc-build Phase 3 plan for YAGNI/scope/ordering issues before implementation |
+| `plan-challenger` | sonnet | Challenges build Phase 3 plan for YAGNI/scope/ordering issues before implementation |
 | `test-quality-reviewer` | sonnet | Dedicated test quality reviewer (T1–T9): behavior vs implementation, mock fidelity, edge cases, assertion presence (Hard Rule), boundary operators, stale contracts, test isolation |
 | `code-explorer` | sonnet | Trace feature execution paths: entry points → data layer, map abstraction layers, identify extension points — read-only, explicit trigger only |
-| `comment-analyzer` | sonnet | Verify comment accuracy against code, detect stale references and comment rot — explicit trigger; dlc-build lead may optionally spawn after Phase 4 |
-| `code-simplifier` | sonnet | Post-review polish: flatten nesting, remove redundant comments, improve naming — no behavior changes; triggered optionally in dlc-build Phase 7 (optional) or standalone |
+| `comment-analyzer` | sonnet | Verify comment accuracy against code, detect stale references and comment rot — explicit trigger; build lead may optionally spawn after Phase 4 |
+| `code-simplifier` | sonnet | Post-review polish: flatten nesting, remove redundant comments, improve naming — no behavior changes; triggered optionally in build Phase 7 (optional) or standalone |
 | `migration-reviewer` | sonnet | Reviews DB migration files (M1–M10): DDL safety, reversibility, FK indexes, table-lock risk, zero-downtime violations, expand/contract, data batching, index types, deadlock risk |
 | `api-contract-auditor` | sonnet | Detects API breaking changes (A1–A10): removed/renamed fields, changed status codes, new required params, type narrowing, enum reordering, idempotency, pagination, error envelopes, deprecation |
 | `skill-validator` | sonnet | Validates SKILL.md against best practices |
-| `project-onboarder` | sonnet | Bootstrap a new project into dev-loop: scaffold hard-rules.md + dlc-build directory |
+| `project-onboarder` | sonnet | Bootstrap a new project into dev-loop: scaffold hard-rules.md + build directory |
 | `code-reviewer` | sonnet | General-purpose code reviewer with cross-session persistent memory |
 
 <important if="editing or adding hooks">
@@ -149,7 +149,7 @@ claude plugin install dev-loop
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 
-`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is required for all DLC skills (dlc-build, dlc-review, dlc-respond, dlc-debug) to spawn Agent Teams.
+`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is required for all Anvil skills (build, review, respond, debug) to spawn Agent Teams.
 
 <important if="adding a new skill">
 

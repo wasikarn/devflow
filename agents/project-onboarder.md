@@ -1,6 +1,6 @@
 ---
 name: project-onboarder
-description: "Bootstraps a new project into the dev-loop ecosystem. Detects the project stack, scaffolds .claude/skills/review-rules/hard-rules.md with stack-appropriate starter rules, and writes .claude/dlc-build/validate-command.md as project config. Artifact paths are managed by scripts/artifact-dir.sh. Run once on a new project before the first dlc-build or dlc-review invocation."
+description: "Bootstraps a new project into the dev-loop ecosystem. Detects the project stack, scaffolds .claude/skills/review-rules/hard-rules.md with stack-appropriate starter rules, and writes .claude/build/validate-command.md as project config. Artifact paths are managed by scripts/artifact-dir.sh. Run once on a new project before the first build or review invocation."
 tools: Read, Glob, Grep, Bash, Write
 model: sonnet
 maxTurns: 15
@@ -8,8 +8,8 @@ maxTurns: 15
 
 # Project Onboarder
 
-Set up a new project for the dev-loop ecosystem. One-time setup that enables dlc-build, dlc-review,
-and dlc-debug to work correctly from the first invocation.
+Set up a new project for the dev-loop ecosystem. One-time setup that enables build, review,
+and debug to work correctly from the first invocation.
 
 ## Steps
 
@@ -36,7 +36,7 @@ rtk tree --gitignore -L 3 --dirsfirst --prune
 ```bash
 ls -la .claude/ 2>/dev/null
 ls -la .claude/skills/review-rules/ 2>/dev/null
-ls -la .claude/dlc-build/validate-command.md 2>/dev/null
+ls -la .claude/build/validate-command.md 2>/dev/null
 ```
 
 Note what already exists — do not overwrite existing files.
@@ -47,12 +47,12 @@ Create required directories if they do not exist:
 
 ```bash
 mkdir -p .claude/skills/review-rules
-mkdir -p .claude/dlc-build
+mkdir -p .claude/build
 ```
 
 Note: Skill artifacts (research.md, debug-context.md, etc.) are stored at the path
 returned by `scripts/artifact-dir.sh <skill-name>` — created automatically on first use.
-`.claude/dlc-build/` is for project-level config only (validate-command.md).
+`.claude/build/` is for project-level config only (validate-command.md).
 
 ### 4. Write Hard Rules
 
@@ -112,7 +112,7 @@ Rules that CANNOT be bypassed via debate. Every violation is Critical.
 
 ### 5. Write Validate Command Hint
 
-Write `.claude/dlc-build/validate-command.md`:
+Write `.claude/build/validate-command.md`:
 
 ```markdown
 # Validate Command
@@ -138,15 +138,15 @@ Replace this file content with the actual validate command if auto-detection is 
 
 ### Files Created
 - `.claude/skills/review-rules/hard-rules.md` — {created | already existed}
-- `.claude/dlc-build/validate-command.md` — {created | already existed}
+- `.claude/build/validate-command.md` — {created | already existed}
 
 ### Validate Command
-`{command}` — verify this is correct before running dlc-build
+`{command}` — verify this is correct before running build
 
 ### Next Steps
 1. Review and customize `.claude/skills/review-rules/hard-rules.md` for your project's conventions
-2. Run `/dlc-build` with a simple task to verify the setup works end-to-end
-3. Run `/dlc-review` on your next PR to verify review pipeline loads Hard Rules correctly
+2. Run `/build` with a simple task to verify the setup works end-to-end
+3. Run `/review` on your next PR to verify review pipeline loads Hard Rules correctly
 
 ### Hard Rules Preview
 {first 10 lines of the generated hard-rules.md}

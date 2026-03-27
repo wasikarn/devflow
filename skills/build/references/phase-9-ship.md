@@ -20,7 +20,7 @@ Call AskUserQuestion:
 
 **If "Explain the critical finding":** Summarize the top Critical finding in plain terms — what the problem was, why it matters, and what the fix does. Then re-present the gate question.
 
-**Log to metrics:** Set `human_confirmed = true` if user chose option 1 or 3. Set `human_confirmed = false` if user never responded (timeout/auto-proceed). This surfaces rubber-stamp patterns in `dlc-metrics`.
+**Log to metrics:** Set `human_confirmed = true` if user chose option 1 or 3. Set `human_confirmed = false` if user never responded (timeout/auto-proceed). This surfaces rubber-stamp patterns in `metrics`.
 
 **Never block:** If user skips or dismisses, proceed silently. This is a signal, not a barrier.
 
@@ -85,7 +85,7 @@ New fields:
 - `human_confirmed` — whether user engaged with Comprehension Gate (Step 2)
 
 ```json
-{"skill":"dlc-build","date":"{YYYY-MM-DD}","mode":"{mode}","mode_source":"{auto|flag|override}","blast_radius":{N},"iterations":{N},"task":"{task_short}","final_critical":0,"final_warning":{W},"findings_reversed":{falsification_rejected_count},"ac_coverage":"{AC_passed}/{AC_total}","human_confirmed":{true|false}}
+{"skill":"build","date":"{YYYY-MM-DD}","mode":"{mode}","mode_source":"{auto|flag|override}","blast_radius":{N},"iterations":{N},"task":"{task_short}","final_critical":0,"final_warning":{W},"findings_reversed":{falsification_rejected_count},"ac_coverage":"{AC_passed}/{AC_total}","human_confirmed":{true|false}}
 ```
 
 ## Step 8: Lens Update Check (Full mode only)

@@ -1,13 +1,13 @@
 ---
 name: review-rules
-description: "Core 12-point review framework used across code-reviewer, dlc-build, and dlc-review agents — rule definitions, security coverage, team vs solo reviewer assignment"
+description: "Core 12-point review framework used across code-reviewer, build, and review agents — rule definitions, security coverage, team vs solo reviewer assignment"
 user-invocable: false
 disable-model-invocation: true
 ---
 
 # Review Rules — 12-Point Canonical Definition
 
-Single source of truth for the 12-point review framework used across `code-reviewer`, `dlc-build`, and `dlc-review`. Code examples: [`review-examples`](../review-examples/SKILL.md)
+Single source of truth for the 12-point review framework used across `code-reviewer`, `build`, and `review`. Code examples: [`review-examples`](../review-examples/SKILL.md)
 
 | # | Rule | Category | Look for |
 | --- | --- | --- | --- |
@@ -37,4 +37,4 @@ Security is **part of Rule #1** (not a separate numbered rule) — covered at mu
 | Context | Reviewer 1 (Correctness) | Reviewer 2 (Architecture) | Reviewer 3 (DX) |
 | --- | --- | --- | --- |
 | **Solo** (code-reviewer) | All 12 | — | — |
-| **Team** (dlc-build / dlc-review) | #1, #2, #10, #12 | #3, #4, #5, #6, #7 | #8, #9, #11, #12 |
+| **Team** (build / review) | #1, #2, #10, #12 | #3, #4, #5, #6, #7 | #8, #9, #11, #12 |

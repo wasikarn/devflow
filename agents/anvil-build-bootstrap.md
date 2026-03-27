@@ -1,6 +1,6 @@
 ---
 name: anvil-build-bootstrap
-description: "Bootstraps dlc-build Phase 1 context by pre-gathering shared project structure, CLAUDE.md conventions, entry points, and key type definitions in one fast pass. Use at the START of Phase 1 before spawning explorers. Output goes to {artifacts_dir}/bootstrap-context.md for injection into explorer prompts."
+description: "Bootstraps build Phase 1 context by pre-gathering shared project structure, CLAUDE.md conventions, entry points, and key type definitions in one fast pass. Use at the START of Phase 1 before spawning explorers. Output goes to {artifacts_dir}/bootstrap-context.md for injection into explorer prompts."
 tools: Read, Glob, Bash, Grep, Write
 model: haiku
 maxTurns: 15
@@ -53,7 +53,7 @@ Also check `package.json` for the test script.
 
 ### 6. Write Output
 
-Compute the output directory: `ARTIFACT_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null || echo "")`. Write to `${ARTIFACT_DIR}/bootstrap-context.md`:
+Compute the output directory: `ARTIFACT_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" build 2>/dev/null || echo "")`. Write to `${ARTIFACT_DIR}/bootstrap-context.md`:
 
 ```markdown
 # Bootstrap Context

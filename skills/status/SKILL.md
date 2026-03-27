@@ -1,17 +1,17 @@
 ---
-name: dlc-status
-description: "Show active anvil workflow artifacts from the current session — artifact directory, phase progress, and which DLC files exist. Use /dlc-status to check the current DLC session state."
+name: status
+description: "Show active anvil workflow artifacts from the current session — artifact directory, phase progress, and which Anvil files exist. Use /status to check the current Anvil session state."
 user-invocable: true
 ---
 
-# DLC Status
+# Anvil Status
 
 Show active anvil workflow artifacts from the current session.
 
 Run this command now:
 
 ```bash
-bash scripts/artifact-dir.sh 2>/dev/null || echo "no active DLC session"
+bash scripts/artifact-dir.sh 2>/dev/null || echo "no active Anvil session"
 ```
 
 Then check for artifact files:
@@ -32,4 +32,4 @@ Report:
    - `research.md` + `plan.md` → Phase 2 Plan complete
    - `research.md` + `plan.md` (no `review.md`) → Phase 3 Implementation in progress
    - `research.md` + `plan.md` + `review.md` → Phase 4+ Review/Ship in progress
-4. If no artifacts: "No active DLC session — start one with /dlc-build"
+4. If no artifacts: "No active Anvil session — start one with /build"

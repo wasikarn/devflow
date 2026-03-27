@@ -1,7 +1,7 @@
 ---
 name: code-simplifier
 description: |
-  Use this agent when code has been written or modified and needs to be simplified for clarity, consistency, and maintainability while preserving all functionality. Invoke explicitly when asked to simplify or clean up code, or when dlc-build Phase 5 offers the optional simplification step. The agent focuses only on recently modified code (git diff HEAD) unless specific files are provided as $ARGUMENTS.
+  Use this agent when code has been written or modified and needs to be simplified for clarity, consistency, and maintainability while preserving all functionality. Invoke explicitly when asked to simplify or clean up code, or when build Phase 5 offers the optional simplification step. The agent focuses only on recently modified code (git diff HEAD) unless specific files are provided as $ARGUMENTS.
 
   Examples:
 
@@ -15,11 +15,11 @@ description: |
   </example>
 
   <example>
-  Context: dlc-build Phase 5 assessed zero Critical findings — user chose "Run simplification".
+  Context: build Phase 5 assessed zero Critical findings — user chose "Run simplification".
   user: (chose simplification option in AskUserQuestion)
   assistant: "Spawning code-simplifier agent on changed files before shipping."
   <commentary>
-  dlc-build integrates code-simplifier as an optional Step 5.5 after zero-Critical review outcome.
+  build integrates code-simplifier as an optional Step 5.5 after zero-Critical review outcome.
   </commentary>
   </example>
 tools: Read, Grep, Glob, Bash, Edit

@@ -1,12 +1,12 @@
 ---
 paths:
-  - "skills/dlc-review/**"
+  - "skills/review/**"
   - "skills/review-*/**"
 ---
 
-# DLC Review Skills
+# Anvil Review Skills
 
-`dlc-review` uses 3 Agent Teams teammates with adversarial debate.
+`review` uses 3 Agent Teams teammates with adversarial debate.
 
 - **Args:** `[pr-number] [jira-key?] [Author|Reviewer]`
 - **Phases:** Worktree setup → Jira AC → 3 reviewers → debate → consolidation → action

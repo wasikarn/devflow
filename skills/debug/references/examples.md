@@ -1,4 +1,4 @@
-# dlc-debug — Good/Bad Examples
+# debug — Good/Bad Examples
 
 Examples of what systematic root-cause analysis looks like vs surface-level fixes, and what quality DX findings look like.
 
@@ -188,7 +188,7 @@ class OrderCalculator {
 ### P0 — Outage (auto-Full, skip mode confirmation)
 
 ```text
-/dlc-debug "POST /api/payments returns 500 for ALL users since deploy 10 minutes ago"
+/debug "POST /api/payments returns 500 for ALL users since deploy 10 minutes ago"
 ```
 
 ✅ Correct: Lead auto-selects Full mode, skips mode confirmation gate, proceeds immediately.
@@ -197,7 +197,7 @@ class OrderCalculator {
 ### P1 — Critical (Full mode default)
 
 ```text
-/dlc-debug "Users created after March 1 cannot login — JWT validation fails"
+/debug "Users created after March 1 cannot login — JWT validation fails"
 ```
 
 ✅ Correct: Presents Full vs Quick choice (pre-selected Full), waits for confirmation.
@@ -205,7 +205,7 @@ class OrderCalculator {
 ### P2 — Minor (Quick mode default)
 
 ```text
-/dlc-debug "Pagination returns wrong total count when filtering by status=cancelled"
+/debug "Pagination returns wrong total count when filtering by status=cancelled"
 ```
 
 ✅ Correct: Presents Full vs Quick choice (pre-selected Quick), describes scope difference.

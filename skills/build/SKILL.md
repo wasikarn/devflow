@@ -1,6 +1,6 @@
 ---
-name: dlc-build
-description: "Primary development workflow — use /dlc-build for any coding task: new features, bug fixes, refactors, schema changes, CI failures, production hotfixes, or implementing Jira tickets. Runs Research → Plan → Implement → Verify → Review → Ship with iterative fix-review loop and Agent Teams. Auto-detects ceremony level via blast-radius scoring (Micro/Quick/Full) — no flag required. Pass a Jira key (ABC-XXXX) to auto-extract acceptance criteria into plan tasks AND automatically transition the card to In Progress (if atlassian-pm is installed). Modes: --micro for isolated zero-blast-radius tasks; --quick for small fixes; --full for cross-cutting changes; --hotfix for urgent production incidents (branches from main). Review scales by diff size. Triggers on: implement this feature, write the code for, fix this bug, create a new endpoint, scaffold this module, add tests for, TDD, CI is failing. When in doubt which dev workflow to use, start here."
+name: build
+description: "Primary development workflow — use /build for any coding task: new features, bug fixes, refactors, schema changes, CI failures, production hotfixes, or implementing Jira tickets. Runs Research → Plan → Implement → Verify → Review → Ship with iterative fix-review loop and Agent Teams. Auto-detects ceremony level via blast-radius scoring (Micro/Quick/Full) — no flag required. Pass a Jira key (ABC-XXXX) to auto-extract acceptance criteria into plan tasks AND automatically transition the card to In Progress (if atlassian-pm is installed). Modes: --micro for isolated zero-blast-radius tasks; --quick for small fixes; --full for cross-cutting changes; --hotfix for urgent production incidents (branches from main). Review scales by diff size. Triggers on: implement this feature, write the code for, fix this bug, create a new endpoint, scaffold this module, add tests for, TDD, CI is failing. When in doubt which dev workflow to use, start here."
 argument-hint: "[task-description-or-jira-key] [--micro?] [--quick?] [--full?] [--hotfix?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
@@ -22,14 +22,14 @@ You are a **Staff Software Engineer** — the lead running a structured, multi-p
 
 # Team Dev Loop — Full Development Workflow
 
-Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]`
+Invoke as `/build [task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]`
 
 **Task:** $ARGUMENTS | **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
 **Recent commits:** !`git log --oneline -5 2>/dev/null || true`
 **Changed files:** !`git diff --name-only HEAD 2>/dev/null || echo "clean"`
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
-**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build "$0" 2>/dev/null || echo ""`
+**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" build "$0" 2>/dev/null || echo ""`
 
 **Args:** `$0`=task description or Jira key (required) · `$1`=`--micro` | `--quick` | `--full` | `--hotfix` (optional — auto-detected if omitted)
 

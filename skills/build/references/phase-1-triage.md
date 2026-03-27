@@ -53,7 +53,7 @@ After detecting the project, also **detect domain lenses** from the task descrip
 - If `validate` is empty → add to confirmation prompt: "No validate command detected. What should I run to verify? (e.g. `npm test`)"
 - Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-rules/hard-rules.md`:
   - Exists → load it + note checklist.md and examples.md paths
-  - Not exists → use Generic Hard Rules (as defined in dlc-review Phase 2)
+  - Not exists → use Generic Hard Rules (as defined in review Phase 2)
 
 **2b — Pending PRs Check:**
 
@@ -64,7 +64,7 @@ gh pr list --author @me --state open --json number,title,headRefName,createdAt \
 
 - If Jira key in `$ARGUMENTS` (e.g. `ABC-1234`) → check if any open PR branch contains that key
   - Match found: Call AskUserQuestion — question: "PR #1941 already targets ABC-1234. Switch to that PR?",
-    header: "Existing PR", options: [{ label: "Switch to PR #1941", description: "Use /dlc-respond or /dlc-review instead" },
+    header: "Existing PR", options: [{ label: "Switch to PR #1941", description: "Use /respond or /review instead" },
     { label: "Continue new task", description: "Proceed with triage normally" }]
     → Switch: stop. → Continue: proceed.
 - No match / no Jira key: list open PRs briefly, ask if user wants to switch to one
@@ -72,7 +72,7 @@ gh pr list --author @me --state open --json number,title,headRefName,createdAt \
 
 **2c — Jira Context** (skip if no Jira key in `$ARGUMENTS`):
 
-Follow [jira-integration](../../../jira-integration/SKILL.md) §dlc-build:
+Follow [jira-integration](../../../jira-integration/SKILL.md) §build:
 
 1. Fetch ticket → extract AC and subtasks
 2. AC items become plan task constraints (Phase 3)
@@ -90,7 +90,7 @@ jira-search: "status = 'In Progress' AND summary ~ '{task keywords}' AND key != 
   question: "{MATCH-KEY} ({assignee}) is already working on a similar task: '{match summary}'. Continue anyway?"
   header: "Possible Duplicate"
   options: [{ label: "Continue", description: "Proceed with new task" },
-             { label: "Switch to existing", description: "Use /dlc-respond or /dlc-review on that ticket" }]
+             { label: "Switch to existing", description: "Use /respond or /review on that ticket" }]
 - No match or jira-search not available → proceed silently
 
 **2e — AC Quality Check** (skip if no Jira key or Jira unavailable):
@@ -203,7 +203,7 @@ Use the ticket status already fetched in Step 2c (no re-fetch needed).
 question: "Ticket {JIRA-KEY} is already {status}. Proceed anyway?"
 header: "Ticket Status Warning"
 options:
-  - { label: "Proceed", description: "Continue with dlc-build regardless of ticket status" }
+  - { label: "Proceed", description: "Continue with build regardless of ticket status" }
   - { label: "Stop",    description: "Exit — pick a different ticket" }
 ```
 
@@ -250,7 +250,7 @@ Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Up
 
 Post a checkbox list in conversation: Phase 1 (done), Phase 2 (Full/Quick only), Phase 3, Loop iterations 1-3 with nested Phase 4/5/6/7/8, Phase 9. Update checkboxes as each phase completes.
 
-Write dlc-metrics entry to `{artifacts_dir}/anvil-metrics.jsonl` (append, create if missing):
+Write metrics entry to `{artifacts_dir}/anvil-metrics.jsonl` (append, create if missing):
 
 ```json
 {"ts":"<ISO8601>","phase":"triage","mode":"<mode>","mode_source":"<auto|flag|override>","blast_radius":N,"task_slug":"<slug>"}

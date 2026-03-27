@@ -1,6 +1,6 @@
 ---
 name: api-contract-auditor
-description: "Detects API-breaking changes in PR diffs (A1–A10): removed/renamed response fields, changed HTTP status codes, new required parameters, type narrowing on interfaces, reordered enums, idempotency violations on mutating endpoints, pagination envelope inconsistencies, error shape mismatches, deprecation without migration path. Spawned conditionally in dlc-review Phase 2 when controller/route/handler/interface files are detected. Reports breaking vs non-breaking with semver impact classification."
+description: "Detects API-breaking changes in PR diffs (A1–A10): removed/renamed response fields, changed HTTP status codes, new required parameters, type narrowing on interfaces, reordered enums, idempotency violations on mutating endpoints, pagination envelope inconsistencies, error shape mismatches, deprecation without migration path. Spawned conditionally in review Phase 2 when controller/route/handler/interface files are detected. Reports breaking vs non-breaking with semver impact classification."
 tools: Read, Grep, Glob, Bash
 model: sonnet
 disallowedTools: Edit, Write

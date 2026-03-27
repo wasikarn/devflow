@@ -1,6 +1,6 @@
 ---
-name: dlc-respond
-description: "Respond to PR review comments — reads all open GitHub review threads, fixes each issue, commits, replies to threads, and re-requests review. Use when: you received PR review feedback and need to address reviewer comments. Triggers: respond to review, fix review comments, resolve review threads, address PR feedback, reply to reviewer, /dlc-respond."
+name: respond
+description: "Respond to PR review comments — reads all open GitHub review threads, fixes each issue, commits, replies to threads, and re-requests review. Use when: you received PR review feedback and need to address reviewer comments. Triggers: respond to review, fix review comments, resolve review threads, address PR feedback, reply to reviewer, /respond."
 argument-hint: "[pr-number] [jira-key?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
@@ -21,17 +21,17 @@ You are an **Experienced PR Author** responding to code review with precision an
 
 ---
 
-# dlc-respond — Address PR Review Comments
+# respond — Address PR Review Comments
 
-Invoke as `/dlc-respond [pr-number] [jira-key?]`
+Invoke as `/respond [pr-number] [jira-key?]`
 
 ---
 
 **PR:** #$0 | **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
-**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-respond "pr-$0" 2>/dev/null || echo ""`
-**Review memory dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review 2>/dev/null || echo ""`
+**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" respond "pr-$0" 2>/dev/null || echo ""`
+**Review memory dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review 2>/dev/null || echo ""`
 **Open threads:** !`gh pr view $0 --json reviewThreads --jq '[.reviewThreads[] | select(.isResolved == false)] | length' 2>/dev/null || true`
 **PR diff stat:** !`gh pr diff $0 --stat 2>/dev/null || true`
 
@@ -66,7 +66,7 @@ Use the `Project` JSON from the header. Load project-specific Hard Rules from `{
 
 ### Step 2: Jira Context (if `$1` present)
 
-If `$1` matches `ABC-\d+`, follow `## dlc-respond` section in [../../jira-integration/SKILL.md](../../jira-integration/SKILL.md) to fetch AC and enrich thread prioritization.
+If `$1` matches `ABC-\d+`, follow `## respond` section in [../../jira-integration/SKILL.md](../../jira-integration/SKILL.md) to fetch AC and enrich thread prioritization.
 
 ### Step 3: Fetch Threads
 
@@ -258,7 +258,7 @@ See [references/operational.md](references/operational.md) for Success Criteria 
 
 ## Constraints
 
-- **review-dismissed.md is read-only here** — dlc-review and dlc-build both write to this file; dlc-respond reads it only (Step 4 triage)
+- **review-dismissed.md is read-only here** — review and build both write to this file; respond reads it only (Step 4 triage)
 - **Fix scope = thread scope only** — why: scope creep makes re-review harder and risks introducing new issues unrelated to the review
 - **Validate BEFORE commit** — why: reverting uncommitted changes is cheaper than reverting commits; catches regressions before they enter history
 - **Never silently skip a Critical thread** — why: skipped Criticals become production incidents; if unfixable, the decision must be explicit and documented

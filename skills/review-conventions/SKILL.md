@@ -1,13 +1,13 @@
 ---
 name: review-conventions
-description: "Shared review conventions for dlc-* skills — comment labels (issue/suggestion/nitpick/praise/question), PR size thresholds, consolidation rules, strengths format, reviewer focus areas"
+description: "Shared review conventions for anvil skills — comment labels (issue/suggestion/nitpick/praise/question), PR size thresholds, consolidation rules, strengths format, reviewer focus areas"
 user-invocable: false
 disable-model-invocation: true
 ---
 
 # Review Conventions
 
-Shared conventions for `dlc-*` review skills.
+Shared conventions for `anvil` review skills.
 
 ## Review Principles
 

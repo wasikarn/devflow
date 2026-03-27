@@ -1,7 +1,7 @@
 ---
 name: comment-analyzer
 description: |
-  Analyzes code comments for factual accuracy, completeness, and long-term maintainability. Use after adding or modifying documentation comments (JSDoc, inline), before finalizing a PR, or when asked to verify comment quality. The dlc-build lead may optionally spawn this after Phase 3 when the diff contains significant comment additions — but this is a lead judgment call, not automatic.
+  Analyzes code comments for factual accuracy, completeness, and long-term maintainability. Use after adding or modifying documentation comments (JSDoc, inline), before finalizing a PR, or when asked to verify comment quality. The build lead may optionally spawn this after Phase 3 when the diff contains significant comment additions — but this is a lead judgment call, not automatic.
 
   Examples:
 
@@ -15,7 +15,7 @@ description: |
   </example>
 
   <example>
-  Context: dlc-build Phase 3 complete, lead sees diff has large JSDoc blocks added.
+  Context: build Phase 3 complete, lead sees diff has large JSDoc blocks added.
   user: (lead spawning agent after Phase 3 workers complete)
   assistant: "Spawning comment-analyzer on Phase 3 changes before handing off to reviewers."
   <commentary>

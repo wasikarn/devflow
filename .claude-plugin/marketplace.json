@@ -1,7 +1,7 @@
 {
   "name": "dev-loop",
   "metadata": {
-    "description": "A collection of Claude Code skills for PR review, context optimization, spec-driven development, and deep research workflows. Includes DLC workflow skills (dlc-build, dlc-review, dlc-respond, dlc-debug), utility skills, custom agents, workflow automation hooks, and output styles."
+    "description": "A collection of Claude Code skills for PR review, context optimization, spec-driven development, and deep research workflows. Includes Anvil workflow skills (build, review, respond, debug), utility skills, custom agents, workflow automation hooks, and output styles."
   },
   "owner": {
     "name": "kobig"
@@ -10,7 +10,7 @@
     {
       "name": "dev-loop",
       "source": "./",
-      "description": "A collection of Claude Code skills for PR review, context optimization, spec-driven development, and deep research workflows. Includes DLC workflow skills (dlc-build, dlc-review, dlc-respond, dlc-debug), utility skills, custom agents, workflow automation hooks, and output styles.",
+      "description": "A collection of Claude Code skills for PR review, context optimization, spec-driven development, and deep research workflows. Includes Anvil workflow skills (build, review, respond, debug), utility skills, custom agents, workflow automation hooks, and output styles.",
       "version": "0.7.1",
       "author": {
         "name": "kobig"

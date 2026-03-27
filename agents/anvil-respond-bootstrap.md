@@ -1,15 +1,15 @@
 ---
 name: anvil-respond-bootstrap
-description: "Bootstraps dlc-respond Phase 1 by pre-gathering all open PR review threads, affected file contents, and recent git context in one fast pass. Use at the START of dlc-respond before spawning Fixers. Returns structured context block for injection into Fixer prompts."
+description: "Bootstraps respond Phase 1 by pre-gathering all open PR review threads, affected file contents, and recent git context in one fast pass. Use at the START of respond before spawning Fixers. Returns structured context block for injection into Fixer prompts."
 tools: Bash, Read, Grep, Glob
 model: haiku
 disallowedTools: Edit, Write
 maxTurns: 15
 ---
 
-# dlc-respond Bootstrap
+# respond Bootstrap
 
-Pre-gather all context needed for dlc-respond in one pass. Output a structured block that the lead
+Pre-gather all context needed for respond in one pass. Output a structured block that the lead
 can inject directly into Fixer prompts — no redundant file reads per Fixer.
 
 ## Steps
@@ -55,7 +55,7 @@ git diff origin/main...HEAD -- {affected_files_space_separated} --stat
 Return this exact block — nothing else:
 
 ```markdown
-## dlc-respond Bootstrap Context
+## respond Bootstrap Context
 
 **PR:** #[number]
 **Open threads:** [count]

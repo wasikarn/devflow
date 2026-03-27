@@ -93,7 +93,7 @@ Determine diff size first: `git diff {base_branch}...HEAD --stat | tail -1`
 > **Quick mode override:** In Quick mode, use lead self-review (Solo Self-Review Checklist) for diffs ≤100 lines — no teammate spawning. Only spawn reviewers for Quick mode diffs >100 lines.
 > **Micro mode:** Always 1 reviewer (general only) — no debate regardless of diff size.
 
-Load debate protocol for 2-round debate cases: [debate-protocol](../../../debate-protocol/SKILL.md) (shared with dlc-review — always available).
+Load debate protocol for 2-round debate cases: [debate-protocol](../../../debate-protocol/SKILL.md) (shared with review — always available).
 
 **CONTEXT-REQUEST handling:** If a reviewer sends a `CONTEXT-REQUEST:` message before submitting findings, lead reads the requested file and sends the relevant section back via SendMessage. Reviewer proceeds after receiving context. If context unavailable, respond: "Proceed without it — note low-confidence in the finding."
 
@@ -174,7 +174,7 @@ Anchor to these before assigning any severity. When in doubt, use Warning over C
 
 **Example source priority:**
 
-1. Read the centralized dlc-review dismissed log — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review` → `review-dismissed.md` — if it exists, find the most recent entry per severity level (Critical, Warning, Suggestion) and use the `Finding` column text as the example.
+1. Read the centralized review dismissed log — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review` → `review-dismissed.md` — if it exists, find the most recent entry per severity level (Critical, Warning, Suggestion) and use the `Finding` column text as the example.
 2. If the file does not exist or has no entry for a severity level, use hardcoded fallback:
    - Critical: "SQL injection via unsanitized user input in query builder"
    - Warning: "Missing null check on optional field that is null in 10% of production calls"

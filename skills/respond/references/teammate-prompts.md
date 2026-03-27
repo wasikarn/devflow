@@ -1,6 +1,6 @@
 # Teammate Prompts
 
-Prompt templates for dlc-respond teammates. Replace `{placeholders}` before sending.
+Prompt templates for respond teammates. Replace `{placeholders}` before sending.
 
 ## Fixer: Thread Fix
 

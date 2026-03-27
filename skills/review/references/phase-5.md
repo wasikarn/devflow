@@ -29,7 +29,7 @@ Output the consolidated findings table per [review-output-format](../../../revie
 
 | Date | Finding | File:Line | Severity | Source | Workflow |
 | --- | --- | --- | --- | --- | --- |
-| YYYY-MM-DD | {brief} | {file}:{line} | Critical/Warning | PR #{number} | dlc-review |
+| YYYY-MM-DD | {brief} | {file}:{line} | Critical/Warning | PR #{number} | review |
 
 These become positive severity anchors in future reviews (Step 1).
 
@@ -37,7 +37,7 @@ These become positive severity anchors in future reviews (Step 1).
 
 | Date | Finding | File:Line | Reason | Source | Workflow |
 | --- | --- | --- | --- | --- | --- |
-| YYYY-MM-DD | {brief} | {file}:{line} | {reason} | PR #{number} | dlc-review |
+| YYYY-MM-DD | {brief} | {file}:{line} | {reason} | PR #{number} | review |
 
 Replace the "Agents" column with "Consensus":
 

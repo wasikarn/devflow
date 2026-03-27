@@ -1,6 +1,6 @@
 ---
 name: anvil-debug-bootstrap
-description: "Pre-gather shared debug context before dlc-debug Phase 1: reads dlc-build artifacts when present, maps affected files from stack trace or description, collects recent commits and code structure. Run at the start of any debug session to avoid redundant reads by Investigator agents."
+description: "Pre-gather shared debug context before debug Phase 1: reads build artifacts when present, maps affected files from stack trace or description, collects recent commits and code structure. Run at the start of any debug session to avoid redundant reads by Investigator agents."
 model: haiku
 tools: Read, Glob, Bash, Grep, Write
 maxTurns: 15
@@ -11,7 +11,7 @@ maxTurns: 15
 **Optional tools:** `fd` (faster file search, falls back to Glob), `ast-grep` (structural search, falls back to Grep).
 
 Pre-gather shared context and write `## Shared Context` to `debug-context.md` before
-dlc-debug Phase 1 spawns Investigator and DX Analyst teammates.
+debug Phase 1 spawns Investigator and DX Analyst teammates.
 
 ## Input
 
@@ -20,16 +20,16 @@ Passed inline in this prompt with labeled fields:
 ```text
 Bug: {bug description or Jira key}
 Project Root: {absolute path to target project root}
-Artifacts Dir: {artifacts_dir from dlc-debug skill header}
+Artifacts Dir: {artifacts_dir from debug skill header}
 ```
 
 ## Steps
 
-### Step 1: Check for dlc-build Artifacts
+### Step 1: Check for build Artifacts
 
 ```bash
-# Compute dlc-build base artifacts dir (no suffix — search all ticket subdirs)
-DLCBUILD_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null || echo "")
+# Compute build base artifacts dir (no suffix — search all ticket subdirs)
+DLCBUILD_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" build 2>/dev/null || echo "")
 ls "${DLCBUILD_DIR}"/*/anvil-context.md 2>/dev/null | sort -r | head -1
 ```
 
@@ -84,7 +84,7 @@ rtk grep -n "^export|^class|^function|^const.*=.*=>" --include="*.ts" {affected_
 
 ### Step 5: Append to debug-context.md
 
-`debug-context.md` is created by dlc-debug Phase 0 Step 4 before this agent runs.
+`debug-context.md` is created by debug Phase 0 Step 4 before this agent runs.
 
 Build the `## Shared Context` section from your gathered data (Steps 1–4), then
 append it to `{Artifacts Dir}/debug-context.md` using `Bash`. Construct each section with real values —
@@ -96,7 +96,7 @@ Required structure (include only sections with data; see Required Sections below
 ## Shared Context
 **Gathered:** 2026-03-18T10:30:00Z
 
-### Recent Build Context (from dlc-build)
+### Recent Build Context (from build)
 (include only if Step 1 found relevant artifacts)
 - plan item 1: description
 - modified: src/foo.ts
@@ -127,14 +127,14 @@ Then append the `## Shared Context` section as above.
 
 All sub-sections are required EXCEPT:
 
-- "Recent Build Context" — only when dlc-build artifacts found AND relevant
+- "Recent Build Context" — only when build artifacts found AND relevant
 - "Code Structure Notes" — omit if no meaningful structure found in affected files
 
 ## Error Handling
 
 - `ast-grep` unavailable → use `rtk grep` fallback (note in Code Structure Notes)
 - `fd` unavailable → use Glob tool fallback
-- dlc-build artifacts found but unrelated to bug area → omit Recent Build Context
+- build artifacts found but unrelated to bug area → omit Recent Build Context
 - Affected files not determinable → write "affected files unknown" in Affected Files section
-- **Call-site fallback:** if this agent errors, dlc-debug lead executes Phase 1 Bootstrap
+- **Call-site fallback:** if this agent errors, debug lead executes Phase 1 Bootstrap
   Steps 1–4 inline

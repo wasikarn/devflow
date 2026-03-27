@@ -1,13 +1,13 @@
 ---
 name: jira-integration
-description: "Shared Jira context injection for dlc-review, dlc-build, dlc-debug, and dlc-respond — Jira key detection, ticket fetch, AC extraction, and skill-specific integration patterns"
+description: "Shared Jira context injection for review, build, debug, and respond — Jira key detection, ticket fetch, AC extraction, and skill-specific integration patterns"
 user-invocable: false
 disable-model-invocation: true
 ---
 
-# Jira Integration for dlc-* Skills
+# Jira Integration for Anvil Skills
 
-Shared Jira context injection for dlc-review, dlc-build, and dlc-debug.
+Shared Jira context injection for review, build, and debug.
 All Jira phases are optional — if no Jira key detected, skip entirely.
 
 ---
@@ -55,7 +55,7 @@ When using `issue-bootstrap` (option 1), all fields above are already extracted 
 
 ---
 
-## dlc-review: AC Verification
+## review: AC Verification
 
 **Phase 0.05: Parallel Context Bootstrap — Jira Fetch** (runs concurrently with Phase 0.1: PR Scope Assessment)
 
@@ -75,7 +75,7 @@ When using `issue-bootstrap` (option 1), all fields above are already extracted 
 
 ---
 
-## dlc-build: Scope & Planning
+## build: Scope & Planning
 
 **Phase 0, Step 2.5: Jira Context** (after Step 2: Classify Mode, before Step 3: Create Context Artifact)
 
@@ -101,7 +101,7 @@ When using `issue-bootstrap` (option 1), all fields above are already extracted 
 
 ---
 
-## dlc-debug: Bug Enrichment
+## debug: Bug Enrichment
 
 **Phase 0, Step 1.5: Jira Context** (after Step 1: Detect Project, before Step 2: Classify Severity)
 
@@ -133,7 +133,7 @@ When using `issue-bootstrap` (option 1), all fields above are already extracted 
 
 ---
 
-## dlc-respond: Thread Prioritization
+## respond: Thread Prioritization
 
 **Phase 0, Step 0.5: Jira Context** (after Step 1: Detect Project, before Step 2: Fetch Threads)
 

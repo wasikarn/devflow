@@ -171,7 +171,7 @@ When constructing reviewer prompts:
 1. Replace all `{placeholders}` with actual values
 2. Insert project-specific Hard Rules from `.claude/skills/review-rules/hard-rules.md` (if exists) or use Generic Hard Rules — Hard Rule violations bypass confidence filter and are always reported
 3. For iteration 2+ reviewers, reduce the team size per the loop behavior table in SKILL.md
-4. Set `{dismissed_findings_path}` to: (1) `review-dismissed.md` in the dlc-review artifacts dir — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review` (load if exists), then (2) `{artifacts_dir}/review-findings-{N-1}.md` (current session iter 2+). Reviewers check both sources; before applying any dismissed entry, verify the file:line still exists in the current codebase.
+4. Set `{dismissed_findings_path}` to: (1) `review-dismissed.md` in the review artifacts dir — path: `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review` (load if exists), then (2) `{artifacts_dir}/review-findings-{N-1}.md` (current session iter 2+). Reviewers check both sources; before applying any dismissed entry, verify the file:line still exists in the current codebase.
 5. **Domain lenses:** Set `{domain_lenses}` to the relevant lens content from `references/review-lenses/` based on file extensions and Jira labels detected in Phase 1. Leave empty if no domain lens applies.
 6. **Confidence thresholds by role:** per `reviewer-shared-rules.md` — Security/Correctness: 70/75, Architecture: 80, DX: 85. Hard Rules bypass all thresholds.
 
@@ -195,7 +195,7 @@ Populate `{domain_lenses}` per reviewer with only their assigned lenses. Leave e
 
 ## Fallback Debate Protocol
 
-Use this when `dlc-review/references/debate-protocol.md` is not found.
+Use this when `review/references/debate-protocol.md` is not found.
 
 ROUND 1 — Independent positions:
 Each reviewer states their top findings with confidence scores. No discussion yet.

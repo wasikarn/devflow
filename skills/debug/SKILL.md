@@ -1,6 +1,6 @@
 ---
-name: dlc-debug
-description: "Agent Teams debugging with parallel DX analysis — Investigator traces root cause while DX Analyst audits observability, error handling, and test coverage. Pass a Jira key (ABC-XXXX) to enrich bug context from ticket details. Use when: debugging complex bugs, production incidents, or when you want to harden the affected area. Triggers: debug, team debug, investigate bug, /dlc-debug."
+name: debug
+description: "Agent Teams debugging with parallel DX analysis — Investigator traces root cause while DX Analyst audits observability, error handling, and test coverage. Pass a Jira key (ABC-XXXX) to enrich bug context from ticket details. Use when: debugging complex bugs, production incidents, or when you want to harden the affected area. Triggers: debug, team debug, investigate bug, /debug."
 argument-hint: "[bug-description-or-jira-key] [--quick?] [--review?]"
 compatibility: "Requires gh CLI, git, and CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
@@ -24,7 +24,7 @@ You are a **Senior SRE / Incident Commander** — specialized in systematic root
 
 # Team Debug — Systematic Debugging with DX
 
-Invoke as `/dlc-debug [bug-description-or-jira-key] [--quick?]`
+Invoke as `/debug [bug-description-or-jira-key] [--quick?]`
 
 ## References
 
@@ -52,7 +52,7 @@ Invoke as `/dlc-debug [bug-description-or-jira-key] [--quick?]`
 **Git branch:** !`git branch --show-current`
 **Recent commits:** !`git log --oneline -5 2>/dev/null || true`
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
-**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-debug "$(date +%Y-%m-%d)" 2>/dev/null || echo ""`
+**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" debug "$(date +%Y-%m-%d)" 2>/dev/null || echo ""`
 
 **Args:** `$0`=bug description (required) · `$1`=`--quick` (optional, skip DX Analyst) · `$2`=`--review` (optional, add Fix Reviewer after Fixer)
 **Modes:** Full = Investigator + DX Analyst + Fixer · Quick = Investigator + Fixer (DX checklist only)
@@ -79,23 +79,23 @@ If TeamCreate tool is not available → check graceful degradation:
 ✅ **Good** — specific bug description with error type and location:
 
 ```text
-/dlc-debug "NullPointerException in UserService.findById — user.profile is null for users registered before 2024"
-/dlc-debug "API POST /payments returns 500 when amount is 0.00" --quick
-/dlc-debug ABC-5678
+/debug "NullPointerException in UserService.findById — user.profile is null for users registered before 2024"
+/debug "API POST /payments returns 500 when amount is 0.00" --quick
+/debug ABC-5678
 ```
 
 ❌ **Bad** — no bug description (Investigator cannot start without a hypothesis):
 
 ```text
-/dlc-debug
-/dlc-debug --quick
+/debug
+/debug --quick
 ```
 
 ❌ **Bad** — too vague (forces extra round-trip to clarify):
 
 ```text
-/dlc-debug "something is broken"
-/dlc-debug "fix the bug"
+/debug "something is broken"
+/debug "fix the bug"
 ```
 
 > **Tip:** Include stack trace or error message in the description when available — paste the key lines directly into the argument. The Investigator uses this to locate the affected files immediately.
@@ -112,7 +112,7 @@ Check for project-specific Hard Rules at `{project_root}/.claude/skills/review-r
 
 ### Step 2: Jira Context (skip if no Jira)
 
-Scan `$ARGUMENTS` for Jira key (`ABC-\d+`). If found, follow [jira-integration](../../jira-integration/SKILL.md) §dlc-debug:
+Scan `$ARGUMENTS` for Jira key (`ABC-\d+`). If found, follow [jira-integration](../../jira-integration/SKILL.md) §debug:
 
 1. Fetch ticket — enrich bug description with ticket details
 2. Check linked issues — related bugs may share root cause
@@ -291,7 +291,7 @@ If a Jira key was identified in Phase 1 Step 2 context:
 Append one JSON line to `~/.claude/anvil-metrics.jsonl`:
 
 ```json
-{"skill":"dlc-debug","date":"{YYYY-MM-DD}","mode":"debug","severity":"{P0|P1|P2}","task":"{bug_short}","fix_plan_items":{N},"dx_findings":{D}}
+{"skill":"debug","date":"{YYYY-MM-DD}","mode":"debug","severity":"{P0|P1|P2}","task":"{bug_short}","fix_plan_items":{N},"dx_findings":{D}}
 ```
 
 ---
@@ -320,5 +320,5 @@ See [references/operational.md](references/operational.md) for Graceful Degradat
 - **Minified or bundled stack traces reduce Investigator accuracy** — if the error originates in a compiled/bundled file, the Investigator maps to the wrong source location. Provide source-mapped stack traces or point to the source file explicitly in the bug description.
 - **Multiple investigators can produce conflicting root causes** — in Full mode, the Investigator and DX Analyst may identify different root causes. The convergence step (Phase 2 Step 3) is required to reconcile; do not skip it or proceed with only one finding.
 - **P0 severity skips mode confirmation but not fix approval** — the gate clarification in Phase 1 Step 3 is explicit: only the mode selection gate is skipped for P0. Fix plan approval still requires user confirmation. Don't assume P0 = fully automated.
-- **DX scope is the affected area only** — the DX Analyst is constrained to files touched by the bug fix. If broader DX improvements are needed, run `/dlc-build` after the fix is merged, not within this session.
+- **DX scope is the affected area only** — the DX Analyst is constrained to files touched by the bug fix. If broader DX improvements are needed, run `/build` after the fix is merged, not within this session.
 - **`--review` flag adds a Fix Reviewer** — this spawns an additional teammate after the Fixer and reviews only the fix commits. Without `--review` (and for non-P0 severity), fix review is skipped. For production fixes, always pass `--review` or set severity to P0.

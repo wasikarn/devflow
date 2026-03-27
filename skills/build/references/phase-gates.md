@@ -134,7 +134,7 @@ If iteration_count ≥ 2 AND Critical count(iter N) ≥ Critical count(iter N-1)
 → Call AskUserQuestion — question: "No improvement in Critical count. How to proceed?",
   header: "Stall detected", options: [
     { label: "Continue loop", description: "Force another fix iteration" },
-    { label: "Switch to diagnosis mode", description: "Run /dlc-debug to investigate root cause" },
+    { label: "Switch to diagnosis mode", description: "Run /debug to investigate root cause" },
     { label: "Rethink approach", description: "Return to Phase 3 with findings as input" }
   ]
 ```

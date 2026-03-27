@@ -1,6 +1,6 @@
 ---
 name: research-validator
-description: "Validates research.md completeness before the dlc-build Phase 1 gate transition. Checks required sections are present, counts file:line evidence references, and flags sections with only headers and no concrete content. Returns PASS or FAIL with specific gaps itemized. Called by dlc-build lead after explorers write research.md."
+description: "Validates research.md completeness before the build Phase 1 gate transition. Checks required sections are present, counts file:line evidence references, and flags sections with only headers and no concrete content. Returns PASS or FAIL with specific gaps itemized. Called by build lead after explorers write research.md."
 tools: Read, Grep, Glob
 model: haiku
 disallowedTools: Edit, Write, Bash
@@ -16,7 +16,7 @@ produced concrete evidence, not just section headers.
 
 ### 1. Locate research.md
 
-Read the file path passed via `$ARGUMENTS` (the lead passes `{artifacts_dir}/research.md` when dispatching). If `$ARGUMENTS` is empty, fallback: compute path via `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null`, then read the most recent `*/research.md` under that base dir. If not found, output `FAIL: research.md not found` and exit.
+Read the file path passed via `$ARGUMENTS` (the lead passes `{artifacts_dir}/research.md` when dispatching). If `$ARGUMENTS` is empty, fallback: compute path via `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" build 2>/dev/null`, then read the most recent `*/research.md` under that base dir. If not found, output `FAIL: research.md not found` and exit.
 
 ### 2. Detect Research Tier
 

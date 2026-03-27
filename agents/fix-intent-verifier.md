@@ -1,6 +1,6 @@
 ---
 name: fix-intent-verifier
-description: "Verifies that each dlc-respond Fixer's applied fix addresses the reviewer's stated intent, not just the literal symptom. Reads reviewer thread text and applied git diff per thread. Outputs ADDRESSED / PARTIAL / MISALIGNED verdict per thread. Called by dlc-respond lead in Phase 1 verification gate before posting replies."
+description: "Verifies that each respond Fixer's applied fix addresses the reviewer's stated intent, not just the literal symptom. Reads reviewer thread text and applied git diff per thread. Outputs ADDRESSED / PARTIAL / MISALIGNED verdict per thread. Called by respond lead in Phase 1 verification gate before posting replies."
 tools: Bash, Read, Grep
 model: haiku
 disallowedTools: Edit, Write

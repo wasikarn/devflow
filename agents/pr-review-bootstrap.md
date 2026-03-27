@@ -73,7 +73,7 @@ Return this exact block — nothing else:
 **UI:** [files]
 **Config:** [files]
 
-<!-- Dispatch decisions are made by the calling skill (dlc-review), not this bootstrap agent. -->
+<!-- Dispatch decisions are made by the calling skill (review), not this bootstrap agent. -->
 
 ### PR Diff Summary
 [3-5 bullet points describing what changed at a high level]

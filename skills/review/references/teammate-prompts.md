@@ -1,4 +1,4 @@
-# Teammate Prompts — dlc-review
+# Teammate Prompts — review
 
 Prompt templates for the 3 reviewer teammates. Lead inserts project Hard Rules and PR number.
 
@@ -6,7 +6,7 @@ Prompt templates for the 3 reviewer teammates. Lead inserts project Hard Rules a
 
 Lenses are **domain-scoped** — each teammate receives only lenses relevant to their focus area. Do not inject all matching lenses to all teammates (N×3 token cost).
 
-Load lenses from `skills/dlc-build/references/review-lenses/` and assign per teammate based on diff content:
+Load lenses from `skills/build/references/review-lenses/` and assign per teammate based on diff content:
 
 | Teammate | Lens | Trigger condition |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ CONTEXT:
 RULES:
 - READ-ONLY — do not modify any files
 - Every finding MUST cite file:line with actual code evidence
-- Non-Hard-Rule findings require confidence >= 80 (scale 0-100) — flat threshold for all roles; dlc-build uses per-role thresholds (75/80/85) but dlc-review relies on adversarial debate to filter noise post-review
+- Non-Hard-Rule findings require confidence >= 80 (scale 0-100) — flat threshold for all roles; build uses per-role thresholds (75/80/85) but review relies on adversarial debate to filter noise post-review
 
 CRITICAL MINDSET: Existing tests passing does NOT mean the implementation is correct.
 Tests only cover what was written. Reason independently from the code itself.

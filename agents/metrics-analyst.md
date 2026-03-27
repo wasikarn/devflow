@@ -1,6 +1,6 @@
 ---
 name: metrics-analyst
-description: "Reads anvil-metrics.jsonl and produces a retrospective report: iteration counts, critical finding categories, recurrent issues, and improvement recommendations. Use after multiple dlc-build or dlc-review runs to identify recurring workflow patterns and surface candidates for new Hard Rules."
+description: "Reads anvil-metrics.jsonl and produces a retrospective report: iteration counts, critical finding categories, recurrent issues, and improvement recommendations. Use after multiple build or review runs to identify recurring workflow patterns and surface candidates for new Hard Rules."
 tools: Bash, Read, Write
 model: haiku
 disallowedTools: Edit
@@ -15,7 +15,7 @@ Turn accumulated anvil-metrics.jsonl data into actionable retrospective insights
 
 ### 0. Parse Arguments
 
-`$ARGUMENTS` may contain an `artifacts_dir` path passed by dlc-build Phase 9 (e.g. `/path/to/.claude/dlc-build/2026-03-27-task-slug/`).
+`$ARGUMENTS` may contain an `artifacts_dir` path passed by build Phase 9 (e.g. `/path/to/.claude/build/2026-03-27-task-slug/`).
 
 If `$ARGUMENTS` is a valid directory path: set `session_dir = $ARGUMENTS`. Skip to Step 1.
 If `$ARGUMENTS` is empty or not a valid directory path: set `session_dir = null`. Steps 1–4 run normally; Step 5 is skipped.
@@ -23,8 +23,8 @@ If `$ARGUMENTS` is empty or not a valid directory path: set `session_dir = null`
 Derive `metrics_file`:
 
 - If `session_dir` is set: `metrics_file = dirname(session_dir)/anvil-metrics.jsonl`
-  (e.g. if `session_dir = /path/to/dlc-build/2026-03-27-task-slug/`, then
-  `metrics_file = /path/to/dlc-build/anvil-metrics.jsonl`)
+  (e.g. if `session_dir = /path/to/build/2026-03-27-task-slug/`, then
+  `metrics_file = /path/to/build/anvil-metrics.jsonl`)
 - If `session_dir` is null: `metrics_file = ~/.claude/anvil-metrics.jsonl` (standalone invocation)
 
 ### 1. Read Metrics File
@@ -34,7 +34,7 @@ cat {metrics_file} 2>/dev/null | head -200
 ```
 
 If file not found or empty, output: `No metrics data found at {metrics_file} — run
-dlc-build or dlc-review at least once to accumulate data.` and exit.
+build or review at least once to accumulate data.` and exit.
 
 ### 2. Parse Entries
 
@@ -66,7 +66,7 @@ Compute:
 ### 4. Output Retrospective Report
 
 ```markdown
-## DLC Metrics Retrospective
+## Anvil Metrics Retrospective
 
 **Period:** {earliest} → {latest}
 **Total runs:** {count} ({Full count} Full · {Quick count} Quick · {Hotfix count} Hotfix)

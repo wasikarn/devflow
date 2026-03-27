@@ -132,4 +132,4 @@ Set in subagent spawn calls (not SKILL.md frontmatter — which is static):
 - Micro workers → `effort: low`
 - Quick workers → `effort: medium`
 - Full workers → `effort: high`
-- Lead (dlc-build itself) → always `effort: high`
+- Lead (build itself) → always `effort: high`

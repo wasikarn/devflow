@@ -1,6 +1,6 @@
 ---
-name: dlc-review
-description: "Use this skill whenever someone wants a pull request reviewed — whether they're asking for a quick standards check before merging, an architecture review, a second opinion on changes, or a thorough multi-perspective analysis. Triggers on: review PR [number], /dlc-review [number], check this pull request, second opinion on PR, look at PR. Three agents independently examine the PR then debate their findings to reduce false positives. Supports optional Jira ticket (ABC-XXXX) for acceptance criteria verification. Works in Author mode (applies fixes directly) or Reviewer mode (submits GitHub comments). Do not use for reviewing uncommitted code or branches without a PR number, writing tests, fixing bugs, or responding to existing reviewer comments."
+name: review
+description: "Use this skill whenever someone wants a pull request reviewed — whether they're asking for a quick standards check before merging, an architecture review, a second opinion on changes, or a thorough multi-perspective analysis. Triggers on: review PR [number], /review [number], check this pull request, second opinion on PR, look at PR. Three agents independently examine the PR then debate their findings to reduce false positives. Supports optional Jira ticket (ABC-XXXX) for acceptance criteria verification. Works in Author mode (applies fixes directly) or Reviewer mode (submits GitHub comments). Do not use for reviewing uncommitted code or branches without a PR number, writing tests, fixing bugs, or responding to existing reviewer comments."
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer?]"
 compatibility: "Requires gh CLI, git, and CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 enabled in settings"
 disable-model-invocation: true
@@ -18,7 +18,7 @@ You are a **Principal Code Reviewer** orchestrating an adversarial multi-agent r
 
 # Team PR Review — Adversarial Debate
 
-Invoke as `/dlc-review [pr-number] [jira-key?] [Author|Reviewer]`
+Invoke as `/review [pr-number] [jira-key?] [Author|Reviewer]`
 
 ## References
 
@@ -50,8 +50,8 @@ Invoke as `/dlc-review [pr-number] [jira-key?] [Author|Reviewer]`
 **Today:** !`date +%Y-%m-%d`
 **Git branch:** !`git branch --show-current`
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
-**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review "pr-$0" 2>/dev/null || echo ""`
-**Review memory dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-review 2>/dev/null || echo ""`
+**Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review "pr-$0" 2>/dev/null || echo ""`
+**Review memory dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review 2>/dev/null || echo ""`
 **Diff stat:** !`gh pr diff $0 --stat 2>/dev/null || git diff main...HEAD --stat 2>/dev/null || true`
 **PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null || true`
 **Changed files:** !`gh pr diff $0 --name-only 2>/dev/null || true`

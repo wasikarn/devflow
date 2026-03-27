@@ -1,14 +1,14 @@
-# dlc-respond skill
+# respond skill
 
 Address PR review comments: fetch threads → fix code → reply on GitHub → re-request review.
 
-## How It Differs from Other DLC Skills
+## How It Differs from Other Anvil Skills
 
-| Aspect | dlc-review | dlc-build | dlc-debug | dlc-respond |
+| Aspect | review | build | debug | respond |
 | --- | --- | --- | --- | --- |
 | Scope | PR review + debate | Full dev loop | Debug + DX harden | PR comment response |
 | Execution | 3 reviewers (debate) | Dynamic roster per phase | Investigator + DX Analyst + Fixer | 1 Fixer per file group |
-| Review | Adversarial debate | Embedded (reuses dlc-review) | N/A | N/A (reviewer already reviewed) |
+| Review | Adversarial debate | Embedded (reuses review) | N/A | N/A (reviewer already reviewed) |
 | Loop | None | Implement-Review (max 3 iter) | Fix-only (max 3 attempts) | Fix-only (max 3 per thread) |
 | Artifacts | Findings in output | research.md, plan.md, review-findings-N.md | debug-context.md, investigation.md | respond-context.md |
 
@@ -35,24 +35,24 @@ Address PR review comments: fetch threads → fix code → reply on GitHub → r
 
 ```bash
 # Lint all markdown in this skill
-npx markdownlint-cli2 "skills/dlc-respond/**/*.md"
+npx markdownlint-cli2 "skills/respond/**/*.md"
 
 # Verify skill symlink exists
-ls -la ~/.claude/skills/dlc-respond
+ls -la ~/.claude/skills/respond
 
 # Test invocation (requires a real PR with open review threads):
-# /dlc-respond 42
-# /dlc-respond 42 ABC-1234
+# /respond 42
+# /respond 42 ABC-1234
 ```
 
 ## Gotchas
 
 - Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for parallel Fixers — degrades gracefully to subagent or solo mode
-- `review-dismissed.md` is **read-only** here — `dlc-review` and `dlc-build` write it, `dlc-respond` only reads it
+- `review-dismissed.md` is **read-only** here — `review` and `build` write it, `respond` only reads it
 - `respond-context.md` is written to `{artifacts_dir}/respond-context.md` (centralized, not the project repo) — clean up after done
 - Fixer teammates must validate BEFORE committing — not after (validated BEFORE vs AFTER matters for revert cost)
 - Max 3 fix attempts per thread — beyond 3 = architectural mismatch, escalate to user
 - Thread grouping: same file → 1 Fixer (never parallel writes to same file)
 - Team cleanup must be done by lead — teammates don't self-terminate
-- One team per session — cannot run multiple dlc-respond in parallel
+- One team per session — cannot run multiple respond in parallel
 - Jira context is never blocking — if fetch fails, proceed without it

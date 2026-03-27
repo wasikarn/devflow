@@ -1,4 +1,4 @@
-# dlc-respond — Good/Bad Examples
+# respond — Good/Bad Examples
 
 Examples of what high-quality thread responses look like vs low-quality, and fix approach quality.
 

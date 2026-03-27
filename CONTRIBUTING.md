@@ -16,9 +16,9 @@ For contributors who want to edit skills and see changes take effect immediately
 
 | Tool | Why | Install |
 | --- | --- | --- |
-| `git` | Session hooks + all DLC skills | pre-installed / `xcode-select --install` |
+| `git` | Session hooks + all Anvil skills | pre-installed / `xcode-select --install` |
 | `jq` | Every hook uses it — missing breaks all hooks | `brew install jq` |
-| `gh` CLI (authenticated) | DLC skills (`dlc-build`, `dlc-review`, `dlc-respond`, `dlc-debug`, `merge-pr`) — no fallback | `brew install gh && gh auth login` |
+| `gh` CLI (authenticated) | Anvil skills (`build`, `review`, `respond`, `debug`, `merge-pr`) — no fallback | `brew install gh && gh auth login` |
 
 **Required for auto-quality hooks (fire on every file edit):**
 
@@ -31,7 +31,7 @@ For contributors who want to edit skills and see changes take effect immediately
 
 | Tool | Without it | Install |
 | --- | --- | --- |
-| `rtk` | DLC skills still work but use raw git/gh output (higher token cost) | `brew install rtk` |
+| `rtk` | Anvil skills still work but use raw git/gh output (higher token cost) | `brew install rtk` |
 | `python3` | `optimize-claude-md` skill cannot detect project framework | pre-installed on macOS |
 | `fd` | Bootstrap agents fall back to Glob (slower) | `brew install fd` |
 | `ast-grep` | Bootstrap agents fall back to Grep (less precise) | `brew install ast-grep` |
@@ -105,7 +105,7 @@ See [`docs/references/skills-best-practices.md`](docs/references/skills-best-pra
 npx markdownlint-cli2 "**/*.md"
 
 # Lint one skill
-npx markdownlint-cli2 "skills/dlc-build/**/*.md"
+npx markdownlint-cli2 "skills/build/**/*.md"
 
 # Validate plugin structure (plugin.json, skill/agent frontmatter, hooks.json)
 claude plugin validate
@@ -122,7 +122,7 @@ The pre-commit hook runs `fix-tables.sh` + `markdownlint-cli2 --fix` on staged `
 bash scripts/link-assets.sh
 
 # Link one skill only
-bash scripts/link-assets.sh dlc-build
+bash scripts/link-assets.sh build
 
 # Check all symlinks
 bash scripts/link-assets.sh --list
