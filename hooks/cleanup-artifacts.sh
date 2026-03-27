@@ -17,5 +17,5 @@ while IFS= read -r -d '' file; do
 done < <(find "$BASE_DIR" -type f -name "*.md" -mtime "+${TTL_DAYS}" -print0 2>/dev/null)
 
 if [ "$DELETED" -gt 0 ]; then
-  echo "dev-loop: removed $DELETED artifact file(s) older than ${TTL_DAYS}d from $BASE_DIR/"
+  echo "anvil: removed $DELETED artifact file(s) older than ${TTL_DAYS}d from $BASE_DIR/"
 fi

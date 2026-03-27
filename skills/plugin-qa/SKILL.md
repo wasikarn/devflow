@@ -1,6 +1,6 @@
 ---
 name: plugin-qa
-description: "Run the full QA check suite to verify all hooks, skills, and plugin structure are healthy. Use /plugin-qa to validate the dev-loop plugin configuration."
+description: "Run the full QA check suite to verify all hooks, skills, and plugin structure are healthy. Use /plugin-qa to validate the anvil plugin configuration."
 user-invocable: true
 ---
 

@@ -1,4 +1,4 @@
-# Contributing to dev-loop
+# Contributing to anvil
 
 This guide is for developers who want to customize, extend, or contribute to the plugin.
 
@@ -6,7 +6,7 @@ This guide is for developers who want to customize, extend, or contribute to the
 
 ## Local Development Setup (symlinks)
 
-> **Warning:** Do not use symlinks if you have `claude plugin install wasikarn/dev-loop` active — both write to the same `~/.claude/` directories and will conflict. Use one or the other.
+> **Warning:** Do not use symlinks if you have `claude plugin install wasikarn/anvil` active — both write to the same `~/.claude/` directories and will conflict. Use one or the other.
 
 For contributors who want to edit skills and see changes take effect immediately without reinstalling the plugin. Clone the repo and symlink assets directly to `~/.claude/`.
 
@@ -39,8 +39,8 @@ For contributors who want to edit skills and see changes take effect immediately
 ### Step 1 — Clone the repo
 
 ```bash
-git clone git@github.com:wasikarn/dev-loop.git
-cd dev-loop
+git clone git@github.com:wasikarn/anvil.git
+cd anvil
 ```
 
 ### Step 2 — Link skills, agents, hooks, and output styles
@@ -133,7 +133,7 @@ bash scripts/link-assets.sh --list
 ## Repo Structure
 
 ```text
-dev-loop/
+anvil/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest
 ├── skills/                   # Skill entry points (SKILL.md per skill)

@@ -17,7 +17,7 @@ while IFS= read -r -d '' file; do
 done < <(find "$PLUGIN_DATA_BASE" -type f \( -name "*.tmp" -o -name "*.lock" \) -print0 2>/dev/null)
 
 if [ "$DELETED" -gt 0 ]; then
-  echo "dev-loop: session-end cleaned up $DELETED temp file(s) from $PLUGIN_DATA_BASE/"
+  echo "anvil: session-end cleaned up $DELETED temp file(s) from $PLUGIN_DATA_BASE/"
 fi
 
 exit 0

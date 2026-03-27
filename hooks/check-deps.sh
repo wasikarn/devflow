@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # check-deps.sh — SessionStart hook (startup)
-# Checks required tools for dev-loop plugin.
+# Checks required tools for anvil plugin.
 # Outputs a warning to Claude's context if any are missing.
 # Silent if all tools are present.
 
@@ -19,7 +19,7 @@ check "gh"  "brew install gh && gh auth login"         "required by build, revie
 check "rtk" "brew install rtk  (https://rtk-ai.app/)" "recommended — token-optimized git/gh output in Anvil skills"
 
 if [ -n "$MISSING" ]; then
-  printf "## ⚠️  dev-loop: Missing Dependencies\n\nThe following tools are not installed. Some skills and hooks will not work correctly:\n%b\n\nInstall missing tools and restart Claude Code to dismiss this warning.\n" "$MISSING"
+  printf "## ⚠️  anvil: Missing Dependencies\n\nThe following tools are not installed. Some skills and hooks will not work correctly:\n%b\n\nInstall missing tools and restart Claude Code to dismiss this warning.\n" "$MISSING"
 fi
 
 # Optional: atlassian-pm plugin
@@ -39,5 +39,5 @@ if [ "$ATLASSIAN_PM_FOUND" -eq 0 ] && [ -d "$HOME/.claude/plugins/cache/atlassia
 fi
 
 if [ "$ATLASSIAN_PM_FOUND" -eq 0 ]; then
-  printf "\n## 💡 dev-loop: Optional Enhancement\n\n- \`atlassian-pm\` (not installed)\n  Install: \`claude plugin marketplace add wasikarn/atlassian-pm && claude plugin install atlassian-pm\`\n  Unlocks: Jira context in all Anvil skills, ADF comment formatting, sprint digest in work-context.\n"
+  printf "\n## 💡 anvil: Optional Enhancement\n\n- \`atlassian-pm\` (not installed)\n  Install: \`claude plugin marketplace add wasikarn/atlassian-pm && claude plugin install atlassian-pm\`\n  Unlocks: Jira context in all Anvil skills, ADF comment formatting, sprint digest in work-context.\n"
 fi

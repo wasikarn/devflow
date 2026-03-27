@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-**Plugin name:** `dev-loop` · **Repo:** `wasikarn/dev-loop`
+**Plugin name:** `anvil` · **Repo:** `wasikarn/anvil`
 
-A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install dev-loop`.
+A Claude Code plugin — skills, agents, hooks, output styles, and scripts for structured development and PR review workflows. Each skill is a self-contained prompt workflow installed via `claude plugin install anvil`.
 
 ## Docs Index
 
@@ -48,7 +48,7 @@ skills/<name>/
 | `review` | Adversarial PR review with 3-reviewer debate |
 | `debug` | Parallel root cause analysis + DX hardening |
 | `metrics` | Run retrospective report from anvil-metrics.jsonl — iteration counts, finding categories, recurrent issues |
-| `onboard` | Bootstrap a new project into the dev-loop ecosystem — scaffold hard-rules.md and build directories |
+| `onboard` | Bootstrap a new project into the anvil ecosystem — scaffold hard-rules.md and build directories |
 | `respond` | Address PR review comments as author |
 | `systems-thinking` | Causal Loop Diagram analysis for architecture decisions |
 | `careful` | Enter careful mode — elevated confirmation threshold for destructive operations |
@@ -96,7 +96,7 @@ Current agents (23):
 | `migration-reviewer` | sonnet | Reviews DB migration files (M1–M10): DDL safety, reversibility, FK indexes, table-lock risk, zero-downtime violations, expand/contract, data batching, index types, deadlock risk |
 | `api-contract-auditor` | sonnet | Detects API breaking changes (A1–A10): removed/renamed fields, changed status codes, new required params, type narrowing, enum reordering, idempotency, pagination, error envelopes, deprecation |
 | `skill-validator` | sonnet | Validates SKILL.md against best practices |
-| `project-onboarder` | sonnet | Bootstrap a new project into dev-loop: scaffold hard-rules.md + build directory |
+| `project-onboarder` | sonnet | Bootstrap a new project into anvil: scaffold hard-rules.md + build directory |
 | `code-reviewer` | sonnet | General-purpose code reviewer with cross-session persistent memory |
 
 <important if="editing or adding hooks">
@@ -114,8 +114,8 @@ Hooks live at `hooks/`. All hooks are registered in `hooks/hooks.json` and distr
 | `PreToolUse` | `Bash` | `safe-command-approver.sh` |
 | `PostToolUse` | `Edit\|Write` | _(inline markdownlint)_ |
 | `PostToolUse` | `Write` | `shellcheck-written-scripts.sh` |
-| `TaskCompleted` | `review-debate\|dev-loop\|respond` | `task-gate.sh` |
-| `TeammateIdle` | `review-pr\|dev-loop\|respond\|debug-` | `idle-nudge.sh` |
+| `TaskCompleted` | `review-debate\|anvil\|respond` | `task-gate.sh` |
+| `TeammateIdle` | `review-pr\|anvil\|respond\|debug-` | `idle-nudge.sh` |
 | `PostCompact` | — | `post-compact-context.sh` |
 | `PreCompact` | — | `pre-compact-save.sh` |
 | `PostToolUseFailure` | `Bash` | `bash-failure-hint.sh` |
@@ -145,7 +145,7 @@ Current styles: `senior-software-engineer` (Thai language, pragmatic senior engi
 Plugin manifest at `.claude-plugin/plugin.json`. Install:
 
 ```bash
-claude plugin install dev-loop
+claude plugin install anvil
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 

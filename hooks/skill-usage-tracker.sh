@@ -3,7 +3,7 @@
 # Logs Skill tool invocations to a TSV file for usage analytics.
 # Output: ANVIL_USAGE_LOG (default: ${CLAUDE_PLUGIN_DATA}/skill-usage.tsv)
 #         CLAUDE_PLUGIN_DATA is set by the Claude Code plugin runtime — survives upgrades.
-#         Falls back to ~/.claude/dev-loop/skill-usage.tsv if not set (dev mode / symlinks).
+#         Falls back to ~/.claude/anvil/skill-usage.tsv if not set (dev mode / symlinks).
 # Format: ISO8601_TIMESTAMP<TAB>SKILL_NAME
 # NOTE: no set -euo pipefail — hook must exit 0 on all failures
 # shellcheck source=lib/common.sh

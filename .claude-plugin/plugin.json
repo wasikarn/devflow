@@ -1,5 +1,5 @@
 {
-  "name": "dev-loop",
+  "name": "anvil",
   "description": "A Claude Code plugin powering the anvil workflow \u2014 structured skills for building, reviewing, responding, and debugging. Includes Anvil workflow skills (build, review, respond, debug), utility skills, custom agents, workflow automation hooks, and output styles.",
   "version": "0.7.1",
   "license": "MIT",
@@ -7,7 +7,7 @@
     "skills",
     "dlc",
     "pr-review",
-    "dev-loop",
+    "anvil",
     "debug",
     "productivity",
     "workflow"
@@ -16,6 +16,6 @@
     "name": "kobig",
     "url": "https://github.com/wasikarn"
   },
-  "homepage": "https://github.com/wasikarn/dev-loop#readme",
-  "repository": "https://github.com/wasikarn/dev-loop"
+  "homepage": "https://github.com/wasikarn/anvil#readme",
+  "repository": "https://github.com/wasikarn/anvil"
 }

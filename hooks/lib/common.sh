@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# hooks/lib/common.sh — Shared utilities for dev-loop hook scripts.
+# hooks/lib/common.sh — Shared utilities for anvil hook scripts.
 # Source this file at the top of each hook (after your own set -euo pipefail):
 #
 #   # shellcheck source=lib/common.sh

@@ -1,10 +1,10 @@
 <div align="center">
 
-# dev-loop
+# anvil
 
 **A Claude Code plugin for structured development, PR review, and debugging — powered by Agent Teams.**
 
-[![Version](https://img.shields.io/badge/version-0.6.22-blue?style=flat-square)](https://github.com/wasikarn/dev-loop/releases)
+[![Version](https://img.shields.io/badge/version-0.6.22-blue?style=flat-square)](https://github.com/wasikarn/anvil/releases)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-12-blue?style=flat-square)](#skills)
 [![Agents](https://img.shields.io/badge/agents-23-purple?style=flat-square)](#agents)
@@ -52,8 +52,8 @@ brew install jq gh git
 gh auth login
 
 # 4. Add marketplace and install plugin
-claude plugin marketplace add wasikarn/dev-loop
-claude plugin install dev-loop
+claude plugin marketplace add wasikarn/anvil
+claude plugin install anvil
 
 # 5. Enable Agent Teams (required for Anvil skills)
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
@@ -117,14 +117,14 @@ gh auth login
 `claude plugin install` requires a registered marketplace. Add this plugin's marketplace first, then install:
 
 ```bash
-claude plugin marketplace add wasikarn/dev-loop
-claude plugin install dev-loop
+claude plugin marketplace add wasikarn/anvil
+claude plugin install anvil
 ```
 
 > **Troubleshooting:** If the `marketplace add` step fails with a permission or authentication error, try the explicit HTTPS URL instead:
 >
 > ```bash
-> claude plugin marketplace add https://github.com/wasikarn/dev-loop.git
+> claude plugin marketplace add https://github.com/wasikarn/anvil.git
 > ```
 
 #### Step 5 — Enable Agent Teams
@@ -143,7 +143,7 @@ Close and reopen Claude Code. On next startup, the plugin automatically checks f
 
 ```bash
 claude plugin list
-# Expected: dev-loop appears in the list
+# Expected: anvil appears in the list
 ```
 
 ---
@@ -154,7 +154,7 @@ claude plugin list
 
 ```bash
 # 1. Clone and enter the repo
-git clone git@github.com:wasikarn/dev-loop.git && cd dev-loop
+git clone git@github.com:wasikarn/anvil.git && cd anvil
 
 # 2. Install prerequisites (same as Option A)
 
@@ -197,7 +197,7 @@ Typical developer day using the Anvil workflow:
 flowchart TD
     MORNING([Start of day]) --> WC
 
-    WC["/dev-loop:work-context
+    WC["/anvil:work-context
     Sprint tickets + open PRs
     + unmerged branches"]
 
@@ -208,18 +208,18 @@ flowchart TD
     DECISION -->|Review comments on my PR| RESPOND
     DECISION -->|Bug / production incident| DEBUG
 
-    BUILD["/dev-loop:build PROJ-123
+    BUILD["/anvil:build PROJ-123
     or: 'add X feature'
     Full loop → PR created"]
 
-    REVIEW["/dev-loop:review 42
+    REVIEW["/anvil:review 42
     3 reviewers → findings table
     post as GitHub review comments"]
 
-    RESPOND["/dev-loop:respond 42
+    RESPOND["/anvil:respond 42
     Fix all threads → commit → reply"]
 
-    DEBUG["/dev-loop:debug 'error msg'
+    DEBUG["/anvil:debug 'error msg'
     Root cause + DX hardening → fix PR"]
 
     BUILD --> MERGE
@@ -228,7 +228,7 @@ flowchart TD
 
     REVIEW -->|Comments posted, waiting| EOD
 
-    MERGE["/dev-loop:merge-pr 42
+    MERGE["/anvil:merge-pr 42
     Preflight → merge → tag"]
 
     MERGE --> EOD([End of day ✓])
@@ -236,9 +236,9 @@ flowchart TD
 
 **Session tips:**
 
-- Start every session with `/dev-loop:work-context` — shows active sprint tickets, open PRs awaiting action, and unmerged branches
-- Run `/dev-loop:careful` before risky work (migrations, force-push, DROP TABLE)
-- Use `/dev-loop:metrics` weekly to spot recurring review findings
+- Start every session with `/anvil:work-context` — shows active sprint tickets, open PRs awaiting action, and unmerged branches
+- Run `/anvil:careful` before risky work (migrations, force-push, DROP TABLE)
+- Use `/anvil:metrics` weekly to spot recurring review findings
 
 ---
 
@@ -248,20 +248,20 @@ flowchart TD
 
 ```bash
 # 1. Build the feature
-/dev-loop:build PROJ-1234
+/anvil:build PROJ-1234
 # Claude fetches Jira AC → maps auth middleware → writes plan.md →
 # implements with tests → 3-reviewer debate → opens PR
 
 # 2. Address reviewer comments
-/dev-loop:respond 42
+/anvil:respond 42
 # Fetches open threads → fixes in parallel → commits → posts replies
 
 # 3. Final review before merge
-/dev-loop:review 42 PROJ-1234 Author
+/anvil:review 42 PROJ-1234 Author
 # Three agents re-examine PR against AC → debate → apply remaining fixes
 
 # 4. Merge
-/dev-loop:merge-pr 42
+/anvil:merge-pr 42
 # Squash into develop → version bump → CHANGELOG → post-merge verification
 ```
 
@@ -332,10 +332,10 @@ flowchart LR
 **Domain lenses (Phase 6):** Each reviewer automatically receives domain-specific lens files based on diff content — security, database, TypeScript, frontend (RSC/App Router), error handling, API design, observability, and performance. Lens injection is automatic; no configuration needed.
 
 ```bash
-/dev-loop:build "add rate limiting to the API"
-/dev-loop:build PROJ-1234           # auto-fetches Jira AC
-/dev-loop:build PROJ-1234 --quick   # skip research for small fixes
-/dev-loop:build PROJ-1234 --hotfix  # urgent production incident
+/anvil:build "add rate limiting to the API"
+/anvil:build PROJ-1234           # auto-fetches Jira AC
+/anvil:build PROJ-1234 --quick   # skip research for small fixes
+/anvil:build PROJ-1234 --hotfix  # urgent production incident
 ```
 
 | Mode | When to use |
@@ -356,10 +356,10 @@ Three agents independently review a PR, then debate their findings to eliminate 
 **When to use:** Any pull request — quick standards check, architecture review, or multi-perspective analysis.
 
 ```bash
-/dev-loop:review 42                  # PR number
-/dev-loop:review 42 PROJ-1234        # with Jira AC verification
-/dev-loop:review 42 Author           # apply fixes directly to the branch
-/dev-loop:review 42 Reviewer         # post findings as GitHub review comments
+/anvil:review 42                  # PR number
+/anvil:review 42 PROJ-1234        # with Jira AC verification
+/anvil:review 42 Author           # apply fixes directly to the branch
+/anvil:review 42 Reviewer         # post findings as GitHub review comments
 ```
 
 | Mode | When to use |
@@ -415,8 +415,8 @@ Fetches all open GitHub review threads on a PR, fixes each issue in parallel, co
 **When to use:** After receiving PR review feedback.
 
 ```bash
-/dev-loop:respond 42
-/dev-loop:respond 42 PROJ-1234   # with Jira AC context for prioritization
+/anvil:respond 42
+/anvil:respond 42 PROJ-1234   # with Jira AC context for prioritization
 ```
 
 ---
@@ -428,10 +428,10 @@ Two agents run in parallel: an Investigator traces the root cause, while a DX An
 **When to use:** Complex bugs, production incidents, or when you want to harden the affected area alongside the fix.
 
 ```bash
-/dev-loop:debug "NullPointerException in UserService"
-/dev-loop:debug PROJ-5678           # from a Jira bug ticket
-/dev-loop:debug PROJ-5678 --quick   # fix only, skip DX analysis
-/dev-loop:debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
+/anvil:debug "NullPointerException in UserService"
+/anvil:debug PROJ-5678           # from a Jira bug ticket
+/anvil:debug PROJ-5678 --quick   # fix only, skip DX analysis
+/anvil:debug PROJ-5678 --review  # add Fix Reviewer after Fixer (forced on P0)
 ```
 
 ---
@@ -443,9 +443,9 @@ Two agents run in parallel: an Investigator traces the root cause, while a DX An
 Automates the merge and release process: version bumps, CHANGELOG updates, tags, backport PRs, and post-merge verification.
 
 ```bash
-/dev-loop:merge-pr 42           # feature/bugfix → develop
-/dev-loop:merge-pr --hotfix     # hotfix → main + backport to develop
-/dev-loop:merge-pr --release    # release → main + tag + backport
+/anvil:merge-pr 42           # feature/bugfix → develop
+/anvil:merge-pr --hotfix     # hotfix → main + backport to develop
+/anvil:merge-pr --release    # release → main + tag + backport
 ```
 
 **Requires:** `gh` CLI (authenticated), clean working tree, GitHub remote.
@@ -457,9 +457,9 @@ Automates the merge and release process: version bumps, CHANGELOG updates, tags,
 Scores a CLAUDE.md across quality dimensions, identifies bloat and gaps, and rewrites sections to be more useful for Claude.
 
 ```bash
-/dev-loop:optimize-claude-md
-/dev-loop:optimize-claude-md --dry-run    # preview without editing
-/dev-loop:optimize-claude-md --coverage   # include coverage analysis
+/anvil:optimize-claude-md
+/anvil:optimize-claude-md --dry-run    # preview without editing
+/anvil:optimize-claude-md --coverage   # include coverage analysis
 ```
 
 ---
@@ -469,8 +469,8 @@ Scores a CLAUDE.md across quality dimensions, identifies bloat and gaps, and rew
 Scans for all env var references, cross-references against the validation schema and `.env.example`, classifies gaps, auto-fixes discrepancies, and runs tests to verify.
 
 ```bash
-/dev-loop:env-heal          # full scan and fix
-/dev-loop:env-heal --quick  # schema vs .env.example only
+/anvil:env-heal          # full scan and fix
+/anvil:env-heal --quick  # schema vs .env.example only
 ```
 
 **Supports:** AdonisJS (`Env.schema`), dotenv (`.env.example`), and any Node.js project.
@@ -482,8 +482,8 @@ Scans for all env var references, cross-references against the validation schema
 Maps causal loops, identifies feedback cycles, and surfaces second-order effects before committing to an architecture decision.
 
 ```bash
-/dev-loop:systems-thinking "should we move to microservices?"
-/dev-loop:systems-thinking "what happens if we remove the cache layer?"
+/anvil:systems-thinking "should we move to microservices?"
+/anvil:systems-thinking "what happens if we remove the cache layer?"
 ```
 
 ---
@@ -493,17 +493,17 @@ Maps causal loops, identifies feedback cycles, and surfaces second-order effects
 Reads `~/.claude/anvil-metrics.jsonl` and produces a retrospective: iteration counts, critical finding categories, recurrent issues, and Hard Rule candidates.
 
 ```bash
-/dev-loop:metrics
+/anvil:metrics
 ```
 
 ---
 
 #### `onboard` — Bootstrap a New Project
 
-Scaffolds the dev-loop ecosystem into a new project: generates `hard-rules.md` with stack-appropriate starter rules and creates the `build` artifact directory.
+Scaffolds the anvil ecosystem into a new project: generates `hard-rules.md` with stack-appropriate starter rules and creates the `build` artifact directory.
 
 ```bash
-/dev-loop:onboard
+/anvil:onboard
 ```
 
 ---
@@ -513,7 +513,7 @@ Scaffolds the dev-loop ecosystem into a new project: generates `hard-rules.md` w
 Activates session-level protection that blocks destructive bash commands: `rm -rf`, `DROP TABLE`, `git push --force`, `truncate`, `git reset --hard` on committed work.
 
 ```bash
-/dev-loop:careful
+/anvil:careful
 ```
 
 **When to use:** Working near production data, shared branches, or irreversible operations.
@@ -525,8 +525,8 @@ Activates session-level protection that blocks destructive bash commands: `rm -r
 Locks edits to a specific directory for the session. Claude will refuse to edit files outside the target path.
 
 ```bash
-/dev-loop:freeze src/auth     # lock edits to src/auth/
-/dev-loop:freeze tests/       # only touch tests/
+/anvil:freeze src/auth     # lock edits to src/auth/
+/anvil:freeze tests/       # only touch tests/
 ```
 
 ---
@@ -676,14 +676,14 @@ Restart Claude Code after setting.
 Verify the plugin is installed:
 
 ```bash
-claude plugin list   # dev-loop should appear
+claude plugin list   # anvil should appear
 ```
 
 If missing, reinstall:
 
 ```bash
-claude plugin marketplace add wasikarn/dev-loop
-claude plugin install dev-loop
+claude plugin marketplace add wasikarn/anvil
+claude plugin install anvil
 ```
 
 ### Warning about missing tools at session start
@@ -698,7 +698,7 @@ brew install jq gh && gh auth login
 
 Jira is optional. Configure `mcp-atlassian` or `jira-cache-server` if you want it. See [Jira Integration](#jira-integration).
 
-### Plugin skills show as `dev-loop:skill-name`
+### Plugin skills show as `anvil:skill-name`
 
 This is correct — skills installed via plugin are namespaced automatically to avoid conflicts with other plugins.
 
@@ -717,7 +717,7 @@ Re-run `bash scripts/link-assets.sh` if any are missing.
 ## Repo Structure
 
 ```text
-dev-loop/
+anvil/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest
 ├── skills/                   # Skill entry points (SKILL.md per skill)

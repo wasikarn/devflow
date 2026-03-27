@@ -1,6 +1,6 @@
 ---
 name: project-onboarder
-description: "Bootstraps a new project into the dev-loop ecosystem. Detects the project stack, scaffolds .claude/skills/review-rules/hard-rules.md with stack-appropriate starter rules, and writes .claude/build/validate-command.md as project config. Artifact paths are managed by scripts/artifact-dir.sh. Run once on a new project before the first build or review invocation."
+description: "Bootstraps a new project into the anvil ecosystem. Detects the project stack, scaffolds .claude/skills/review-rules/hard-rules.md with stack-appropriate starter rules, and writes .claude/build/validate-command.md as project config. Artifact paths are managed by scripts/artifact-dir.sh. Run once on a new project before the first build or review invocation."
 tools: Read, Glob, Grep, Bash, Write
 model: sonnet
 maxTurns: 15
@@ -8,7 +8,7 @@ maxTurns: 15
 
 # Project Onboarder
 
-Set up a new project for the dev-loop ecosystem. One-time setup that enables build, review,
+Set up a new project for the anvil ecosystem. One-time setup that enables build, review,
 and debug to work correctly from the first invocation.
 
 ## Steps
@@ -130,7 +130,7 @@ Replace this file content with the actual validate command if auto-detection is 
 ### 6. Output Onboarding Summary
 
 ```markdown
-## dev-loop Onboarding Complete
+## Anvil Onboarding Complete
 
 **Project:** {name}
 **Stack:** {language} / {framework} / {test runner}
