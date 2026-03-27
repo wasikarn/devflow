@@ -2,6 +2,17 @@
 
 Prompt templates for explorer teammates. Lead inserts project-specific values at `{placeholders}`.
 
+## Research Tiers
+
+| Mode | Tier | Explorers | Scope |
+| ------ | ------ | ----------- | ------- |
+| Micro | Skip | 0 | No research phase |
+| Quick | Lite | 1 | Explorer 1 only, combined execution + data model scope |
+| Full | Deep | 1 (default), 2 if needed | Explorer 1; Explorer 2 only if research-validator flags insufficient files |
+
+For Quick (Lite), use **Explorer 1** with combined scope: execution paths + data model in one pass.
+Never spawn more than 2 explorers regardless of mode.
+
 ## Explorer 1: Execution Paths
 
 ```text
@@ -166,6 +177,8 @@ When constructing explorer prompts:
 1. Replace all `{placeholders}` with actual values
 2. Insert project-specific `PROJECT HINTS` from CLAUDE.md conventions
 3. Insert validate command from [phase-gates.md](phase-gates.md) project detection (for reference context)
-4. Explorer 3 is optional — spawn only if similar existing features exist
-5. **Assign non-overlapping scopes** — set `{assigned_files_or_dirs}` for each explorer. Example: Explorer 1 → `src/controllers/`, Explorer 2 → `src/models/ + migrations/`, Explorer 3 → `src/services/`. Prevents duplicate reads and conflicting findings.
-6. All explorer findings are merged by lead into `{artifacts_dir}/research.md` — every section must cite file:line references
+4. **Quick (Lite):** Use Explorer 1 only with combined scope (execution paths + data model)
+5. **Full (Deep):** Start with Explorer 1; add Explorer 2 only if research-validator says file list is insufficient (< 3 files for non-trivial task)
+6. Explorer 3 (Reference Implementations) only in Full mode if similar existing features exist
+7. **Assign non-overlapping scopes** — set `{assigned_files_or_dirs}` for each explorer. Example: Explorer 1 → `src/controllers/`, Explorer 2 → `src/models/ + migrations/`. Prevents duplicate reads and conflicting findings.
+8. All explorer findings are merged by lead into `{artifacts_dir}/research.md` — every section must cite file:line references

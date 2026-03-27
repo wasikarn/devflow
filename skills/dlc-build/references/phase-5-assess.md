@@ -4,6 +4,19 @@ Read ONLY `{artifacts_dir}/review-findings-{N}.md` (the consolidated file) — d
 
 Count Critical/Warning/Info from the `## Summary` header. If Jira: verify each AC has implementation + test (unverified AC = Critical).
 
+## Iteration Count (Shared)
+
+There is ONE shared `iteration_count` in `dev-loop-context.md` (max 3). All loop types increment the same counter:
+
+| Event | Increments iteration_count? |
+| ------- | :---------------------------: |
+| Phase 3.5 ANY FAIL → Phase 3 targeted re-entry | Yes |
+| Phase 4 Stage 1 FAIL → Phase 3 | Yes |
+| Phase 4 Critical finding → Phase 3 | Yes |
+
+Lead increments `iteration_count` BEFORE returning to Phase 3.
+If `iteration_count` reaches 3: present options to user instead of looping automatically.
+
 Apply decision tree from [phase-gates.md](phase-gates.md) §Assess→Loop Decision.
 
 Update progress tracker checkboxes (iteration N: Implement tasks, Review Critical/Warning, Assess outcome).
@@ -20,9 +33,16 @@ FIFO cap: 50 entries total — if file exceeds 50 rows (excluding header), remov
 
 **GATE:** Loop decision made → update `Phase: assess` (or `Phase: ship` if exiting) in dev-loop-context.md → proceed accordingly.
 
-## Step 5.5: Optional Simplification Pass (Ship path only)
+## Step 5.5: Simplification Pass (Ship path only)
 
-**Trigger:** Only when the decision tree selects "proceed to Ship" (zero Critical findings). Skip entirely in Hotfix mode (code freeze priorities apply) and for iterations 2–3 (already simplified in iter 1 if chosen).
+Per [workflow-modes.md](workflow-modes.md): Micro=Skip, Quick=Optional, Full=Default when Critical=0.
+
+**Trigger:** Only when decision tree selects "proceed to Ship" (zero Critical findings, i.e. score <7).
+Skip in Hotfix mode. Skip for iterations 2–3 (simplified in iter 1 if chosen).
+
+**Micro:** Skip always.
+
+**Quick:** User must explicitly request.
 
 Call AskUserQuestion:
 

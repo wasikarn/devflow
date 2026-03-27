@@ -101,7 +101,7 @@ If no response after ~3 minutes: kill teammate via TeamDelete, analyze state fro
 If session compacts mid-workflow, re-read in order:
 
 1. `{artifacts_dir}/dev-loop-context.md` — read YAML frontmatter for phase/iteration/tasks_completed/plan_file, Markdown body for Hard Rules
-2. Plan file — read `plan_file:` from dev-loop-context.md YAML. If `plan_file:` is empty (pre-Phase 2 crash), fall back to `~/.claude/plans/` most recently modified `.md`.
+2. Plan file — read `plan_file:` from dev-loop-context.md YAML. If `plan_file:` is empty (pre-Phase 2 crash), fall back to `{artifacts_dir}/{date}-{task-slug}/plan.md` if it exists.
 3. Latest `{artifacts_dir}/review-findings-*.md` — current iteration findings (if in loop)
 4. Progress tracker in conversation — iteration count and phase
 

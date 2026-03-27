@@ -36,7 +36,7 @@ Check if `{artifacts_dir}/dev-loop-context.md` exists:
 │              { label: "Start fresh", description: "Overwrite context file with new task" }]
 │   ├→ Resume: Skip to the recorded phase. Re-read artifacts in order:
 │   │       1. {artifacts_dir}/dev-loop-context.md
-│   │       2. Plan file: read plan_file: from YAML; fallback to ~/.claude/plans/ most recently modified .md
+│   │       2. Plan file: read plan_file: from YAML; fallback to {artifacts_dir}/{date}-{task-slug}/plan.md if it exists
 │   │       3. {artifacts_dir}/review-findings-*.md (if exists)
 │   └→ Start fresh: Overwrite context file with new task.
 └→ No: Proceed with triage normally.
@@ -123,23 +123,48 @@ If **2 or more ACs are flagged**: Call AskUserQuestion before proceeding:
 
 ## Step 2: Classify Mode
 
-Per [workflow-modes.md](workflow-modes.md) — use the Mode Decision Tree:
+Per [workflow-modes.md](workflow-modes.md) — blast-radius auto-scoring:
 
-- `--hotfix` flag → **Hotfix mode** (skip Phase 1, branch from `main`, PR to `main` + backport)
-- `--quick` flag or simple bug fix → **Quick mode** (skip Phase 1)
-- Multi-file feature, architectural change → **Full mode**
-- Ambiguous → ask user
+**`--hotfix` flag** → Hotfix mode immediately. Skip scoring. Skip to Step 2a.
+
+**All other tasks:** Score 5 blast-radius factors (score 1 = yes, 0 = no):
+
+| Factor | Score 1 if… |
+| -------- | ------------- |
+| **Scope** | Task touches >1 module or service boundary |
+| **Risk** | Task involves auth / payment / DB migration / public API |
+| **Novelty** | Pattern doesn't exist in codebase (new abstraction, new dependency) |
+| **Dependencies** | Code being changed has known downstream consumers |
+| **Ambiguity** | Task description is underspecified or has unclear AC. Tie-break: uncertain → score 1. |
+
+**Score → suggested mode:**
+
+| Score | Suggested mode |
+| ------- | --------------- |
+| 0–2 | Micro |
+| 3 | Quick |
+| 4–5 | Full |
+
+If a mode flag (`--micro`/`--quick`/`--full`) was passed **and is lower than the score** → **downgrade protection** (see workflow-modes.md §Flag vs. Score Precedence). Lead lists scoring factors and requires "yes" before proceeding with lower mode.
 
 **GATE:** Call AskUserQuestion to confirm mode:
 
-- question: "Confirm mode{validate_suffix}?" (append " — and validate command?" if validate is empty)
+- question: "Task scored {X}/5 → suggesting {mode}{validate_suffix}. Confirm or override?"
+  (append " — and validate command?" if validate is empty)
 - header: "Mode"
-- options: [{ label: "Full", description: "Multi-file feature or architectural change" },
+- options: [{ label: "Micro", description: "Isolated, minimal blast radius" },
              { label: "Quick", description: "Bug fix or small refactor" },
+             { label: "Full", description: "Multi-file feature or architectural change" },
              { label: "Hotfix", description: "Urgent production fix (branch from main)" }]
-  (pre-select the classified mode as first option)
+  (pre-select the scored mode as first option)
 
-If validate is empty, follow up with a second AskUserQuestion or free-text prompt for the validate command.
+Set `mode_source`:
+
+- `auto` if user confirms the scored suggestion
+- `flag` if user passed an explicit mode flag
+- `override` if user selects a different mode than scored
+
+If validate is empty, follow up with a second AskUserQuestion or free-text prompt.
 → proceed.
 
 ## Step 2a: Auto-Transition to In Progress
@@ -190,6 +215,7 @@ options:
 
 After mode is confirmed, load the corresponding mode file:
 
+- Micro → [references/modes/micro.md](modes/micro.md)
 - Full → [references/modes/feature.md](modes/feature.md)
 - Quick → [references/modes/quick.md](modes/quick.md)
 - Hotfix → [references/modes/hotfix.md](modes/hotfix.md)
@@ -203,7 +229,9 @@ Write `{artifacts_dir}/dev-loop-context.md` with YAML frontmatter + Markdown bod
 ```yaml
 ---
 task: "{task_description}"
-mode: full|quick|hotfix
+mode: micro|quick|full|hotfix
+blast_radius_score: 0-5
+mode_source: auto|flag|override
 phase: triage
 iteration: 0
 branch: "{branch_name}"
@@ -216,8 +244,16 @@ tasks_completed: []
 ---
 ```
 
-Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Update `phase:` field at every gate transition. **Lead is sole writer of this file** — update `tasks_completed:` when workers send completion messages (prevents YAML race from parallel workers). Update `plan_file:` with the plan path immediately after Phase 2 EnterPlanMode returns the plan file path.
+Markdown body below frontmatter: Hard Rules summary, Jira context (AC items). Update `phase:` field at every gate transition. **Lead is sole writer of this file** — update `tasks_completed:` when workers send completion messages (prevents YAML race from parallel workers). Update `plan_file:` with the plan path immediately after Phase 2 creates the plan file.
 
 ## Step 4: Initialize Progress Tracker
 
-Post a checkbox list in conversation: Phase 0 (done), Phase 1 (Full only), Phase 2, Loop iterations 1-3 with nested Phase 3/4/5, Phase 6. Update checkboxes as each phase completes.
+Post a checkbox list in conversation: Phase 0 (done), Phase 1 (Full/Quick only), Phase 2, Loop iterations 1-3 with nested Phase 3/3.5/4/5, Phase 6. Update checkboxes as each phase completes.
+
+Write dlc-metrics entry to `{artifacts_dir}/dlc-metrics.jsonl` (append, create if missing):
+
+```json
+{"ts":"<ISO8601>","phase":"triage","mode":"<mode>","mode_source":"<auto|flag|override>","blast_radius":N,"task_slug":"<slug>"}
+```
+
+Lead writes this directly — not via hook (metrics data not available at hook time).

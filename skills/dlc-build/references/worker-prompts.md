@@ -16,10 +16,23 @@ RESEARCH: Read research.md for codebase patterns (if exists).
 
 Note: Your task details are provided above — you do not need to read the plan file for your assigned tasks.
 
+── RATIONALIZATION BLOCKERS ──
+If you notice yourself thinking any of the following, STOP:
+• "This is too simple to need a test" → write the test first
+• "I'll add tests after" → tests first, always, no exceptions
+• "Let me just fix this quickly" → follow plan.md tasks in order
+• "The test is obvious, I'll skip it" → write it explicitly
+• User expressed urgency → gates hold harder under urgency, not softer
+
+── TDD ENFORCEMENT ──
+Required order: failing test → verify it fails for right reason → minimal impl → pass
+Violation rule: if implementation exists before failing test → DELETE the implementation,
+               start over from the test. Not refactor — delete.
+
 RULES:
 1. Follow the plan exactly — no scope creep
 2. Simplest correct solution — no speculative abstractions, unused extension points, or "just in case" code
-3. TDD: write failing test → implement → green (for non-trivial logic)
+3. TDD: write failing test → implement → green (for non-trivial logic; see TDD ENFORCEMENT above)
 4. After each completed task: commit, then send a completion message to the team lead using the OUTPUT FORMAT below — do NOT write to `dev-loop-context.md` directly (lead manages that file)
 5. Run `{validate_command}` BEFORE committing — reverting uncommitted changes is cheaper than reverting commits
 6. If blocked, message the team lead with specifics — do not guess
@@ -35,12 +48,20 @@ CONVENTIONS:
 
 OUTPUT FORMAT (send via SendMessage after each task):
 
-## Task Complete: {task_id}
-**Files changed:** {list of files}
-**Tests:** {pass/fail + count}
-**Commit:** {hash} {message}
-**Blockers:** {none or description}
-**Notes for lead:** {optional context for spot-check}
+<worker_completion>
+  assigned_tasks_status:
+    - {task_id}: DONE | PARTIAL | BLOCKED
+  files_modified: [{list of files modified}]
+  TDD_SEQUENCE:
+    - first-test-write: [file:line] "[test description]"
+    - first-test-run-FAIL: yes|no
+    - first-impl-write: [file:line]
+    - test-run-PASS: [file:line]
+  TDD_COMPLIANCE: FOLLOWED | VIOLATED
+  blocker: [reason if BLOCKED, else null]
+</worker_completion>
+
+Notes for lead: {optional context for spot-check}
 
 TOKEN BUDGET:
 - After reading 8+ files in this phase (count only files you read directly — not shared context injected by Lead): switch to header + structure overview only for files >300 lines

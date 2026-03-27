@@ -51,11 +51,15 @@ If `pr-description-writer` is not available, fall back to `pr-template.md` manua
 ## Step 3: Cleanup
 
 1. Shut down all remaining teammates and clean up the team
-2. Update `Phase: complete` in `{artifacts_dir}/dev-loop-context.md`
+2. Update `Phase: complete` in `{artifacts_dir}/{date}-{task-slug}/dev-loop-context.md`
 3. Delete checkpoint tags: `git tag -d $(git tag -l 'dlc-checkpoint-iter-*')`
-4. Clean up artifacts (choose one):
-   - **Auto-cleanup:** `rm -f "{artifacts_dir}/dev-loop-context.md" "{artifacts_dir}/research.md" {artifacts_dir}/review-findings-*.md`
-   - **Archive:** leave in `{artifacts_dir}` for reference
+4. Archive artifacts to final location:
+   - All artifacts already live at `{artifacts_dir}/{date}-{task-slug}/` from Phase 0 (plan.md, research.md, verify-results.md, review-findings-*.md, dev-loop-context.md)
+   - After ship: move the entire folder to `{artifacts_dir}/archive/{date}-{task-slug}/`
+
+```bash
+mv {artifacts_dir}/{date}-{task-slug}/ {artifacts_dir}/archive/{date}-{task-slug}/
+```
 
 ## Step 3.5: Jira Sync (optional)
 
@@ -69,9 +73,10 @@ If a Jira key is present in `dev-loop-context.md`:
 Note: `jira-sync` runs now (post-create). `pr-review-jira-sync` runs post-merge — remind user or add
 to their post-merge checklist if atlassian-pm is installed.
 
-## Step 4: Metrics (optional)
+## Step 4: Metrics
 
-Append one JSON line to `~/.claude/dlc-metrics.jsonl` for future analysis:
+Append one JSON line to `{artifacts_dir}/dlc-metrics.jsonl` (create if absent) for future analysis.
+Lead writes directly — not via hook (metrics data not available at hook time).
 
 New fields:
 
@@ -80,5 +85,5 @@ New fields:
 - `human_confirmed` — whether user engaged with Comprehension Gate (Step 1.5)
 
 ```json
-{"skill":"dlc-build","date":"{YYYY-MM-DD}","mode":"{mode}","iterations":{N},"task":"{task_short}","final_critical":0,"final_warning":{W},"findings_reversed":{falsification_rejected_count},"ac_coverage":"{AC_passed}/{AC_total}","human_confirmed":{true|false}}
+{"skill":"dlc-build","date":"{YYYY-MM-DD}","mode":"{mode}","mode_source":"{auto|flag|override}","blast_radius":{N},"iterations":{N},"task":"{task_short}","final_critical":0,"final_warning":{W},"findings_reversed":{falsification_rejected_count},"ac_coverage":"{AC_passed}/{AC_total}","human_confirmed":{true|false}}
 ```

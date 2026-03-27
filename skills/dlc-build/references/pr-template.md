@@ -46,7 +46,7 @@ English, under 70 chars, start with verb — derived from the plan problem state
 - [x] {AC2 description}
 
 ## Build Context (สำหรับ reviewer) {ลบส่วนนี้ถ้าไม่ต้องการให้ reviewer เห็น}
-- Plan: `~/.claude/plans/{plan_filename}` (ถ้ายังมีอยู่)
+- Plan: `{artifacts_dir}/{date}-{task-slug}/plan.md` (ถ้ายังมีอยู่)
 - Research: `{artifacts_dir}/research.md` (ถ้ายังมีอยู่)
 ```
 

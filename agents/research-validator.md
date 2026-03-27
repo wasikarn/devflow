@@ -18,45 +18,77 @@ produced concrete evidence, not just section headers.
 
 Read the file path passed via `$ARGUMENTS` (the lead passes `{artifacts_dir}/research.md` when dispatching). If `$ARGUMENTS` is empty, fallback: compute path via `bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build 2>/dev/null`, then read the most recent `*/research.md` under that base dir. If not found, output `FAIL: research.md not found` and exit.
 
-### 2. Check Required Sections
+### 2. Detect Research Tier
 
-Verify these sections exist (case-insensitive heading match):
+Check the research.md header for tier marker:
 
-- `## Architecture` or `## Codebase` or `## Structure` — overview of relevant code areas
-- `## Relevant Files` or `## Files` or `## Affected Files` — list of files to modify
-- `## Patterns` or `## Conventions` or `## Approach` — how similar things are done in the project
-- `## Risks` or `## Concerns` or `## Edge Cases` — potential issues (may be absent if task is trivial)
+- **Lite** (Quick mode): expects `## Context`, `## WHAT`, `## WHY`, `## Token Count` sections
+- **Deep** (Full mode): expects `## Context`, `## ADDED`, `## MODIFIED`, `## REMOVED`, `## Token Count`, `## GO/NO-GO Verdict` sections
 
-### 3. Count file:line Evidence
+If no tier marker, infer from structure: Lite if only WHAT/WHY found, Deep if ADDED/MODIFIED/REMOVED found.
+
+### 3. Check Required Sections (tier-aware)
+
+**Lite tier:** Verify these sections exist:
+
+- `## Context` — 2-3 sentences about what exists and what changes
+- `## WHAT` — behaviors that must be true after the task
+- `## WHY` — reason for the change
+- `## Token Count` — present
+
+**Deep tier:** Verify these sections exist:
+
+- `## Context` — existing architecture patterns
+- `## ADDED` — new files/patterns/dependencies
+- `## MODIFIED` — existing files that will change (with before/after)
+- `## REMOVED` — anything deprecated or deleted
+- `## Token Count` — present with value
+- `## GO/NO-GO Verdict` — present
+
+### 4. Token Count Check (Deep tier only)
+
+If `## Token Count:` line is present, extract the number:
+
+- `< 900`: flag as potentially incomplete — list which sections are thin
+- `900–1600`: ✅ acceptable
+- `> 1600`: flag as context rot risk — note which sections are verbose
+
+### 5. Count file:line Evidence
 
 Count occurrences of `file:line` patterns in research.md:
 
 Pattern: any path ending in `.<ext>` followed by `:` and a line number (e.g., `src/user.ts:42`,
 `app/services/auth.service.ts:115`).
 
-Minimum required: **5 file:line references** for non-trivial tasks.
+Minimum required: **5 file:line references** for Deep tier, **2 file:line references** for Lite tier.
 
-### 4. Check for Empty Sections
+### 6. Check for Empty Sections
 
 Flag any section heading that is immediately followed by another heading or end-of-file with no
 content between them (empty section body).
 
-### 5. Output Verdict
+Also flag if fewer than 3 files are listed in the findings for non-trivial tasks — this is the signal to spawn a second focused explorer.
+
+### 7. Output Verdict
 
 ```markdown
 ## Research Validation
 
+**Tier:** Lite | Deep
 **Result:** PASS | FAIL
-**File:line references found:** {count} (minimum: 5)
+**File:line references found:** {count} (minimum: 5 Deep / 2 Lite)
+**Token count:** {N} tokens ({status: OK / thin / over-budget})
 
 ### Issues
-- Missing section: "Relevant Files" — explorers must identify which files to modify
-- Empty section: "## Risks" has no content
+- Missing section: "ADDED" — required for Deep tier
+- Empty section: "## MODIFIED" has no content
 - Insufficient evidence: only 2 file:line references found
+- Thin coverage: fewer than 3 files listed — consider spawning a second focused explorer
 
 ### Passing Checks
-- ✅ Architecture section present with content
-- ✅ Patterns section present with content
+- ✅ Context section present with content
+- ✅ ADDED section present
+- ✅ Token count in acceptable range (1,100 tokens)
 ```
 
 On PASS, output only the summary line and passing checks (no issues table).

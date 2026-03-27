@@ -1,105 +1,108 @@
 # Phase 2: Plan (Lead Only)
 
-## Step 1: Architecture Options (Full mode only)
+## Step 1: Write Plan
 
-**Skip entirely in Quick and Hotfix mode** — proceed directly to Step 2.
+Call `EnterPlanMode` — Claude switches to Opus, plan file created at `~/.claude/plans/{random}.md`.
 
-Load [architect-prompts.md](architect-prompts.md) now.
+**Source material by mode:**
 
-### Step 1a: Spawn Architect Agents (parallel)
-
-Create 2 architect agents in parallel using the Agent tool. Both receive identical context:
-
-- Full content of `{artifacts_dir}/research.md`
-- Task description and AC items
-- CLAUDE.md key conventions (5–10 lines)
-
-See [architect-prompts.md](architect-prompts.md) for complete prompt templates.
-
-- **Architect A** — Minimal approach (maximize reuse, minimize new files)
-- **Architect B** — Clean Architecture approach (best long-term maintainability)
-
-### Step 1b: Wait for Both Architects
-
-Wait for both agents to complete. If one crashes: retry once with the same prompt before
-degrading to single-approach plan (note degradation in dev-loop-context.md).
-
-### Step 1c: Lead Synthesizes → Recommendation
-
-Read both proposals in full. Form a recommendation using these signals:
-
-| Signal | What to check |
-| --- | --- |
-| **Existing patterns** | Does research.md show an established pattern that matches one approach? |
-| **Task scope** | Is this a one-off feature, or will it be extended? |
-| **AC coverage** | Which approach satisfies all ACs with less integration risk? |
-| **File change count** | More files = more integration risk |
-
-The recommendation **must** cite at least one `file:line` from `research.md`. It must be
-task-specific — not generic best-practice advice. See architect-prompts.md § Forming the
-Recommendation for rules and examples.
-
-### Step 1d: AskUserQuestion — Architecture Decision
-
-```text
-question: "Based on research, I recommend [Minimal/Clean]: {one-sentence reason citing research.md file:line}. Which approach?"
-header: "Architecture Decision"
-options: [
-  { label: "{Recommended approach} (Recommended ✓)",
-    description: "{N existing modified + M new files} — {key trade-off in one phrase}" },
-  { label: "{Other approach}",
-    description: "{N existing modified + M new files} — {key trade-off in one phrase}" },
-  { label: "Explain trade-offs in detail",
-    description: "Walk through the comparison before deciding" }
-]
-```
-
-**If "Explain trade-offs":** Present a side-by-side comparison table:
-
-| Dimension | Minimal | Clean Architecture |
-| --- | --- | --- |
-| Existing files modified | N | M |
-| New files created | N | M |
-| Estimated tasks | ~N | ~M |
-| Risk | Low/Med | Med/High |
-| Key pro | {specific} | {specific} |
-| Key con | {specific} | {specific} |
-
-Then call `AskUserQuestion` again with only the two approach options (no "Explain" option).
-
-**After user selects:** Note chosen approach in `dev-loop-context.md` under `architecture:`.
-Proceed to Step 2 — write the plan implementing the chosen approach.
-
-## Step 2: Write Plan
-
-Call `EnterPlanMode` — Claude switches to Opus, plan file created automatically at `~/.claude/plans/{random}.md`.
-
-Source material:
-
-- Full mode: `research.md` findings + chosen architecture from Step 1
-- Quick mode: task description + CLAUDE.md conventions
-- Hotfix mode: broken code path only — minimal scope
+| Mode | Plan source |
+| ------ | ------------ |
+| Micro | Task description only |
+| Quick | Task description + research.md WHAT/WHY |
+| Full | Task description + research.md (ADDED/MODIFIED/REMOVED + clarifications) |
+| Hotfix | Broken code path only — minimal scope |
 
 ## Plan Structure
 
-1. Problem statement
-2. Approach with rationale
-3. File-by-file changes
+All modes produce a plan.md with these sections:
+
+```markdown
+## must_haves
+
+### Truths
+- [ ] [observable behavior]
+      verify: [run test X | call endpoint Y | check output Z]
+      behavioral?: [yes — 1 sentence: what a user/caller observes, not what function runs]
+
+<!-- verify: behavioral methods only. Prohibited: "read the code", "check the logic".
+     Permitted: "run test", "call endpoint", "check output", "observe response".
+     behavioral?: must confirm external observable behavior — not function calls / variables. -->
+
+### Key Links ("where is this most likely to break?")
+- [ComponentA] → [ComponentB] via [mechanism]: [why this is critical]
+
+## Tasks
+<!-- TDD ordering enforced: test task precedes impl task for same story -->
+- [P] Test: write failing test for Truth 1     ← [P] = parallel-safe
+- [P] Test: write failing test for Truth 2
+- [ ] Impl: implement minimal feature
+- [ ] Impl: make Truth 1 pass
+- [ ] Impl: make Truth 2 pass
+- [P] Verify: run full test suite
+
+## Readiness Verdict
+READY / NEEDS WORK / NOT READY
+[Issues if not READY: specific items with file:line]
+```
+
+**Truth count by mode:** Micro=1, Quick=2–3, Full=3–5, Hotfix=1–2.
+
+**Truth quality rules:**
+
+- Observable from user/API perspective (not implementation detail)
+- Verifiable: can be checked by running a test or calling an endpoint
+- Behavioral: "would fail if behavior changes unexpectedly"
+
+**Plan quality rules:**
+
+1. Problem statement with rationale
+2. Approach with file-by-line changes
+3. Simplicity check — is this the simplest approach? Flag speculative features or abstractions not required by task. "Can a junior understand this in 5 minutes?" test.
 4. Trade-offs
-5. Simplicity check — is this the simplest approach? Flag speculative features or abstractions not required by the task. "Can a junior understand this in 5 minutes?" test.
-6. Test strategy
-7. Task list — tag each task `[P]` (parallelizable) or `[S]` (sequential)
-8. Task granularity — each task must specify: exact file(s) to modify, what to change (specific — not "update the logic"), expected behavior after change, how to verify (test to run or output to check). Each task must be completable in one worker turn — if not, split further.
+5. TDD task ordering — test task must precede impl task for each truth
+6. Task granularity — each task must specify: exact file(s), what to change (specific), expected behavior after change, how to verify. Each task completable in one worker turn — split if needed.
 
-Enter plan mode. Draft and refine the plan. Call `ExitPlanMode` — plan file is created and path is returned. **Immediately update `plan_file:` in `{artifacts_dir}/dev-loop-context.md`** with the returned path.
+After writing the plan: call `ExitPlanMode`. Plan file path returned.
 
-**Speculative plan-challenger:** Immediately spawn `plan-challenger` (Task/Agent tool) with the plan file path and `{artifacts_dir}/research.md`. Do NOT wait for it. Present the plan summary to the user while plan-challenger runs in the background.
+**Copy plan to artifacts_dir:** Immediately copy the created file:
 
-**After user responds:**
+```bash
+cp ~/.claude/plans/{returned-filename}.md {artifacts_dir}/{date}-{task-slug}/plan.md
+```
 
-- **User approves unchanged:** Collect plan-challenger result (wait if still running). Address all CHALLENGED items: remove YAGNI/scope-creep tasks, add missing tasks, correct ordering.
-- **User requests changes:** Discard the speculative result. Apply edits, call ExitPlanMode again to save the revised plan, then re-spawn plan-challenger against the revised plan file.
+Update `plan_file:` in `{artifacts_dir}/dev-loop-context.md` to the new artifacts_dir path.
+The `{artifacts_dir}/{date}-{task-slug}/plan.md` path is the canonical path for all downstream consumers.
 
-If all items are SUSTAINED or the user overrides with explicit justification → proceed.
+---
 
-**GATE:** plan-challenger addressed + user approves final plan → proceed to Implement-Review Loop.
+## Step 2: Plan-Challenger (Full Mode Only)
+
+**Micro and Quick:** Skip plan-challenger entirely. Proceed to Step 3.
+
+**Full mode only:** Immediately spawn `plan-challenger` agent with the plan file path + `{artifacts_dir}/research.md`. Do **not** wait — continue to Step 3 (readiness gate) while plan-challenger runs.
+
+Plan-challenger uses **dual-lens** challenge (see [agents/plan-challenger.md](../../../../agents/plan-challenger.md)):
+
+- **Minimal-lens:** "What can be removed and still satisfy ALL must_haves.truths?" — ≥2 findings required
+- **Clean-lens:** "What should be refactored BEFORE implementing to avoid accruing debt?" — ≥1 finding required
+
+---
+
+## Step 3: Readiness Gate
+
+**PhaseVerdict** per [workflow-modes.md](workflow-modes.md).
+
+**Micro / Quick:** No gate. Proceed to Phase 3 automatically.
+
+**Full mode:**
+
+1. Present plan summary to user while plan-challenger runs
+2. Collect plan-challenger result (wait if still running)
+3. Apply challenger findings: remove YAGNI/scope-creep tasks, add missing tasks, correct ordering
+4. If user requests plan changes: apply edits, re-run EnterPlanMode/ExitPlanMode cycle, re-spawn plan-challenger against revised plan
+5. If all CHALLENGED items are SUSTAINED or user overrides with explicit justification → proceed
+
+**GATE (Full mode):** plan-challenger addressed + user approves final plan → proceed to Phase 3.
+
+Emit Readiness Verdict in plan.md `## Readiness Verdict` section. If NEEDS WORK or NOT READY, do not proceed without explicit user decision.

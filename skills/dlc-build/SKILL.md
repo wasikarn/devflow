@@ -1,7 +1,7 @@
 ---
 name: dlc-build
-description: "Primary development workflow — use /dlc-build for any coding task: new features, bug fixes, refactors, schema changes, CI failures, production hotfixes, or implementing Jira tickets. Runs Research → Plan → Implement → Review → Ship with iterative fix-review loop and Agent Teams. Pass a Jira key (ABC-XXXX) to auto-extract acceptance criteria into plan tasks AND automatically transition the card to In Progress (if atlassian-pm is installed) — covering the full PRE + BUILD workflow in one command. Modes: --quick skips research for small fixes; --hotfix for urgent production incidents (branches from main, creates backport PR to develop). Review scales by diff size. Triggers on: implement this feature, write the code for, fix this bug, create a new endpoint, scaffold this module, add tests for, TDD, CI is failing. When in doubt which dev workflow to use, start here."
-argument-hint: "[task-description-or-jira-key] [--quick?] [--full?] [--hotfix?]"
+description: "Primary development workflow — use /dlc-build for any coding task: new features, bug fixes, refactors, schema changes, CI failures, production hotfixes, or implementing Jira tickets. Runs Research → Plan → Implement → Verify → Review → Ship with iterative fix-review loop and Agent Teams. Auto-detects ceremony level via blast-radius scoring (Micro/Quick/Full) — no flag required. Pass a Jira key (ABC-XXXX) to auto-extract acceptance criteria into plan tasks AND automatically transition the card to In Progress (if atlassian-pm is installed). Modes: --micro for isolated zero-blast-radius tasks; --quick for small fixes; --full for cross-cutting changes; --hotfix for urgent production incidents (branches from main). Review scales by diff size. Triggers on: implement this feature, write the code for, fix this bug, create a new endpoint, scaffold this module, add tests for, TDD, CI is failing. When in doubt which dev workflow to use, start here."
+argument-hint: "[task-description-or-jira-key] [--micro?] [--quick?] [--full?] [--hotfix?]"
 compatibility: "Requires gh CLI, git, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (degrades gracefully without)"
 disable-model-invocation: true
 effort: high
@@ -32,7 +32,7 @@ Invoke as `/dlc-build [task-description-or-jira-key] [--quick?] [--full?] [--hot
 **Project:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/detect-project.sh" 2>/dev/null || true`
 **Artifacts dir:** !`bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" dlc-build "$0" 2>/dev/null || echo ""`
 
-**Args:** `$0`=task description or Jira key (required) · `$1`=`--quick` · `$1`=`--full` · `$1`=`--hotfix`
+**Args:** `$0`=task description or Jira key (required) · `$1`=`--micro` | `--quick` | `--full` | `--hotfix` (optional — auto-detected if omitted)
 
 Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
 
@@ -40,14 +40,16 @@ Read CLAUDE.md first — auto-loaded, contains project patterns and conventions.
 
 ## Phase Flow
 
-Phase 0→1→[1.5: Clarify?]→[2a: ArchOpts?]→2b→ [3: Implement ↔ 4: Review ↔ 5: Assess loop (max 3)] →6: Ship
-(brackets = Full mode only)
+Phase 0 → [1: Research] → 2: Plan → 3: Implement → **3.5: Verify** → 4: Review → 5: Assess → [5.5: Simplify] → 6: Ship
+(brackets = mode-conditional; see [Mode Capability Matrix](references/workflow-modes.md))
 
-| Iter | Implement | Reviewers | Debate |
+Loop: Phase 3 ↔ 3.5 ↔ 4 ↔ 5 (max 3 shared iterations)
+
+| Iter | Implement | Reviewers (Full / Quick / Micro) | Debate |
 | --- | --- | --- | --- |
-| 1 | Full plan | 3 | Full (2 rounds max, early-exit at 90% consensus) |
-| 2 | Fix findings | 2 | Focused (1 round) |
-| 3 | Remaining fixes | 1 | None (spot-check only) |
+| 1 | Full plan | 3 / 2 / 1 | Full (Full mode only, 2 rounds max) |
+| 2 | Fix findings | 2 / 1 / 1 | Focused (1 round, Full mode only) |
+| 3 | Remaining fixes | 1 / 1 / 1 | None (spot-check only) |
 
 ---
 
@@ -56,15 +58,15 @@ Phase 0→1→[1.5: Clarify?]→[2a: ArchOpts?]→2b→ [3: Implement ↔ 4: Rev
 | File / Agent | Load when |
 | --- | --- |
 | [references/phase-0-triage.md](references/phase-0-triage.md) | Entering Phase 0 |
-| [references/phase-1-research.md](references/phase-1-research.md) | Entering Phase 1 (Full mode) |
+| [references/phase-1-research.md](references/phase-1-research.md) | Entering Phase 1 (Quick/Full mode) |
 | [references/phase-2-plan.md](references/phase-2-plan.md) | Entering Phase 2 |
-| [references/architect-prompts.md](references/architect-prompts.md) | Phase 2 Step 1 — Architecture Options (Full mode only) |
 | [references/phase-3-implement.md](references/phase-3-implement.md) | Entering Phase 3 |
+| [references/phase-35-verify.md](references/phase-35-verify.md) | Entering Phase 3.5 (NEW) |
 | [references/phase-4-review.md](references/phase-4-review.md) | Entering Phase 4 |
 | [references/phase-5-assess.md](references/phase-5-assess.md) | Entering Phase 5 |
 | [references/phase-6-ship.md](references/phase-6-ship.md) | Entering Phase 6 |
 | [references/workflow-modes.md](references/workflow-modes.md) | Phase 0 — mode classification |
-| [references/modes/feature.md](references/modes/feature.md) · [references/modes/quick.md](references/modes/quick.md) · [references/modes/hotfix.md](references/modes/hotfix.md) | Phase 0 Step 2.5 — load the file matching the confirmed mode |
+| [references/modes/micro.md](references/modes/micro.md) · [references/modes/feature.md](references/modes/feature.md) · [references/modes/quick.md](references/modes/quick.md) · [references/modes/hotfix.md](references/modes/hotfix.md) | Phase 0 Step 2.5 — load the file matching the confirmed mode |
 | [references/operational.md](references/operational.md) | Phase 0 (degradation) + Phase 3 end (Verification Gate) + on crash |
 | [references/phase-gates.md](references/phase-gates.md) | At each phase transition |
 | [references/explorer-prompts.md](references/explorer-prompts.md) | Entering Phase 1 |
@@ -137,7 +139,7 @@ See [references/operational.md](references/operational.md) for degradation behav
 - **Lead is sole writer of dev-loop-context.md** — workers SendMessage; lead updates the file
 - **Artifacts persist on disk** — `dev-loop-context.md`, plan file, `research.md`, `review-findings-*.md` survive context compression
 - **YAGNI** — implement only what the task requires; speculative abstractions are review findings
-- **Artifacts path** — `{artifacts_dir}` from header (path from `scripts/artifact-dir.sh dlc-build`); plan file → `~/.claude/plans/`
+- **Artifacts path** — ALL artifacts live at `{artifacts_dir}/{date}-{task-slug}/` (from `scripts/artifact-dir.sh dlc-build`); includes plan.md, research.md, verify-results.md, review-findings-*.md, dev-loop-context.md. `~/.claude/plans/` is no longer used.
 
 ---
 
@@ -145,17 +147,18 @@ See [references/operational.md](references/operational.md) for degradation behav
 
 | Transition | Key condition | Who decides |
 | --- | --- | --- |
-| Triage → Research/Plan | Mode confirmed by user | User |
-| Research → ClarifyQ | research.md complete (research-validator PASS) | Lead |
-| ClarifyQ → ArchOpts | Clarifying questions answered or skipped (Full mode) | User/Lead |
-| ArchOpts → Plan | Architecture approach selected by user (Full mode) | User |
-| Research → Plan | Quick/Hotfix: research.md complete (skips ClarifyQ + ArchOpts) | Lead |
-| Plan → Implement | Plan approved by user | User |
-| Implement → Review | All tasks + validate + workers shut down | Lead |
+| Triage → Research/Plan | Blast-radius scored, mode confirmed | User |
+| Research → Plan | research.md complete + validator PASS (+ GO/NO-GO Full) | User (Full) / Lead (Quick) |
+| Plan → Implement | Plan written to artifacts_dir + must_haves.truths + challenger (Full) | User (Full) / Lead auto (Micro/Quick) |
+| Implement → Verify | All tasks done + validate + workers shut down | Lead |
+| Verify → Review | All truths PASS + key_links verified | Lead |
+| Verify → Implement | ANY truth FAIL (Quick/Full, iteration_count < 3) | Lead (targeted) |
+| Review Stage 1 → Stage 2 | Spec compliance PASS | Lead |
+| Review Stage 1 FAIL → Implement | Spec non-compliance — return to Phase 3 | Lead |
 | Review → Assess | Findings consolidated | Lead |
-| Assess → Loop | Critical found, iteration < 3 | Lead |
+| Assess → Loop | Critical found, iteration_count < 3 | Lead |
 | Assess → Ship | Zero Critical (or user accepts) | User/Lead |
-| Assess → Escalate (STOP) | Iteration 3, still Critical — present 4 options | Lead |
+| Assess → Escalate (STOP) | iteration_count = 3, still Critical | Lead |
 | Ship → Done | User selects completion option | User |
 
 Full gate details: [references/phase-gates.md](references/phase-gates.md)
@@ -165,13 +168,10 @@ Full gate details: [references/phase-gates.md](references/phase-gates.md)
 - **Agent Teams required for parallel phases** — without `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, the skill degrades to subagent or solo mode; phases that rely on parallel workers run sequentially, increasing token cost and time.
 - **Phase 0 AC validation skips silently if Jira key is invalid** — if the key doesn't exist or Jira is unreachable, the skill proceeds using the raw task description as AC. Verify the Jira key resolves before invoking to avoid a silent no-op on acceptance criteria.
 - **Research phase can exceed context budget on large repos** — the Explorer spawns multiple subagents to read files; on repos with hundreds of relevant files this burns context fast. Use `--quick` for small tasks; save `--full` for cross-cutting changes.
-- **Artifacts live outside the project repo** — `dev-loop-context.md`, `research.md`, and `review-findings-*.md` are written to `{artifacts_dir}` (from `scripts/artifact-dir.sh`), not the working directory. Plan file goes to `~/.claude/plans/`. Don't look for them in the project root.
-- **Max 3 review iterations is enforced** — if Critical findings remain after iteration 3, the skill escalates with 4 options rather than looping further. This is intentional: 3+ iterations signals a design problem, not a fix problem.
-- **Clarifying Questions are evidence-gated** — every question in Step 3.5 must cite a `file:line`
-  from `research.md`. The gate is a no-op if research found no ambiguities; it never asks hypothetical
-  questions. Quick and Hotfix modes skip it entirely.
-- **Architecture Options require Full mode + research** — the Minimal/Clean architect agents read
-  `research.md` to ground their proposals. Without research data, recommendations would be guesses.
-  That is why Quick mode (no research phase) skips ArchOpts entirely.
+- **All artifacts in one folder** — `dev-loop-context.md`, `research.md`, `plan.md`, `verify-results.md`, and `review-findings-*.md` all live at `{artifacts_dir}/{date}-{task-slug}/`. `~/.claude/plans/` is no longer used by dlc-build for new runs.
+- **Max 3 iterations is shared** — Phase 3.5 loops, Stage 1 FAIL loops, and review loops all consume the same `iteration_count` counter (max 3). This prevents runaway costs from multiple loop types each believing they have their own budget.
+- **Phase 3.5 is mandatory** — every Implement → Review transition must pass through Phase 3.5 Verify. Skipping it after a Stage 1 FAIL is not permitted.
+- **[NEEDS CLARIFICATION] replaces ClarifyQ** — clarifying questions are embedded as tokens in research.md (max 3, each with file:line evidence). No separate ClarifyQ phase. Quick and Hotfix modes use Lite research with no clarification tokens.
+- **plan-challenger is Full mode only** — Micro and Quick modes write plans directly without a challenge step. Running plan-challenger on Micro/Quick adds overhead that defeats their purpose.
 - **Auto-transition requires a Jira key + at least one Jira integration** — Step 2a transitions the Jira card to In Progress automatically after mode is confirmed. Uses atlassian-pm path if `issue-bootstrap` was available in Step 1c; falls back to `mcp-atlassian` (`jira_transition_issue`) if atlassian-pm is not installed; skips silently if neither is reachable.
 - **WIP limit enforcement only on the atlassian-pm path** — the `pre_wip_limit_check` hook fires only when atlassian-pm is installed. On the mcp-atlassian fallback path, there is no WIP gate — the transition proceeds unconditionally.

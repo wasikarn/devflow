@@ -2,6 +2,51 @@
 
 Load [reviewer-prompts.md](reviewer-prompts.md), [../../../references/review-conventions.md](../../../references/review-conventions.md), [../../../references/review-output-format.md](../../../references/review-output-format.md) before starting.
 
+## Stage 1: Spec Compliance (Always First)
+
+Before spawning any Stage 2 reviewers, lead runs Stage 1 compliance check directly.
+
+Stage 1 checks (in order):
+
+1. **must_haves coverage** — are all truths from Phase 3.5 verified in the diff?
+2. **hard-rules.md compliance** — every rule respected? Cite violations with file:line.
+3. **Test file presence** — for every new behavior in diff, is there a corresponding test file change?
+   A diff with only production code changes (no test file) fails Stage 1 immediately.
+   Exception: Micro mode with no test framework in the project.
+4. **Scope fidelity** (mode-dependent):
+   - Full: does diff match ADDED/MODIFIED/REMOVED from research.md? Flag out-of-scope changes.
+   - Quick: does diff stay within the files from research.md Context section?
+   - Micro: skip scope fidelity (no research.md exists for Micro)
+
+**Stage 1 FAIL:** Return to Phase 3 immediately. Do NOT proceed to Stage 2.
+Mandatory path: Phase 3 (fix) → **Phase 3.5 (verify again)** → Phase 4 Stage 1 (check again).
+Increment `iteration_count` in dev-loop-context.md before returning to Phase 3.
+
+**Stage 1 PASS:** Proceed to Stage 2.
+
+---
+
+## Stage 2: Code Quality (Conditional Dispatch)
+
+Check diff before spawning reviewers (combine staged + unstaged to catch all changed files):
+
+```bash
+git diff --name-only HEAD 2>/dev/null; git diff --name-only --cached 2>/dev/null
+```
+
+Deduplicate the combined list before checking conditions.
+
+| Condition | Reviewer spawned |
+| ----------- | ----------------- |
+| `**/migrations/**` in diff | migration-reviewer |
+| `**/routes/**` or `**/controllers/**` in diff | api-contract-auditor |
+| `try\|catch\|async` in diff content | error-handling reviewer |
+| `.ts` type definitions (`interface\|type\|enum`) in diff | typescript reviewer |
+| `*.test.*` or `*.spec.*` in diff | test-quality-reviewer |
+| Always | general code-reviewer |
+
+Skip inapplicable reviewers — reduces wasted tokens for PRs that don't touch those domains.
+
 ## Pre-spawn Diff Check
 
 Before spawning reviewers, check diff size to determine lens injection level:
@@ -33,6 +78,9 @@ Lenses are domain-scoped per [reviewer-prompts.md](reviewer-prompts.md) — each
 
 ## Review Scale (Iteration 1)
 
+Mode caps per [workflow-modes.md](workflow-modes.md): Micro=1 reviewer, Quick=1–2, Full=3+debate.
+Within those caps, scale by diff size:
+
 Determine diff size first: `git diff {base_branch}...HEAD --stat | tail -1`
 
 | Diff size | Reviewers | Debate | Notes |
@@ -43,6 +91,7 @@ Determine diff size first: `git diff {base_branch}...HEAD --stat | tail -1`
 | 400+ | 3 (full set) | Full (2 rounds max) | Flag PR size to user |
 
 > **Quick mode override:** In Quick mode, use lead self-review (Solo Self-Review Checklist) for diffs ≤100 lines — no teammate spawning. Only spawn reviewers for Quick mode diffs >100 lines.
+> **Micro mode:** Always 1 reviewer (general only) — no debate regardless of diff size.
 
 Load debate protocol for 2-round debate cases: [../../../references/debate-protocol.md](../../../references/debate-protocol.md) (shared with dlc-review — always available).
 

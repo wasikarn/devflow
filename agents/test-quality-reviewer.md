@@ -117,7 +117,28 @@ Sev labels: 🔴 Critical (test gives false confidence) · 🟡 Warning (coverag
 
 **After findings table, send to team lead.**
 
+## TDD_SEQUENCE Validation
+
+If lead provides a `<worker_completion>` message in the prompt, also check the TDD_SEQUENCE field:
+
+```text
+TDD_SEQUENCE:
+  - first-test-write: [file:line] "[test description]"
+  - first-test-run-FAIL: yes|no
+  - first-impl-write: [file:line]
+  - test-run-PASS: [file:line]
+TDD_COMPLIANCE: FOLLOWED | VIOLATED
+```
+
+Validate the SEQUENCE ORDER — not just the label:
+
+- `first-test-write` line number must be less than `first-impl-write` line number in the test file (test written before impl)
+- `first-test-run-FAIL: no` = test was never run as failing → TDD not followed, regardless of label
+- `TDD_COMPLIANCE: FOLLOWED` but test and impl files share the same commit with test after impl → flag
+
+If TDD_SEQUENCE is inconsistent with `TDD_COMPLIANCE` label, report as a T6 Hard Rule violation.
+
 ## Confidence Threshold
 
 Same as dlc-review teammates: confidence >= 80 for non-trivial findings.
-Hard Rule violations (T6: zero assertions / mock-call-only assertion / not.toThrow() as sole assertion) bypass threshold.
+Hard Rule violations (T6: zero assertions / mock-call-only assertion / not.toThrow() as sole assertion / TDD_SEQUENCE inconsistency) bypass threshold.

@@ -1,99 +1,170 @@
-# Phase 1: Research (Full Mode Only)
+# Phase 1: Research
 
-Skip this phase entirely in Quick mode → go to Phase 2.
+Mode behavior per [workflow-modes.md](workflow-modes.md):
+
+| Mode | Research |
+| ------ | ---------- |
+| Micro | **Skip** — proceed directly to Phase 2 |
+| Quick | **Lite** — WHAT/WHY only, ~250 lines, 1 explorer |
+| Full | **Deep** — delta markers + [NEEDS CLARIFICATION] + GO/NO-GO verdict, 1–2 explorers |
+
+---
 
 ## Step 0: Bootstrap (concurrent with explorers)
 
-Dispatch `dev-loop-bootstrap` agent (Haiku) with the task description. **Do not wait** — proceed immediately to Step 1 to spawn the explorer team while bootstrap runs.
+Dispatch `dev-loop-bootstrap` agent (Haiku) with the task description. **Do not wait** — proceed immediately to Step 1 while bootstrap runs.
 
-When bootstrap completes: read `{artifacts_dir}/bootstrap-context.md` and send its contents to each explorer teammate via `SendMessage`:
+When bootstrap completes: read `{artifacts_dir}/bootstrap-context.md` and send its contents to each explorer via `SendMessage`:
 
 ```text
 BOOTSTRAP CONTEXT: {contents of bootstrap-context.md}
 ```
 
-**Bootstrap fallback:** If bootstrap errors or produces no output within 60s of its spawn: log "bootstrap timed out" in `dev-loop-context.md` and skip. Do not retry. Explorers continue with `BOOTSTRAP CONTEXT: (not available — explorers gather context independently)`.
+**Bootstrap fallback:** If bootstrap errors or produces no output within 60s: log "bootstrap timed out" in `dev-loop-context.md` and skip. Explorers continue with `BOOTSTRAP CONTEXT: (not available)`.
 
-## Step 1: Create Explorer Team
+---
 
-Load [explorer-prompts.md](explorer-prompts.md) now. Create team `dev-loop-{branch}` with 2-3 explorer teammates. Assign non-overlapping scopes to each:
+## Step 1: Spawn Explorers
 
-- **Explorer 1:** Execution paths + patterns in primary area
-- **Explorer 2:** Data model + dependencies + coupling
-- **Explorer 3:** Reference implementations (spawn only if similar existing features exist)
+Load [explorer-prompts.md](explorer-prompts.md). Spawn explorers based on mode:
+
+**Quick (Lite):** 1 explorer — execution paths + data model combined scope.
+
+**Full (Deep):** 1 explorer by default:
+
+- **Explorer 1:** Execution paths + patterns in primary area, data model + dependencies
+
+Spawn a second explorer **only if** research-validator flags the file list as insufficient (fewer than 3 files for a non-trivial task):
+
+- **Explorer 2:** Gap area only (focused prompt)
+
+Never more than 2 explorers. The lead reads files directly and does not benefit from parallel explorers.
+
+Explorers return a **structured file list** (not file contents):
+
+```markdown
+## Key Files for This Task
+- src/auth/middleware.ts — handles JWT validation (relevant: auth risk factor)
+- src/users/UserService.ts — contains findById (will be modified)
+- tests/auth/middleware.test.ts — existing test patterns to follow
+[5–10 files max]
+```
+
+---
 
 ## Step 2: Wait for Explorers
 
 Track status in conversation (pending/done/crashed) for each explorer. Wait until all complete.
 
-## Step 3: Merge Findings
+---
 
-Lead merges all explorer findings into `{artifacts_dir}/research.md`. Structure: trace execution paths, map data flow, document conventions, identify reusable code, note constraints. Every section must cite file:line references.
+## Step 3: Write research.md
 
-Update `Phase: research` in dev-loop-context.md.
+Lead reads the files listed by explorers, then writes `{artifacts_dir}/research.md`.
 
-**GATE:** Run `research-validator` agent with path `{artifacts_dir}/research.md`. If result is FAIL, re-dispatch the relevant explorer with a targeted prompt before proceeding. If result is PASS → proceed.
+**Quick mode (Lite) structure:**
 
-## Step 3.5: Clarifying Questions Gate
+```markdown
+## Context
+[2–3 sentences: what exists, what the task changes]
 
-With `research.md` verified complete, scan it for unresolved questions across four categories:
+## WHAT
+[What must be true after this task — behaviors only, no tech stack]
 
-| Category | Signal |
-| --- | --- |
-| **Scope boundary** | Unclear what is explicitly in or out of scope |
-| **Integration contracts** | Interactions with downstream/upstream systems not fully specified |
-| **Edge cases** | Error states, null inputs, concurrency behavior undefined |
-| **Architectural alignment** | Task could follow pattern A (found in research) or diverge — choice has trade-offs |
+## WHY
+[Why this change is needed]
 
-**Rule — every question must cite evidence:** Each question must reference a specific `file:line` from `research.md` that reveals the gap. Never ask about hypothetical concerns.
-
-✅ Right: "research.md shows `UserService.findById` has no null guard at `src/services/user.ts:89` — is adding the guard in scope, or is that a separate task?"
-
-❌ Wrong: "Will this affect performance?" (no evidence from research)
-
-**Decision logic:**
-
-```text
-0 questions → proceed to Phase 2 silently
-1–4 questions → AskUserQuestion (all at once)
-5+ questions → task scope is unclear → escalate
+## Token Count: ~XXX
 ```
 
-**For 1–4 questions**, call `AskUserQuestion`:
+**Full mode (Deep) structure:**
 
-```text
-question: "Before designing the architecture, research surfaced {N} open question(s). Answers will shape the plan."
-[List each question with its research.md citation as sub-bullets in the question text]
-header: "Clarifying Questions"
-options: [
-  { label: "Answer below", description: "Type answers for each question in your reply" },
-  { label: "Proceed with current scope", description: "Skip — I'll handle ambiguity in the plan" }
-]
+```markdown
+## Context
+[Existing architecture patterns relevant to this task]
+
+## ADDED
+[New files / patterns / dependencies this task introduces]
+
+## MODIFIED
+[Existing files / patterns that will change]
+(Previously: X → will become: Y)
+
+## REMOVED
+[Anything being deprecated or deleted]
+
+## [NEEDS CLARIFICATION: <specific question>] [file:line evidence]
+[Max 3 — each must cite file:line. No hypothetical questions.]
+<!-- Format: ## [NEEDS CLARIFICATION: <question>] [file:line]
+     e.g. ## [NEEDS CLARIFICATION: Is adding the null guard in scope?] [src/services/user.ts:89]
+     Only for gaps where the answer materially changes the design. -->
+
+## Token Count: ~XXX tokens
+[<900: research may be incomplete | 900–1600: ✅ | >1600: context rot risk]
+
+**Token enforcement:**
+- `<900`: research-validator flags thin/missing sections. Lead decides: expand or accept as-is.
+- `900–1600`: proceed automatically.
+- `>1600`: trim verbose context explanations to reach 900–1600 range. Do not add content.
+
+## Risks Found
+<!-- REQUIRED: list ALL concerns before verdict, even minor ones.
+     Format: - [concern] (file:line evidence)
+     If no concerns: "None identified — [brief reason why]" -->
+- [concern 1] (evidence)
+
+## GO/NO-GO Verdict
+READY / NEEDS WORK / NOT READY
+Reason: [based on Risks Found above — not independent opinion]
 ```
 
-- **If user answers:** capture answers, append to `research.md` as `## Clarifications` section, then proceed to Phase 2.
-- **If user skips:** note unresolved questions in `dev-loop-context.md` under `open_questions:`, then proceed.
+Every section must cite file:line references. Update `phase: research` in dev-loop-context.md.
 
-**For 5+ questions**, call `AskUserQuestion`:
+---
+
+## Step 3.5: Research Validator Gate
+
+Run `research-validator` agent with path `{artifacts_dir}/research.md`. If result is FAIL → re-dispatch the relevant explorer with a targeted prompt before proceeding. If PASS → proceed.
+
+---
+
+## Step 4: GO/NO-GO (Full mode only — PhaseVerdict)
+
+Full mode only. Quick and Micro proceed to Phase 2 automatically.
+
+See PhaseVerdict schema in [workflow-modes.md](workflow-modes.md). Behavior:
 
 ```text
-question: "Research found {N} open questions — task scope is unclear. Recommend clarifying requirements before implementation."
-header: "Scope Too Ambiguous"
-options: [
-  { label: "Clarify requirements (recommended)", description: "Stop here — refine task description and re-invoke /dlc-build" },
-  { label: "Proceed anyway", description: "Accept that ambiguity will be resolved during implementation" }
-]
+READY      → proceed to Phase 2 automatically
+
+NEEDS WORK → present issues found
+             "Research found X concerns before implementation:
+              [list with file:line evidence]
+             Proceed anyway or address first?"
+             → wait for explicit user decision
+
+NOT READY  → present blocking issues
+             "Research found blocking issues:
+              [list with file:line evidence]
+             (a) Address these issues first
+             (b) Proceed with known risks
+             (c) Abort"
+             → REQUIRE explicit choice — never auto-advance
 ```
 
-## Phase 1 Output Format
+If `[NEEDS CLARIFICATION]` tokens exist in research.md and the verdict is READY, present them as part of the READY output:
+"Research is complete. Before Phase 2, {N} clarifying question(s) were flagged: [list]. Proceed or answer first?"
 
-When Phase 1 completes (after writing research.md), output this summary table — do NOT write a prose paragraph:
+---
+
+## Phase 1 Output
+
+When Phase 1 completes, output this summary — not prose:
 
 ```markdown
 ### Phase 1 Complete
 | Explorer | Files read | Key findings |
 |---|---|---|
-| Explorer A | N files | {top finding — one line} |
-| Explorer B | N files | {top finding — one line} |
-→ research.md written · Proceeding to Phase 2
+| Explorer 1 | N files | {top finding — one line} |
+→ research.md written ({mode}: {Lite|Deep}) · Proceeding to Phase 2
 ```

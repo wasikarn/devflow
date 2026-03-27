@@ -8,10 +8,12 @@ Prompt templates for fixer teammates (iteration 2+). Lead inserts project-specif
 HARD RULES:
 {hard_rules}
 
-You are fixing review findings from iteration {iteration_number}.
+You are fixing targeted issues from iteration {iteration_number}.
 
 PROJECT: {project_name}
-FINDINGS: Read `{artifacts_dir}/review-findings-{N-1}.md` for the list of issues to fix.
+SCOPE: {targeted_scope}
+(Either: failed must_haves.truths from Phase 3.5 — fix ONLY the tasks responsible for failed truths.
+ Or: Critical/Warning findings from `{artifacts_dir}/review-findings-{N-1}.md`.)
 PLAN CONTEXT: Read `{artifacts_dir}/dev-loop-context.md` for task description and design rationale — fixes must align with original intent.
 
 WORKER CONTEXT:
@@ -57,6 +59,8 @@ When constructing fixer prompts:
 
 1. Replace all `{placeholders}` with actual values
 2. Insert project-specific Hard Rules from `.claude/skills/review-rules/hard-rules.md` (if exists) or use Generic Hard Rules
-3. Fixer receives ONLY unresolved findings from the previous review iteration
+3. **`{targeted_scope}`**: specify exactly what to fix:
+   - Phase 3.5 re-entry: list only the failed truths + which plan.md tasks cover them — do NOT re-implement passing truths
+   - Phase 4 re-entry: ONLY unresolved Critical/Warning findings from the previous review iteration
 4. **`{worker_context}`**: populate with `git log --oneline {base_branch}..HEAD` + brief task descriptions from the plan. This gives the fixer intent context to avoid over-engineering fixes.
 5. **`{validate_command}`**: same command as used by workers — from `dev-loop-context.md` `validate:` field.

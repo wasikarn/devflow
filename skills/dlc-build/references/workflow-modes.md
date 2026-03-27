@@ -1,57 +1,98 @@
 # Workflow Modes
 
-Classification criteria for Full, Quick, and Hotfix mode. Lead auto-classifies at Phase 0; user can override.
+Auto-classification via blast-radius scoring (Phase 0). User can confirm or override.
+All phase files reference this matrix — do not redefine mode behavior inline.
 
-## Mode Selection
+---
 
-| Mode | When | Phases | Estimated sessions |
-| --- | --- | --- | --- |
-| **Full** | Multi-file feature, architectural change, new domain | All (0-6) | 9-14 |
-| **Quick** | Bug fix, small refactor, fix PR comments, single-file change | Skip Phase 1 | 6-10 |
-| **Hotfix** | Urgent production bug, `--hotfix` flag | Skip Phase 1, branch from `main` | 4-8 |
+## Blast-Radius Scoring
 
-## Mode Decision Tree
+Lead evaluates 5 factors from task description + live context:
 
-Use this deterministic tree to classify mode. Apply top-to-bottom; first match wins.
+| Factor | Score 1 if… |
+| -------- | ------------- |
+| **Scope** | Task touches >1 module or service boundary |
+| **Risk** | Task involves auth / payment / DB migration / public API |
+| **Novelty** | Pattern doesn't exist in codebase (new abstraction, new dependency) |
+| **Dependencies** | Code being changed has known downstream consumers |
+| **Ambiguity** | Task description is underspecified or has unclear acceptance criteria. Tie-break: if uncertain → score 1. |
+
+**Score → Mode:**
+
+| Score | Mode |
+| ------- | ------ |
+| 0–2 | **Micro** |
+| 3 | **Quick** |
+| 4–5 | **Full** |
+| `--hotfix` flag | **Hotfix** (bypasses scoring entirely) |
+
+Lead presents result: `"Task scored X/5 → suggesting [mode]. Proceed or override?"`
+
+---
+
+## Flag vs. Score Precedence
+
+| Situation | Result |
+| ----------- | -------- |
+| `--hotfix` passed | Always Hotfix — no scoring, no override prompt |
+| `--micro` / `--quick` / `--full` AND matches score | Use flag mode silently |
+| Flag is **lower** than score | Downgrade protection (see below) |
+| Flag is **higher** than score | Use flag — over-ceremony is safe |
+| No flag | Use blast-radius score |
+
+**Downgrade protection:** If user overrides toward lower ceremony, lead responds:
 
 ```text
---hotfix flag OR task mentions "production"/"P0"/"urgent fix"/"hotfix"/"incident"?
-└─ YES → HOTFIX mode
+"Overriding to [lower mode]. The following blast-radius factors scored 1:
+  • [list each factor with brief explanation]
 
---quick flag?
-└─ YES → QUICK mode
-
---full flag?
-└─ YES → FULL mode
-
-Task involves ANY of:
-  - "new feature" / "add endpoint" / "new module" / "redesign"
-  - Schema change (migration) or API contract change
-  - Jira epic or multi-story ticket
-  - Touching 3+ files across different architectural layers?
-└─ YES → FULL mode
-
-Task is ALL of:
-  - Bug fix, refactor, or PR comment fix
-  - Scope is 1-2 files in the same layer
-  - No schema or API contract changes
-  - No new domain concepts?
-└─ YES → QUICK mode
-
-Otherwise → AMBIGUOUS: ask user
-  "This could be Full or Quick. Full adds a research phase (~2-3 explorer sessions). Which do you prefer?"
+These increase the risk of rework or missed requirements.
+Confirm override? (yes / no)"
 ```
 
-## Mode Differences
+Require explicit "yes" before proceeding. Gates hold harder under urgency, not softer.
 
-| Aspect | Full | Quick | Hotfix |
-| --- | --- | --- | --- |
-| Phase 4 (Review) | Scaled by diff size (see below) | Scaled by diff size (see below) | 2 reviewers max (no DX) |
-| Artifacts | research.md + plan.md | plan.md only | plan.md only |
+---
 
-## Review Scale (Iteration 1)
+## Mode Capability Matrix
 
-Scale review intensity by diff size to avoid over-spending tokens on small changes:
+Single source of truth for per-phase behavior. Phase files reference by phase name.
+
+| Phase | Micro | Quick | Full | Hotfix |
+| ------- | ------- | ------- | ------ | ------- |
+| 0: Triage | Blast-radius → Micro auto | Blast-radius → confirm | Blast-radius → confirm | --hotfix bypasses scoring |
+| 1: Research | **Skip** | **Lite** (WHAT/WHY, ~250 lines, 1 explorer) | **Deep** (delta markers + [NEEDS CLARIFICATION] + GO/NO-GO, 1–2 explorers) | Skip |
+| 2: Plan | 1 truth, no gate | 2–3 truths, no user gate | 3–5 truths, user gate | 1–2 truths, no gate |
+| 2: Plan-challenger | **Skip** | **Skip** | **Run** (dual-lens) | Skip |
+| 3: Implement workers | 1 worker, `effort: low` | 1–2 waves, `effort: medium` | Multi-wave, `effort: high` | 1 worker, `effort: high` |
+| 3.5: Verify | Lightweight (1 truth, escalate on fail — no loop) | Full (1 re-entry loop) | Full (1 re-entry loop) | Lightweight |
+| 4: Review Stage 1 | Run | Run | Run | Run |
+| 4: Review Stage 2 | 1 reviewer (self-review ≤50 lines) | 1–2 reviewers (see diff scale) | 3 reviewers + debate | 2 reviewers max (no DX) |
+| 5.5: Simplify | **Skip** | Optional (Critical=0 required) | Default (Critical=0 required) | Skip |
+| 6: metrics-analyst | **Skip** | **Skip** | Run if ≥5 entries | Skip |
+
+---
+
+## PhaseVerdict Schema
+
+Three phases emit a PhaseVerdict: Phase 1 (GO/NO-GO), Phase 2 (readiness), Phase 3.5 (verify).
+All use the same schema and escalation contract. Reference by name; do not redefine inline.
+
+```text
+PhaseVerdict:
+  state: READY | NEEDS WORK | NOT READY
+  evidence: [file:line citations — required for NEEDS WORK and NOT READY]
+  escalation:
+    READY:      proceed automatically
+    NEEDS WORK: present to user, wait for decision (proceed / address first)
+    NOT READY:  present blocking list, require explicit choice (a/b/c)
+```
+
+---
+
+## Review Scale (Phase 4, Stage 2)
+
+Reviewer count is determined by diff size, subject to Mode Capability Matrix caps above.
 
 | Diff size | Reviewers | Debate | Notes |
 | --- | --- | --- | --- |
@@ -60,22 +101,35 @@ Scale review intensity by diff size to avoid over-spending tokens on small chang
 | 201–400 | 3 (full set) | Full (2 rounds max) | Standard review |
 | 400+ | 3 (full set) | Full (2 rounds max) | Flag PR size to user |
 
-Hotfix mode is always capped at 2 reviewers (Correctness + Architecture) regardless of diff size.
+**Quick mode override:** For diffs ≤100 lines in Quick mode, use lead self-review only (no teammates).
 
-**Quick mode override:** In Quick mode, use lead self-review (Solo Self-Review Checklist from operational.md) for diffs ≤100 lines — no teammate spawning. Only spawn reviewers for Quick mode diffs >100 lines.
+**Hotfix mode cap:** Always 2 reviewers max (Correctness + Architecture) — overrides diff scale.
 
-## Hotfix Constraints
+**Iteration narrowing:** Each review iteration narrows scope:
+
+- Iteration 1: full reviewer count per scale above
+- Iteration 2: one fewer reviewer, focused on previous findings only
+- Iteration 3: spot-check by lead only
+
+---
+
+## Hotfix Mode
+
+`--hotfix` bypasses Phase 0 triage. Not affected by blast-radius scoring or downgrade protection.
 
 - Branch from `main` (not `develop`) — `git checkout main && git pull`
 - Scope is the broken code path **only** — no refactoring, no unrelated improvements
-- Review uses 2 reviewers max (Correctness + Architecture, skip DX)
+- Review: 2 reviewers max (Correctness + Architecture, skip DX)
 - After merge to `main`: mandatory backport PR to `develop`
 - Backport via cherry-pick; if conflicts → note in PR, assign to author
 
-## User Override
+---
 
-User can always override classification:
+## Effort per Mode
 
-- `/dlc-build "simple bug" --full` → forces Full mode (extra research won't hurt)
-- `/dlc-build "big feature" --quick` → forces Quick mode (lead warns about risk but complies)
-- `/dlc-build "ABC-1234" --hotfix` → forces Hotfix mode (branch from main, minimal scope)
+Set in subagent spawn calls (not SKILL.md frontmatter — which is static):
+
+- Micro workers → `effort: low`
+- Quick workers → `effort: medium`
+- Full workers → `effort: high`
+- Lead (dlc-build itself) → always `effort: high`

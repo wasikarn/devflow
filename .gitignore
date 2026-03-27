@@ -21,6 +21,4 @@ node_modules/
 prompts/
 
 # Docs (internal)
-docs/superpowers
-docs/specs
 docs/eval/*.local.md

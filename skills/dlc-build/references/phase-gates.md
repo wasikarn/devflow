@@ -6,73 +6,98 @@ Every phase transition has explicit gate conditions. No phase proceeds until its
 
 | From → To | Gate condition | Who decides |
 | --- | --- | --- |
-| Triage → Research | Requirements clear, mode confirmed | User |
-| Research → ClarifyQ | research.md complete with file:line evidence | Lead |
-| ClarifyQ → ArchOpts | 0–4 questions answered or skipped; 5+ questions: user proceeds or stops (Full mode) | User/Lead |
-| ArchOpts → Plan | Architecture approach selected (Full mode); skip both for Quick/Hotfix | User |
-| Research → Plan | Quick/Hotfix: research.md complete, skips ClarifyQ + ArchOpts | Lead |
-| Plan → Implement (iter 1) | the plan approved by user (annotation cycle done) | User |
-| Implement → Review | All tasks done + validate passes | Lead (automated) |
-| Review → Assess | Findings consolidated with consensus | Lead |
-| Assess → Implement (loop) | Critical found, iteration < 3 | Lead (automated) |
+| Triage → Research | Requirements clear, mode confirmed, blast-radius scored | User |
+| Triage → Plan | Micro mode: skip research | Lead (auto) |
+| Research → Plan | research.md complete + validator PASS + GO/NO-GO (Full) | User (Full) / Lead (Quick) |
+| Plan → Implement | Plan written to artifacts_dir + must_haves.truths defined + challenger addressed (Full) | User (Full) / Lead auto (Micro/Quick) |
+| Implement → Verify | All tasks done + validate passes + workers shut down | Lead (automated) |
+| Verify → Review | All must_haves.truths PASS + all key_links present | Lead (automated) |
+| Verify → Implement (loop) | ANY truth FAIL (Quick/Full, iteration_count < 3) | Lead (targeted re-entry) |
+| Verify → Phase 2 (redesign) | STILL FAILING + user picks redesign + redesign_count < 1 | User |
+| Review → Assess | Findings consolidated + Stage 1 PASS | Lead |
+| Review → Implement (Stage 1 FAIL) | Stage 1 FAIL (test file missing or spec non-compliance) | Lead (automated) |
+| Assess → Implement (loop) | Critical found, iteration_count < 3 | Lead (automated) |
 | Assess → Ship (exit loop) | Zero Critical (+ zero Warning or user accepts) | Lead + User |
-| Assess → STOP (escalate) | Iteration 3, still Critical | Lead (escalates to user) |
+| Assess → STOP (escalate) | iteration_count = 3, still Critical | Lead (escalates to user) |
 | Ship → Done | User selects completion option | User |
+
+---
 
 ## Gate Details
 
-### Triage → Research (or Plan in Quick mode)
+### Triage → Research (or Plan for Micro)
 
 - [ ] Project detected and conventions loaded
-- [ ] Workflow mode confirmed (Full/Quick)
+- [ ] Blast-radius scored (5 factors, 0–5)
+- [ ] Workflow mode confirmed (Micro/Quick/Full/Hotfix)
 - [ ] Agent Teams availability checked
 - [ ] User acknowledges mode selection
+- **Micro:** Skip directly to Plan (no research)
 
-### Research → ClarifyQ
+### Research → Plan
 
 - [ ] `research.md` written with structured findings
 - [ ] Every section cites file:line references
-- [ ] At least 2 explorer teammates completed their assignments
 - [ ] research-validator agent returned PASS
-
-### ClarifyQ → ArchOpts (Full mode) / ClarifyQ → Plan (Quick/Hotfix)
-
-- [ ] Clarifying questions identified from research.md (0–4: answered or explicitly skipped; 5+: user confirmed proceed)
-- [ ] If answered: `research.md` updated with `## Clarifications` section
-- [ ] If skipped or unresolved: noted in `dev-loop-context.md` under `open_questions:`
-- [ ] **Quick/Hotfix:** skip this gate entirely — go directly to Plan
-
-### ArchOpts → Plan (Full mode only)
-
-- [ ] Both architect agents completed (or one degraded gracefully)
-- [ ] Lead formed recommendation with ≥1 `file:line` citation from `research.md`
-- [ ] User selected architecture approach via AskUserQuestion
-- [ ] Chosen approach noted in `dev-loop-context.md` under `architecture:`
+- **Quick (Lite):** no GO/NO-GO verdict required — lead proceeds automatically
+- **Full (Deep):** GO/NO-GO verdict READY (or user explicitly accepts NEEDS WORK / NOT READY)
+- [ ] Any `[NEEDS CLARIFICATION]` tokens in research.md presented to user if verdict is READY
 
 ### Plan → Implement
 
-- [ ] Plan written and saved (`~/.claude/plans/`)
-- [ ] Tasks tagged `[P]` (parallel) or `[S]` (sequential)
-- [ ] User completed at least 1 annotation cycle
-- [ ] User explicitly approves plan
+- [ ] Plan written to `{artifacts_dir}/{date}-{task-slug}/plan.md`
+- [ ] `must_haves.truths` block present (Micro:1, Quick:2–3, Full:3–5)
+- [ ] `key_links` section present
+- [ ] Tasks tagged `[P]` (parallel) or `[S]` (sequential) with TDD ordering
+- [ ] plan-challenger addressed (Full mode only — findings reviewed and accepted/rejected by lead)
+- **Full:** User explicitly approves plan (Readiness Verdict = READY or user overrides)
+- **Micro/Quick:** Lead proceeds automatically — no user gate required
 
-### Implement → Review
+### Implement → Verify (Phase 3 → Phase 3.5)
 
-- [ ] All tasks in the plan marked complete
-- [ ] Project validate command passes (e.g. `npm run validate:all`) (fallback if validate field empty: `npx tsc --noEmit && npx eslint . --ext .ts,.tsx`)
+- [ ] All assigned tasks in `worker_completion` status DONE (not PARTIAL or BLOCKED)
+- [ ] Project validate command passes
 - [ ] Each task has at least 1 commit
 - [ ] No uncommitted changes in working tree
-- [ ] All workers shut down (TeamDelete executed or confirmed idle) — reviewers must not spawn while workers are alive (verify: TeamDelete called or git log shows commit count matches task count)
-- [ ] **Iteration 2+ only:** Regression check passed — `git diff dlc-checkpoint-iter-{N-1}..HEAD` shows no unintended file modifications outside of finding fixes (see Regression Gate in operational.md)
+- [ ] All workers shut down (TeamDelete executed or confirmed idle)
+- [ ] **Iteration 2+ only:** Regression check passed — `git diff dlc-checkpoint-iter-{N-1}..HEAD` shows no unintended modifications outside finding fixes
 
-Lead verifies with: `git diff {base_branch}...HEAD --stat` (scope) + `git log --oneline {base_branch}..HEAD` (commit-per-task). See Verification Gate in operational.md.
+Lead verifies: `git diff {base_branch}...HEAD --stat` (scope) + `git log --oneline {base_branch}..HEAD` (commit-per-task).
+
+### Verify → Review (Phase 3.5 → Phase 4)
+
+- [ ] All must_haves.truths: ✅ PASS (test meaningfulness check passed)
+- [ ] All key_links: verified in actual code with file:line
+- [ ] `verify-results.md` written to `{artifacts_dir}/{date}-{task-slug}/`
+
+### Verify → Implement (Phase 3.5 loop — targeted re-entry)
+
+- [ ] ANY truth FAIL or SHALLOW
+- [ ] iteration_count < 3
+- [ ] This is the first Phase 3.5 loop (max 1 Phase 3.5-triggered re-entry)
+- Lead increments `iteration_count` before re-entering Phase 3
+- Workers spawned for ONLY the tasks covering failed truths
+
+### Verify → Phase 2 (redesign path)
+
+- [ ] STILL FAILING after 1 Phase 3.5 loop
+- [ ] User explicitly picks option (b) redesign
+- [ ] redesign_count < 1 (only 1 redesign allowed)
+- Prior artifacts archived with `-attempt-1` suffix
+- `redesign_count` incremented in dev-loop-context.md
 
 ### Review → Assess
 
-- [ ] All reviewers completed independent review
-- [ ] Debate rounds completed (iteration 1: full, iteration 2+: focused/none)
-- [ ] Findings consolidated with consensus indicators
-- [ ] `review-findings-N.md` written
+- [ ] Stage 1 compliance check PASSED
+- [ ] All Stage 2 reviewers completed (per mode scale)
+- [ ] Debate rounds completed (Full iter 1: full, iter 2+: focused/none)
+- [ ] Findings consolidated, `review-findings-N.md` written
+
+### Review → Implement (Stage 1 FAIL)
+
+- [ ] Stage 1 FAIL detected (test file missing, spec non-compliance, or hard-rule violation)
+- Lead increments `iteration_count` before returning to Phase 3
+- Mandatory path: Phase 3 → Phase 3.5 → Phase 4 Stage 1 (Phase 3.5 cannot be skipped)
 
 ### Assess → Loop Decision
 
@@ -87,8 +112,8 @@ Critical count == 0?
 │       { label: "Ship anyway", description: "Exit loop and proceed to Ship" }]
 │       ├→ Fix warnings: LOOP (iteration++)
 │       └→ Ship anyway: EXIT LOOP → Ship
-└→ No: iteration < 3?
-    ├→ Yes: LOOP (iteration++)
+└→ No: iteration_count < 3?
+    ├→ Yes: LOOP (iteration_count++)
     └→ No: STOP — escalate to user
 ```
 
@@ -97,33 +122,38 @@ Critical count == 0?
 Run after loop decision:
 
 ```text
-If iteration ≥ 2 AND Critical count(iter N) ≥ Critical count(iter N-1):
-→ Flag: "No improvement in Critical count between iterations. Likely cause: fixer not reading findings, or architectural issue requiring redesign."
-→ Call AskUserQuestion — question: "No improvement in Critical count between iterations. How to proceed?",
-  header: "Stall detected", options: [{ label: "Continue loop", description: "Force another fix iteration" },
-  { label: "Switch to diagnosis mode", description: "Run /dlc-debug to investigate root cause" },
-  { label: "Rethink approach", description: "Return to Phase 2 with findings as input" }]
+If iteration_count ≥ 2 AND Critical count(iter N) ≥ Critical count(iter N-1):
+→ Flag: "No improvement in Critical count between iterations."
+→ Call AskUserQuestion — question: "No improvement in Critical count. How to proceed?",
+  header: "Stall detected", options: [
+    { label: "Continue loop", description: "Force another fix iteration" },
+    { label: "Switch to diagnosis mode", description: "Run /dlc-debug to investigate root cause" },
+    { label: "Rethink approach", description: "Return to Phase 2 with findings as input" }
+  ]
 ```
 
 ### Ship → Done
 
-- [ ] Summary presented with iteration count
+- [ ] Summary presented with iteration count and TDD violations (if any)
 - [ ] User selects via AskUserQuestion — question: "Implementation complete. What next?", header: "Ship",
   options: [{ label: "Create PR", description: "Auto-generate PR from plan + review summary" },
              { label: "Merge directly", description: "Merge to base branch now" },
              { label: "Keep branch", description: "Leave branch as-is for later review" },
              { label: "Restart loop", description: "Run another fix iteration" }]
-- [ ] If PR: description auto-generated from the plan + review summary
 - [ ] Team cleaned up (all teammates shut down)
+
+---
 
 ## Escalation Protocol
 
-When iteration 3 still has Critical findings:
+When iteration_count = 3 and still Critical findings:
 
 1. Present all 3 iterations' findings side-by-side
 2. Identify root pattern: same file/area failing repeatedly?
 3. Call AskUserQuestion — question: "Iteration 3 still has Critical findings. How to proceed?",
-   header: "Escalation", options: [{ label: "Continue manually", description: "Lead takes over fixing directly" },
-   { label: "Rethink approach", description: "Return to Phase 2 with findings as input" },
-   { label: "Ship with known issues", description: "User accepts risk of shipping Critical findings" },
-   { label: "Abort", description: "Discard branch entirely" }]
+   header: "Escalation", options: [
+     { label: "Continue manually", description: "Lead takes over fixing directly" },
+     { label: "Rethink approach", description: "Return to Phase 2 with findings as input" },
+     { label: "Ship with known issues", description: "User accepts risk of shipping Critical findings" },
+     { label: "Abort", description: "Discard branch entirely" }
+   ]
