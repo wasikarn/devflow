@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "review": "tsx src/cli.ts review"
+    "review": "tsx src/cli.ts review",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "zod": "^4.0.0"
@@ -12,6 +14,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.2"
   }
 }
