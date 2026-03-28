@@ -37,7 +37,7 @@ export async function runPlanChallenge(params: {
       permissionMode: 'bypassPermissions',
       allowDangerouslySkipPermissions: true,
       maxTurns: 5,
-      maxBudgetUsd: 0.15,
+      maxBudgetUsd: params.config.maxBudgetFalsification,
       outputFormat: {
         type: 'json_schema',
         schema: challengeResultJsonSchema as Record<string, unknown>,

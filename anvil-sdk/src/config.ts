@@ -16,6 +16,12 @@ export const DEFAULT_CONFIG = {
 export type EffortLevel = 'low' | 'medium' | 'high'
 export type ModelName = 'sonnet' | 'opus' | 'haiku'
 
+export const MODEL_ID: Record<ModelName, string> = {
+  opus: 'claude-opus-4-6',
+  sonnet: 'claude-sonnet-4-6',
+  haiku: 'claude-haiku-4-5',
+}
+
 export interface ReviewConfig {
   effort?: EffortLevel
   budgetUsd?: number

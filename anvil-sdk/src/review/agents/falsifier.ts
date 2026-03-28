@@ -1,14 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk'
-import type { ModelName, ResolvedConfig } from '../../config.js'
+import { MODEL_ID, type ResolvedConfig } from '../../config.js'
 import type { Finding, Verdict } from '../../types.js'
 import { FALSIFICATION_PROMPT } from '../prompts/falsifier.js'
 import { VerdictResultSchema, verdictResultJsonSchema } from '../schemas/verdict.js'
-
-const MODEL_MAP: Record<ModelName, string> = {
-  opus: 'claude-opus-4-6',
-  sonnet: 'claude-sonnet-4-6',
-  haiku: 'claude-haiku-4-5',
-}
 
 export async function runFalsification(params: {
   findings: Finding[]
@@ -25,7 +19,7 @@ export async function runFalsification(params: {
   let response: Anthropic.Message
   try {
     response = await client.messages.create({
-      model: MODEL_MAP[params.config.model],
+      model: MODEL_ID[params.config.model],
       max_tokens: 2048,
       // Stable system prompt cached after first call (~600+ tokens → 0.1x on repeat)
       system: [

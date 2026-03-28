@@ -1,5 +1,9 @@
 import type { ConsolidatedFinding, Finding, ReviewRole, Severity, Verdict } from '../types.js'
 
+export function findingKey(f: Finding): string {
+  return `${f.file}:${f.line ?? 'null'}:${f.rule}`
+}
+
 const SEVERITY_ORDER: Record<Severity, number> = {
   critical: 0,
   warning: 1,
@@ -64,7 +68,7 @@ function dedup(
     if (entry === undefined) continue
     const { findings } = entry
     for (const f of findings) {
-      const key = `${f.file}:${f.line ?? 'null'}:${f.rule}`
+      const key = findingKey(f)
       const existing = byKey.get(key)
       if (existing === undefined) {
         byKey.set(key, { finding: f, reviewerSet: new Set([i]) })
@@ -155,42 +159,37 @@ export function consolidate(params: {
   const allMustFalsify = params.perReviewer.flatMap(r => r.findings)
   const afterVerdicts = applyVerdicts(allMustFalsify, params.verdicts)
 
-  // Rebuild per-reviewer buckets after verdicts (preserves reviewer attribution + DOWNGRADED severity)
-  // Use survivedMap so DOWNGRADED findings carry their updated severity into the per-reviewer buckets
-  const survivedMap = new Map(afterVerdicts.map(f => [`${f.file}:${f.line ?? 'null'}:${f.rule}`, f]))
-  const perReviewerFiltered = params.perReviewer.map(r => ({
+  // Rebuild per-reviewer buckets after verdicts, applying confidence filter in one pass.
+  // survivedMap carries DOWNGRADED severity; confidence filter uses role-based thresholds.
+  const survivedMap = new Map(afterVerdicts.map(f => [findingKey(f), f]))
+  const perReviewerConfFiltered = params.perReviewer.map(r => ({
     role: r.role,
     findings: r.findings
-      .map(f => survivedMap.get(`${f.file}:${f.line ?? 'null'}:${f.rule}`))
-      .filter((f): f is Finding => f !== undefined),
+      .map(f => survivedMap.get(findingKey(f)))
+      .filter((f): f is Finding => {
+        if (f === undefined) return false
+        if (f.isHardRule) return true
+        return f.confidence >= ROLE_CONFIDENCE[r.role]
+      }),
   }))
 
-  // 2. Confidence filter — role-based thresholds, Hard Rules bypass
-  const perReviewerConfFiltered = perReviewerFiltered.map(r => ({
-    role: r.role,
-    findings: r.findings.filter(f => {
-      if (f.isHardRule) return true
-      return f.confidence >= ROLE_CONFIDENCE[r.role]
-    }),
-  }))
-
-  // 3. Dedup mustFalsify survivors: same file+line+rule → keep highest severity, track N/M
+  // 2. Dedup mustFalsify survivors: same file+line+rule → keep highest severity, track N/M
   //    autoPass findings are NOT included here — they bypass debate entirely
   const deduped = dedup(perReviewerConfFiltered, totalReviewers)
 
-  // 4. Merge autoPass findings AFTER dedup (they never participated in reviewer debate)
+  // 3. Merge autoPass findings AFTER dedup (they never participated in reviewer debate)
   //    Mark as consensus "auto" to distinguish from debate-processed findings
   const autoPassAsCF: ConsolidatedFinding[] = params.autoPass.map(f => ({
     ...f,
     consensus: 'auto',
   }))
 
-  // 5. Combine deduped mustFalsify + autoPass before pattern cap
+  // 4. Combine deduped mustFalsify + autoPass before pattern cap
   const allDeduped = [...deduped, ...autoPassAsCF]
 
-  // 6. Pattern cap: same rule in >capCount files → keep capCount, add file names note
+  // 5. Pattern cap: same rule in >capCount files → keep capCount, add file names note
   const capped = patternCap(allDeduped, params.patternCapCount)
 
-  // 7. Sort: critical → warning → info
+  // 6. Sort: critical → warning → info
   return sortBySeverity(capped)
 }

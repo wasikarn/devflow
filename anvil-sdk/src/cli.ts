@@ -2,7 +2,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolveConfig } from './config.js'
 import { runFalsification } from './review/agents/falsifier.js'
-import { consolidate } from './review/consolidator.js'
+import { consolidate, findingKey } from './review/consolidator.js'
 import { readDiff, readPrDiff } from './review/diff-reader.js'
 import { formatJson, formatMarkdown } from './review/output.js'
 import { runReview } from './review/orchestrator.js'
@@ -192,8 +192,7 @@ async function runReviewCommand(args: string[]): Promise<void> {
   })
 
   // Triage merged findings to find autoPass/mustFalsify split
-  const allFindings = results.flatMap(r => r.findings)
-  const { autoPass, autoDrop: _autoDrop, mustFalsify } = triage(allFindings)
+  const { autoPass, autoDrop: _autoDrop, mustFalsify } = triage(perReviewer.flatMap(r => r.findings))
 
   // Falsification
   let verdicts: Awaited<ReturnType<typeof runFalsification>> = []
@@ -202,10 +201,10 @@ async function runReviewCommand(args: string[]): Promise<void> {
   }
 
   // Consolidate with full attribution — key-based Set prevents silent bug if objects were spread
-  const mustFalsifyKeys = new Set(mustFalsify.map(f => `${f.file}:${f.line ?? 'null'}:${f.rule}`))
+  const mustFalsifyKeys = new Set(mustFalsify.map(findingKey))
   const perReviewerMustFalsify = perReviewer.map(r => ({
     role: r.role,
-    findings: r.findings.filter(f => mustFalsifyKeys.has(`${f.file}:${f.line ?? 'null'}:${f.rule}`)),
+    findings: r.findings.filter(f => mustFalsifyKeys.has(findingKey(f))),
   }))
 
   const consolidated = consolidate({
@@ -216,9 +215,12 @@ async function runReviewCommand(args: string[]): Promise<void> {
   })
 
   // Build report
-  const critical = consolidated.filter(f => f.severity === 'critical').length
-  const warning = consolidated.filter(f => f.severity === 'warning').length
-  const info = consolidated.filter(f => f.severity === 'info').length
+  let critical = 0, warning = 0, info = 0
+  for (const f of consolidated) {
+    if (f.severity === 'critical') critical++
+    else if (f.severity === 'warning') warning++
+    else info++
+  }
 
   // Collect and deduplicate strengths across all reviewers (cap at 5)
   const allStrengths = results.flatMap(r => r.strengths)
