@@ -14,10 +14,13 @@ export const DEFAULT_CONFIG = {
 export type EffortLevel = 'low' | 'medium' | 'high'
 export type ModelName = 'sonnet' | 'opus' | 'haiku'
 
+// Short aliases — resolve to latest model of each family automatically.
+// 'sonnet' and 'opus' are documented claude -p --model aliases.
+// 'haiku' follows the same pattern (resolves to latest haiku).
 export const MODEL_ID: Record<ModelName, string> = {
-  opus: 'claude-opus-4-6',
-  sonnet: 'claude-sonnet-4-6',
-  haiku: 'claude-haiku-4-5-20251001',
+  opus: 'opus',
+  sonnet: 'sonnet',
+  haiku: 'haiku',
 }
 
 // Effort controls model selection + turn budgets + spend limits.
