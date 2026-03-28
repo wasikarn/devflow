@@ -45,6 +45,7 @@ export interface TriagedFindings {
 
 export interface ReviewerResult {
   findings: Finding[]
+  strengths: string[]
   cost: number
   tokens: number
 }

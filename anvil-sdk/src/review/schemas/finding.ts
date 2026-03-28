@@ -15,7 +15,10 @@ export const FindingSchema = z.object({
 export const FindingArraySchema = z.array(FindingSchema)
 
 // Wrapped schema for SDK outputFormat — Claude API requires top-level type:object (not array)
-export const FindingResultSchema = z.object({ findings: FindingArraySchema })
+export const FindingResultSchema = z.object({
+  findings: FindingArraySchema,
+  strengths: z.array(z.string()).optional(),
+})
 export const findingResultJsonSchema = z.toJSONSchema(FindingResultSchema)
 
 export type Finding = z.infer<typeof FindingSchema>

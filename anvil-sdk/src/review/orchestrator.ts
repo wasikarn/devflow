@@ -6,22 +6,31 @@ import { createReviewer } from './agents/reviewer.js'
 import { mapToDomains } from './domain-mapper.js'
 import { type Finding, FindingResultSchema, findingResultJsonSchema } from './schemas/finding.js'
 
+const ADONIS_PATH_RE = /(?:app\/(?:controllers|models|validators|services)|start\/routes)/
+
+function detectAdonisProject(files: FileDiff[]): boolean {
+  return files.some(f => ADONIS_PATH_RE.test(f.path))
+}
+
 async function runSingleReviewer(params: {
   bucket: DiffBucket
   hardRules: string
   dismissedPatterns: string
+  isAdonisProject: boolean
   config: ResolvedConfig
 }): Promise<ReviewerResult> {
   const agent = createReviewer({
     bucket: params.bucket,
     hardRules: params.hardRules,
     dismissedPatterns: params.dismissedPatterns,
+    isAdonisProject: params.isAdonisProject,
     model: params.config.model,
   })
 
   let totalCost = 0
   let totalTokens = 0
   let findings: Finding[] = []
+  let strengths: string[] = []
 
   for await (const msg of query({
     prompt: 'Review the code changes in your context and return findings as JSON.',
@@ -53,6 +62,7 @@ async function runSingleReviewer(params: {
         const parsed = FindingResultSchema.safeParse(raw)
         if (parsed.success) {
           findings = parsed.data.findings
+          strengths = parsed.data.strengths ?? []
         } else {
           throw new Error(`[sdk-review] structured_output failed schema validation: ${JSON.stringify(parsed.error.issues)}`)
         }
@@ -66,7 +76,7 @@ async function runSingleReviewer(params: {
     }
   }
 
-  return { findings, cost: totalCost, tokens: totalTokens }
+  return { findings, strengths, cost: totalCost, tokens: totalTokens }
 }
 
 export async function runReview(params: {
@@ -76,6 +86,7 @@ export async function runReview(params: {
   config: ResolvedConfig
 }): Promise<{ results: ReviewerResult[]; totalCost: number; totalTokens: number }> {
   const buckets = mapToDomains(params.files)
+  const isAdonisProject = detectAdonisProject(params.files)
 
   const settled = await Promise.allSettled(
     buckets
@@ -85,6 +96,7 @@ export async function runReview(params: {
           bucket,
           hardRules: params.hardRules,
           dismissedPatterns: params.dismissedPatterns,
+          isAdonisProject,
           config: params.config,
         })
       )
@@ -93,7 +105,7 @@ export async function runReview(params: {
   const results: ReviewerResult[] = settled.map(r => {
     if (r.status === 'rejected') {
       console.warn(`[sdk-review] reviewer failed:`, r.reason)
-      return { findings: [], cost: 0, tokens: 0 }
+      return { findings: [], strengths: [], cost: 0, tokens: 0 }
     }
     return r.value
   })

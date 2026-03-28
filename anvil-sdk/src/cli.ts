@@ -191,11 +191,15 @@ async function main(): Promise<void> {
   const warning = consolidated.filter(f => f.severity === 'warning').length
   const info = consolidated.filter(f => f.severity === 'info').length
 
+  // Collect and deduplicate strengths across all reviewers (cap at 5)
+  const allStrengths = results.flatMap(r => r.strengths)
+  const strengths = [...new Set(allStrengths)].slice(0, 5)
+
   const report: ReviewReport = {
     pr: parsed.branch ?? 'HEAD',
     summary: { critical, warning, info },
     findings: consolidated,
-    strengths: [],
+    strengths,
     verdict: critical > 0 ? 'REQUEST_CHANGES' : 'APPROVE',
     cost: {
       total_usd: totalCost,

@@ -1,5 +1,6 @@
 import type { AgentDefinition } from '@anthropic-ai/claude-agent-sdk'
 import type { DiffBucket, ReviewRole } from '../../types.js'
+import { ADONISJS_LENS } from '../lenses/adonisjs.js'
 import { API_DESIGN_LENS } from '../lenses/api-design.js'
 import { DATABASE_LENS } from '../lenses/database.js'
 import { ERROR_HANDLING_LENS } from '../lenses/error-handling.js'
@@ -14,28 +15,36 @@ import { buildReviewer3Prompt } from '../prompts/reviewer-3.js'
 import { SHARED_RULES } from '../prompts/shared-rules.js'
 
 // Lens assignment per role:
-// correctness: security, error-handling, typescript
-// architecture: performance, database, api-design, observability
+// correctness: security, error-handling, typescript [+ adonisjs if detected]
+// architecture: performance, database, api-design, observability [+ adonisjs if detected]
 // dx: frontend, typescript, error-handling
 
-function getLensesForRole(role: ReviewRole): string {
+function getLensesForRole(role: ReviewRole, isAdonisProject: boolean): string {
+  const parts: string[] = []
   switch (role) {
     case 'correctness':
-      return [SECURITY_LENS, ERROR_HANDLING_LENS, TYPESCRIPT_LENS].join('\n\n')
+      parts.push(SECURITY_LENS, ERROR_HANDLING_LENS, TYPESCRIPT_LENS)
+      if (isAdonisProject) parts.push(ADONISJS_LENS)
+      break
     case 'architecture':
-      return [PERFORMANCE_LENS, DATABASE_LENS, API_DESIGN_LENS, OBSERVABILITY_LENS].join('\n\n')
+      parts.push(PERFORMANCE_LENS, DATABASE_LENS, API_DESIGN_LENS, OBSERVABILITY_LENS)
+      if (isAdonisProject) parts.push(ADONISJS_LENS)
+      break
     case 'dx':
-      return [FRONTEND_LENS, TYPESCRIPT_LENS, ERROR_HANDLING_LENS].join('\n\n')
+      parts.push(FRONTEND_LENS, TYPESCRIPT_LENS, ERROR_HANDLING_LENS)
+      break
   }
+  return parts.join('\n\n')
 }
 
 export function createReviewer(params: {
   bucket: DiffBucket
   hardRules: string
   dismissedPatterns: string
+  isAdonisProject: boolean
   model: 'sonnet' | 'opus' | 'haiku'
 }): AgentDefinition {
-  const lensContent = getLensesForRole(params.bucket.role)
+  const lensContent = getLensesForRole(params.bucket.role, params.isAdonisProject)
 
   // Build diff content from bucket files
   const diffContent = params.bucket.files
