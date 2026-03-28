@@ -42,8 +42,9 @@ export function resolveConfig(userConfig?: ReviewConfig): ResolvedConfig {
     ...DEFAULT_CONFIG,
     ...(userConfig?.effort && { effort: userConfig.effort }),
     ...(userConfig?.budgetUsd && {
-      maxBudgetPerReviewer: userConfig.budgetUsd / 3,
-      maxBudgetFalsification: userConfig.budgetUsd * 0.15,
+      // 80% split across 3 reviewers, 20% for falsification — stays within stated total
+      maxBudgetPerReviewer: (userConfig.budgetUsd * 0.8) / 3,
+      maxBudgetFalsification: userConfig.budgetUsd * 0.2,
     }),
     ...(userConfig?.hardRulesPath && { hardRulesPath: userConfig.hardRulesPath }),
     ...(userConfig?.noFalsification !== undefined && { noFalsification: userConfig.noFalsification }),

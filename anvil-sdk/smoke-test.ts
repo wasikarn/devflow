@@ -77,6 +77,14 @@ test('Hard Rule critical confidence 95 → autoPass', () => assert(autoPass.leng
 test('info confidence 60 → autoDrop', () => assert(autoDrop.some(f => f.rule === 'R9'), 'R9 missing from autoDrop'))
 test('info confidence 70 → autoDrop (confidence 70 <= 79)', () => assert(autoDrop.some(f => f.rule === 'R8'), 'R8 missing from autoDrop'))
 test('warning confidence 85 → mustFalsify', () => assert(mustFalsify.some(f => f.rule === 'R3'), 'R3 missing from mustFalsify'))
+// Hard Rule with info severity + low confidence must NOT be auto-dropped — goes to mustFalsify
+test('Hard Rule info confidence 75 → mustFalsify (never auto-dropped)', () => {
+  const hardRuleInfo: Finding = { severity: 'info', rule: 'HR-low', file: 'e.ts', line: 5, confidence: 75, issue: 'x', fix: 'y', isHardRule: true }
+  const { autoPass: ap, autoDrop: ad, mustFalsify: mf } = triage([hardRuleInfo])
+  assert(ad.length === 0, `Hard Rule should not be auto-dropped, got autoDrop.length=${ad.length}`)
+  assert(ap.length === 0, `conf < 90 should not be autoPass`)
+  assert(mf.length === 1, `Hard Rule info low-conf should be in mustFalsify`)
+})
 test('no finding in multiple buckets', () => {
   const total = autoPass.length + autoDrop.length + mustFalsify.length
   assert(total === mockFindings.length, `total ${total} != ${mockFindings.length}`)

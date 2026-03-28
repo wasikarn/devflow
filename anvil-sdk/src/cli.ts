@@ -135,8 +135,8 @@ function loadHardRules(path: string | undefined): string {
 function loadDismissedPatterns(path: string | undefined): string {
   if (path === undefined) return ''
   if (!existsSync(path)) {
-    console.warn(`[sdk-review] --dismissed path not found: ${path}`)
-    process.exit(1)
+    console.warn(`[sdk-review] --dismissed path not found: ${path} — proceeding without dismissed patterns`)
+    return ''
   }
   return readFileSync(path, 'utf8')
 }
@@ -213,12 +213,16 @@ async function main(): Promise<void> {
   const allStrengths = results.flatMap(r => r.strengths)
   const strengths = [...new Set(allStrengths)].slice(0, 5)
 
+  const totalSignal = critical + warning + info
+  const noiseWarning = totalSignal > 0 && (critical + warning) / totalSignal < config.signalThreshold
+
   const report: ReviewReport = {
     pr: parsed.pr !== undefined ? `#${parsed.pr}` : (parsed.branch ?? 'HEAD'),
     summary: { critical, warning, info },
     findings: consolidated,
     strengths,
     verdict: critical > 0 ? 'REQUEST_CHANGES' : 'APPROVE',
+    ...(noiseWarning && { noiseWarning: true }),
     cost: {
       total_usd: totalCost,
       per_reviewer: results.map(r => r.cost),

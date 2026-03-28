@@ -51,16 +51,20 @@ export async function runFalsification(params: {
       if (msg.subtype === 'success') {
         const raw = msg.structured_output
         if (raw === undefined || raw === null) {
-          throw new Error('[sdk-review] falsifier returned no structured_output')
+          console.warn('[sdk-review] falsifier returned no structured_output — skipping falsification')
+          return []
         }
         const parsed = VerdictResultSchema.safeParse(raw)
         if (parsed.success) {
           verdicts.push(...parsed.data.verdicts)
         } else {
-          throw new Error(`[sdk-review] verdicts failed schema validation: ${JSON.stringify(parsed.error.issues)}`)
+          console.warn(`[sdk-review] verdicts failed schema validation, skipping: ${JSON.stringify(parsed.error.issues)}`)
+          return []
         }
       } else {
-        throw new Error(`[sdk-review] falsifier ended with subtype: ${msg.subtype}`)
+        // Budget exceeded or other non-fatal error — degrade gracefully, return no verdicts
+        console.warn(`[sdk-review] falsifier ended with subtype: ${msg.subtype} — skipping, findings pass through unchanged`)
+        return []
       }
     }
   }
