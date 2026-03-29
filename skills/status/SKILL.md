@@ -10,13 +10,13 @@ Show active anvil workflow artifacts from the current session.
 Run this command now:
 
 ```bash
-bash scripts/artifact-dir.sh 2>/dev/null || echo "no active Anvil session"
+bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" 2>/dev/null || echo "no active Anvil session"
 ```
 
 Then check for artifact files:
 
 ```bash
-ARTIFACT_DIR=$(bash scripts/artifact-dir.sh 2>/dev/null)
+ARTIFACT_DIR=$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" 2>/dev/null)
 if [ -n "$ARTIFACT_DIR" ] && [ -d "$ARTIFACT_DIR" ]; then
   ls -lt "$ARTIFACT_DIR"/*.md 2>/dev/null || echo "No artifact files found"
 fi

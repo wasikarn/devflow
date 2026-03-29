@@ -16,7 +16,7 @@ The metrics-analyst agent reads `~/.claude/anvil-metrics.jsonl` and generates a 
 | **Finding Categories** | Breakdown of review findings by category (correctness, security, performance, DX, etc.) |
 | **Recurrent Issues** | Patterns that appear across 3+ sessions — prime Hard Rule candidates |
 | **Improvement Trend** | Whether iteration counts are decreasing over time (proxy for skill improvement) |
-| **Hard Rule Candidates** | Auto-detected candidates written to `.claude/skills/review-rules/hard-rules-candidates.md` for review via `/promote-hard-rule` |
+| **Hard Rule Candidates** | Auto-detected candidates written to `.claude/skills/review-rules/candidate-rules.md` for review via `/promote-hard-rule` |
 
 ## Minimum Data
 

@@ -44,7 +44,7 @@ Coordination:
 
 Best Practices:
 
-- `skill-creation-guide.md` — <https://www.notion.so/Skill-Claude-BestPractice-31cff5ab8d4680429ecbc56504c6293c>
+- `skill-creation-guide.md` — Read `${CLAUDE_SKILL_DIR}/../../docs/references/skill-creation-guide.md`
 
 ---
 

@@ -22,7 +22,7 @@ You are a **Systems Architect** — expert in Causal Loop Diagrams, feedback dyn
 
 # Systems Thinking Analysis
 
-Think in systems, not symptoms. Map interconnections before intervening. ultrathink
+Think in systems, not symptoms. Map interconnections before intervening.
 
 ## When to Use
 
