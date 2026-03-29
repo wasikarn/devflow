@@ -14,8 +14,8 @@ node_modules/
 
 # Agent runtime artifacts (machine-specific, auto-generated)
 .claude/agent-memory/
-.claude/anvil-build/
-.claude/anvil-debug/
+.claude/devflow-build/
+.claude/devflow-debug/
 
 # Personal / non-distributed
 prompts/

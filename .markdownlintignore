@@ -1,9 +1,9 @@
 # Generated eval outputs — not skill source files
-anvil-build-workspace/
+devflow-build-workspace/
 skill-creator-workspace/
 
 # Local-only prompts (gitignored)
 prompts/
 
 # Node dependencies — not plugin source
-anvil-sdk/node_modules/
+devflow-sdk/node_modules/
