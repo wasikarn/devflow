@@ -76,15 +76,18 @@ Update `plan_file:` in `{artifacts_dir}/anvil-context.md` to `{artifacts_dir}/{d
 ```bash
 SDK_DIR="${CLAUDE_SKILL_DIR}/../../anvil-sdk"
 
-if [ ! -d "$SDK_DIR/node_modules" ]; then
-  (cd "$SDK_DIR" && npm install --silent 2>/dev/null)
-fi
+if [ -d "$SDK_DIR" ] && [ -d "$SDK_DIR/node_modules" ]; then
 
-sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts plan-challenge \
-  --plan-file {plan_file_path} \
-  --research-file {artifacts_dir}/research.md \
-  2>&1)
-sdk_exit=$?
+  sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts plan-challenge \
+    --plan-file {plan_file_path} \
+    --research-file {artifacts_dir}/research.md \
+    2>&1)
+  sdk_exit=$?
+
+else
+  echo "anvil-sdk not available — skipping SDK-enhanced analysis"
+  sdk_exit=1
+fi
 ```
 
 If `sdk_exit=0` and `sdk_result` is valid JSON (starts with `{`):

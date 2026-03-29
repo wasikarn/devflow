@@ -55,6 +55,8 @@ Parse the JSON output. Key fields:
 
 If `gap_count` is 0, skip to Phase 7 (summary report with zero gaps).
 
+> **Static analysis limitation:** The scanner cannot detect dynamically constructed env var names like `process.env[PREFIX + key]` or `` process.env[`${SERVICE}_URL`] ``. These are flagged as "unresolvable references" in the report. Review them manually — they may be intentional dynamic lookups that don't need .env.example entries.
+
 ## Phase 4: Determine Required vs Optional
 
 > **Skipped in `--quick` mode.** All vars default to optional.

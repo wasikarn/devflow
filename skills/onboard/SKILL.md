@@ -6,6 +6,29 @@ context: fork
 agent: project-onboarder
 ---
 
+## What It Does
+
+Bootstraps the current project into the anvil ecosystem:
+
+1. **Detects** project root, framework, and directory structure
+2. **Creates** `.claude/skills/review-rules/hard-rules.md` — pre-populated scaffold with structure and placeholder examples
+3. **Creates** build artifact directories used by `/build` and `/debug`
+4. **Reports** what was created and any manual steps needed
+
+## Prerequisites
+
+- Run from within the target project's root directory (not the anvil plugin directory)
+- Plugin must already be installed: `claude plugin install anvil`
+- Check for `.claude/skills/review-rules/hard-rules.md` before running — running twice overwrites existing rules
+
+## Expected Output
+
+```text
+✅ Created: .claude/skills/review-rules/hard-rules.md
+✅ Created: .claude/artifacts/ (build/debug artifact storage)
+⚠️  Action needed: Populate hard-rules.md with project-specific rules before first /build or /review run
+```
+
 ## Gotchas
 
 - **Creates a `hard-rules.md` scaffold only** — the file is pre-populated with structure and placeholder examples, but the actual project-specific rules must be filled in manually. An empty scaffold has no effect on review or build; populate it before the first review run.

@@ -1,7 +1,6 @@
 ---
 name: promote-hard-rule
 description: "Review auto-detected Hard Rule candidates from metrics-analyst and approve, reject, or defer each one. Use /promote-hard-rule when metrics-analyst reports new rule candidates in candidate-rules.md, or when you want to review accumulated pattern suggestions before a sprint. Never auto-applies rules — every promotion requires explicit user approval."
-user-invocable: true
 disable-model-invocation: true
 effort: low
 allowed-tools: Read, Edit, Write, AskUserQuestion

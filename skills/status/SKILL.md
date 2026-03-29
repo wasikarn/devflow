@@ -1,7 +1,6 @@
 ---
 name: status
-description: "Show active anvil workflow artifacts from the current session — artifact directory, phase progress, and which Anvil files exist. Use /status to check the current Anvil session state."
-user-invocable: true
+description: "Show active anvil workflow artifacts from the current session — artifact directory, phase progress, and which files exist. Use when checking Anvil session state, current phase, or where you left off. Triggers: check anvil status, what phase am I in, show session state, current progress, where did I leave off, anvil artifacts, /status."
 ---
 
 # Anvil Status

@@ -185,20 +185,23 @@ SHARED CONTEXT: {contents of ## Shared Context section from debug-context.md}
 ```bash
 SDK_DIR="${CLAUDE_SKILL_DIR}/../../anvil-sdk"
 
-if [ ! -d "$SDK_DIR/node_modules" ]; then
-  (cd "$SDK_DIR" && npm install --silent 2>/dev/null)
+if [ -d "$SDK_DIR" ] && [ -d "$SDK_DIR/node_modules" ]; then
+
+  # Full mode: runs Investigator + DX Analyst concurrently
+  # Quick mode: Investigator only (--quick flag)
+  SDK_MODE_FLAG=""
+  [ "{mode}" = "Quick" ] && SDK_MODE_FLAG="--quick"
+
+  sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts investigate \
+    --bug "{bug_description}" \
+    $SDK_MODE_FLAG \
+    2>&1)
+  sdk_exit=$?
+
+else
+  echo "anvil-sdk not available — skipping SDK-enhanced analysis"
+  sdk_exit=1
 fi
-
-# Full mode: runs Investigator + DX Analyst concurrently
-# Quick mode: Investigator only (--quick flag)
-SDK_MODE_FLAG=""
-[ "{mode}" = "Quick" ] && SDK_MODE_FLAG="--quick"
-
-sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts investigate \
-  --bug "{bug_description}" \
-  $SDK_MODE_FLAG \
-  2>&1)
-sdk_exit=$?
 ```
 
 If `sdk_exit=0` and `sdk_result` is valid JSON (starts with `{`):

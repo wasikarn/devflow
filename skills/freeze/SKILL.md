@@ -6,7 +6,6 @@ description: >
   "freeze src/auth", "only edit tests/", "lock to this module".
   Triggers: /freeze [path], "only edit [dir]", "lock to [path]", "don't touch anything outside"
 argument-hint: "[directory-path]"
-disable-model-invocation: false
 ---
 
 # /freeze — Directory Lock

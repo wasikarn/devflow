@@ -33,35 +33,37 @@ Increment `iteration_count` in anvil-context.md before returning to Phase 4.
 ```bash
 SDK_DIR="${CLAUDE_SKILL_DIR}/../../anvil-sdk"
 
-# Auto-install dependencies on first use
-if [ ! -d "$SDK_DIR/node_modules" ]; then
-  (cd "$SDK_DIR" && npm install --silent 2>/dev/null)
-fi
+if [ -d "$SDK_DIR" ] && [ -d "$SDK_DIR/node_modules" ]; then
 
-# Build CLI args
-SDK_ARGS="--base-branch {base_branch} --output json"
+  # Build CLI args
+  SDK_ARGS="--base-branch {base_branch} --output json"
 
-# Pass dismissed patterns if file exists
-DISMISSED_FILE="$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review)/review-dismissed.md"
-if [ -f "$DISMISSED_FILE" ]; then
-  SDK_ARGS="$SDK_ARGS --dismissed $DISMISSED_FILE"
-fi
-
-# Pass hard rules explicitly (CLI also auto-discovers .build/hard-rules.md)
-[ -n "${HARD_RULES_PATH}" ] && SDK_ARGS="$SDK_ARGS --hard-rules $HARD_RULES_PATH"
-
-# Run SDK reviewer
-sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts review $SDK_ARGS 2>&1)
-sdk_exit=$?
-
-# Validate: must be JSON with findings array (not just any {})
-_is_valid_json() {
-  if command -v jq >/dev/null 2>&1; then
-    echo "$1" | jq -e '.findings' >/dev/null 2>&1
-  else
-    echo "$1" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); process.exit(Array.isArray(d.findings)?0:1)" 2>/dev/null
+  # Pass dismissed patterns if file exists
+  DISMISSED_FILE="$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review)/review-dismissed.md"
+  if [ -f "$DISMISSED_FILE" ]; then
+    SDK_ARGS="$SDK_ARGS --dismissed $DISMISSED_FILE"
   fi
-}
+
+  # Pass hard rules explicitly (CLI also auto-discovers .build/hard-rules.md)
+  [ -n "${HARD_RULES_PATH}" ] && SDK_ARGS="$SDK_ARGS --hard-rules $HARD_RULES_PATH"
+
+  # Run SDK reviewer
+  sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts review $SDK_ARGS 2>&1)
+  sdk_exit=$?
+
+  # Validate: must be JSON with findings array (not just any {})
+  _is_valid_json() {
+    if command -v jq >/dev/null 2>&1; then
+      echo "$1" | jq -e '.findings' >/dev/null 2>&1
+    else
+      echo "$1" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); process.exit(Array.isArray(d.findings)?0:1)" 2>/dev/null
+    fi
+  }
+
+else
+  echo "anvil-sdk not available — skipping SDK-enhanced analysis"
+  sdk_exit=1
+fi
 ```
 
 If `sdk_exit=0` and `_is_valid_json "$sdk_result"` succeeds:
@@ -205,18 +207,21 @@ Try the SDK Falsifier while the consolidator runs:
 ```bash
 SDK_DIR="${CLAUDE_SKILL_DIR}/../../anvil-sdk"
 
-if [ ! -d "$SDK_DIR/node_modules" ]; then
-  (cd "$SDK_DIR" && npm install --silent 2>/dev/null)
+if [ -d "$SDK_DIR" ] && [ -d "$SDK_DIR/node_modules" ]; then
+
+  FINDINGS_FILE=$(mktemp /tmp/anvil-findings-XXXXXX.json)
+  # Write pre-consolidation findings as JSON array to $FINDINGS_FILE
+
+  sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts falsify \
+    --findings-file "$FINDINGS_FILE" \
+    2>&1)
+  sdk_exit=$?
+  rm -f "$FINDINGS_FILE"
+
+else
+  echo "anvil-sdk not available — skipping SDK-enhanced analysis"
+  sdk_exit=1
 fi
-
-FINDINGS_FILE=$(mktemp /tmp/anvil-findings-XXXXXX.json)
-# Write pre-consolidation findings as JSON array to $FINDINGS_FILE
-
-sdk_result=$(cd "$SDK_DIR" && node_modules/.bin/tsx src/cli.ts falsify \
-  --findings-file "$FINDINGS_FILE" \
-  2>&1)
-sdk_exit=$?
-rm -f "$FINDINGS_FILE"
 ```
 
 If `sdk_exit=0` and `sdk_result` is valid JSON: verdicts are in `sdk_result.verdicts[]`.

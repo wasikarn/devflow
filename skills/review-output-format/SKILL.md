@@ -32,6 +32,24 @@ Always output first, before any phase work:
 
 If no Jira key: omit `— <jira-key>`.
 
+## Language Example
+
+Output must be in Thai mixed with English technical terms. Example of correct mixing:
+
+```markdown
+**🔴 Critical [Rule #1 — Correctness]** `src/services/payment.ts:47`
+`refund` ใช้ค่า `order.total` (ยอด credit balance) แทนที่จะเป็น `orderPaymentAmount` — จะ refund ผิดจำนวนเมื่อมี credit ใน account
+**Fix:** `const refund = orderPaymentAmount ?? order.total` → `const refund = orderPaymentAmount`
+
+**🟡 Warning [Rule #6 — Performance]** `src/api/users.ts:123`
+N+1 query — loop เรียก `findUser()` ทีละ record แทนที่จะ batch เป็น `findManyUsers(ids)`
+
+**🟢 Suggestion [Rule #8 — Maintainability]** `src/utils/format.ts:15`
+Function name `fn()` ไม่สื่อความหมาย — แนะนำ `formatCurrency()` เพื่อความชัดเจน
+```
+
+English technical terms to keep as-is: function/method names, file paths, variable names, type names, library names, error codes, HTTP status codes.
+
 ## Phase 1: Ticket Understanding
 
 Output after fetching Jira ticket. Skip entirely if no Jira key provided.
