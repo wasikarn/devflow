@@ -125,10 +125,11 @@ Endpoint removed/changed without prior `Deprecation` header in earlier version, 
 
 ## Output Format
 
-Returns a findings table with columns: Rule | Location | Change | Classification | Semver Impact | Confidence | Recommendation. Append a one-line summary: "Breaking: N | Non-breaking additive: N | Internal: N". If no API files found, output: "No route/controller/handler files found in diff — skipping API contract audit."
+Returns a findings table with columns: `# | Sev | Rule | File | Line | Change | Classification` (matching the Step 4 example format). Append after the table: "Breaking: N | Non-breaking additive: N | Internal: N". If no API files found, output: "No route/controller/handler files found in diff — skipping API contract audit."
 
 ## Confidence Threshold
 
-A1–A6 findings with direct evidence from diff require confidence >= 80.
+A1–A10 findings with direct evidence from diff require confidence >= 80.
 "Possible" breaking changes (where the change *might* be breaking depending on consumer patterns)
 are reported at 🟡 Warning with rationale.
+A7 (idempotency) applied to payment/financial routes is escalated to 🔴 Critical when confidence >= 80.

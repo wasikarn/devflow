@@ -105,4 +105,4 @@ If no Jira ticket found, skip that section. Keep output concise — this is inpu
 
 ## Output Format
 
-Writes `review-context.md` to the session artifacts directory containing: PR metadata (title, author, base/head branch), file categories (by concern area: database/api/frontend/test/config), Jira context (if found), and diff size summary. Returns nothing to stdout — output is the written file.
+Returns the full `review-context.md` content as stdout output for the calling lead to write. Content includes: PR metadata (title, author, base/head branch), file categories (by concern area: database/api/frontend/test/config), Jira context (if found), and diff size summary. The lead writes this to `{artifacts_dir}/review-context.md`.

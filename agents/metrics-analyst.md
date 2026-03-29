@@ -226,7 +226,16 @@ penalties (cumulative):
 
 - **score 40–69 → lens-update-suggestion.md** (weak signal, informational only):
 
-  Write `{session_dir}/lens-update-suggestion.md` with the existing format (category, sessions, sample finding, suggested action). Output: `⚠️ Recurring pattern: [{category}] found in {count}/5 sessions (score {N}/100 — below candidate threshold). Saved to lens-update-suggestion.md`
+  Write `{session_dir}/lens-update-suggestion.md` with this format:
+
+  ```yaml
+  category: {category}
+  sessions: {count}
+  sample_finding: "{one representative finding from most recent session}"
+  suggested_action: "Consider adding to {relevant lens} lens or tightening confidence threshold"
+  ```
+
+  Output: `⚠️ Recurring pattern: [{category}] found in {count}/5 sessions (score {N}/100 — below candidate threshold). Saved to lens-update-suggestion.md`
 
 - **score < 40 → silent pass** — noise, do not surface
 
@@ -275,4 +284,4 @@ Omit roles with fewer than 5 records.
 
 ## Output Format
 
-Returns a retrospective report with sections: **Iteration Summary** (table: session → iterations → outcome), **Finding Categories** (ranked by frequency), **Hard Rule Candidates** (score ≥ 70 → candidate-rules.md), **Reviewer Calibration** (accuracy_rate per role), **Recommendations** (top 3 actionable items). Minimum data requirement: 3 sessions. If fewer: output "Insufficient data — need at least 3 sessions for meaningful analysis."
+Returns a retrospective report with sections matching Step 4: **Iteration Patterns** (table: session → iterations → outcome → avg/median), **High-Iteration Tasks** (tasks requiring ≥3 iterations), **Tasks Shipped with Critical Findings** (if any), **Recurring Finding Categories** (ranked by frequency), **Engineering Quality Signals** (quality trend table), **Recommendations** (top 3 actionable items), and optionally **Reviewer Calibration** (Step 6, if data available). Minimum data requirement: 3 sessions. If fewer: output "Insufficient data — need at least 3 sessions for meaningful analysis."

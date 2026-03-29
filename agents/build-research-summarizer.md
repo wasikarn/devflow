@@ -43,9 +43,12 @@ Read the file path passed via `$ARGUMENTS`.
 
 From the research.md content, extract:
 
+- **tier**: `"Lite"` if research.md lacks ADDED/MODIFIED/RISKS sections (Lite template); `"Deep"` otherwise
 - **oneSentenceSummary**: One sentence (max 200 chars) covering what is being changed and why — must be concrete, not generic
+- **taskArea**: The primary subsystem or feature area (e.g. `"auth"`, `"payments"`, `"UserService"`) — infer from task description or key files
 - **keyFiles**: Up to 5 file paths that will be ADDED or MODIFIED (from ADDED/MODIFIED sections for Deep tier, or WHAT section for Lite tier)
-- **primaryRisk**: The highest-severity risk from the Risks Found section, with the file:line citation inline — or `"None identified"` if no risks
+- **primaryRisk**: The highest-severity risk from the Risks Found section, with the file:line citation inline — or `"No risks identified"` if absent
+- **testInfra**: Test framework detected (e.g. `"vitest"`, `"jest"`, `"none"`) — infer from test file imports or package.json references in research.md; `"unknown"` if not determinable
 - **verdict**: The GO/NO-GO verdict from research.md (`READY`, `NEEDS WORK`, or `NOT READY`). Lite tier has no verdict section — default to `READY`
 
 ### 3. Output
@@ -54,9 +57,12 @@ Output a JSON object — no markdown, no prose:
 
 ```json
 {
+  "tier": "Deep",
   "oneSentenceSummary": "Add null check to UserService.findById to prevent crash for pre-2024 users without profile.",
+  "taskArea": "UserService",
   "keyFiles": ["src/users/UserService.ts", "tests/users/UserService.test.ts"],
   "primaryRisk": "Null dereference on user.profile for legacy users (src/users/UserService.ts:89)",
+  "testInfra": "vitest",
   "verdict": "READY"
 }
 ```
@@ -69,7 +75,7 @@ Output a JSON object — no markdown, no prose:
 
 ## Output Format
 
-Returns a single raw JSON object on stdout. No markdown wrapper, no prose, no code fences. Schema: `{"tier","oneSentenceSummary","taskArea","keyFiles","primaryRisk","testInfra","verdict"}`. If error: `{"error": "reason"}` only.
+Returns a single raw JSON object on stdout. No markdown wrapper, no prose, no code fences. Schema: `{"tier", "oneSentenceSummary", "taskArea", "keyFiles", "primaryRisk", "testInfra", "verdict"}`. All 7 fields required. If error: `{"error": "reason"}` only.
 
 ## Quality Standards
 

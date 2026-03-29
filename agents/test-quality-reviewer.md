@@ -158,13 +158,13 @@ Validate the SEQUENCE ORDER — not just the label:
 - `first-test-run-FAIL: no` = test was never run as failing → TDD not followed, regardless of label
 - `TDD_COMPLIANCE: FOLLOWED` but test and impl files share the same commit with test after impl → flag
 
-If TDD_SEQUENCE is inconsistent with `TDD_COMPLIANCE` label, report as a T6 Hard Rule violation.
+If TDD_SEQUENCE is inconsistent with `TDD_COMPLIANCE` label, report as a **T6-TDD** violation (TDD process compliance — separate from assertion-presence T6 but treated as Hard Rule severity).
 
 ## Confidence Threshold
 
 Same as review teammates: confidence >= 80 for non-trivial findings.
-Hard Rule violations (T6: zero assertions / mock-call-only assertion / not.toThrow() as sole assertion / TDD_SEQUENCE inconsistency) bypass threshold.
+Hard Rule violations bypass threshold: T6 (zero assertions / mock-call-only assertion / not.toThrow() as sole assertion) and T6-TDD (TDD_SEQUENCE inconsistency).
 
 ## Output Format
 
-Returns a findings table with columns: Rule | Test File:Line | Finding | Severity | Recommendation | Confidence. T6 violations (missing assertions) are Critical regardless of confidence. Append: "Test files reviewed: N | Tests checked: N | T6 Hard Rule violations: N". If no test files found: "No test files found in diff — skipping test quality review."
+Returns a findings table with columns: `# | Sev | Rule | File | Line | Issue | Fix` (matching the Step 4 example format). T6 Hard Rule violations (assertion-related) are Critical (🔴) regardless of confidence. Append after the table: "Test files reviewed: N | Tests checked: N | T6 Hard Rule violations: N". If no test files found: "No test files found in diff — skipping test quality review."

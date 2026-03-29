@@ -170,4 +170,4 @@ M3–M10 require confidence >= 80.
 
 ## Output Format
 
-Returns a findings table with columns: Rule | File:Line | Finding | Severity | Recommendation | Confidence. M1–M2 violations are Critical regardless of confidence. M3–M10 require confidence ≥ 80% to appear. Append: "Migration files reviewed: N | Hard Rule violations: N | Warnings: N". If no migration files found: "No migration files found in diff — skipping migration review."
+Returns a findings table with columns: `# | Sev | Rule | File | Line | Issue | Fix` (matching the Step 4 example format). M1–M2 violations are Critical (🔴) regardless of confidence. M3–M10 require confidence ≥ 80% to appear. Append after the table: "Migration files reviewed: N | Hard Rule violations: N | Warnings: N". If no migration files found: "No migration files found in diff — skipping migration review."

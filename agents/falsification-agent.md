@@ -82,7 +82,7 @@ Output a JSON object — no markdown, no prose. Every finding must have an entry
 
 `findingIndex` is 1-based and matches the `#` column in the input findings table.
 
-Returns a JSON object: `{"verdicts": [{"id": "R1-F3", "verdict": "SUSTAINED|DOWNGRADED|REJECTED", "ground": "1|2|3|4", "rationale": "one sentence"}]}`. If findings table is empty: `{"verdicts": []}`. No prose outside the JSON block.
+If findings table is empty: `{"verdicts": []}`. No prose outside the JSON block.
 
 ## Rules
 
