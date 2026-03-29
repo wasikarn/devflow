@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] — 2026-03-29
+
+### token optimization & maintainability
+
+- refactor: token optimization + maintainability improvements
+- fix: update .markdownlint-cli2.jsonc to ignore devflow-sdk/node_modules
+- fix: manual corrections after devflow rename (.gitignore, .markdownlintignore)
+- refactor: rename anvil to devflow across all content
+- refactor: rename anvil files and directories to devflow
+- fix(agents): resolve 8 post-audit issues — 2 critical MCP bugs + model + descriptions + color
+- fix(anvil-sdk): quality improvements across review, investigate, plan, output (#2)
+- refactor(skills): compress debug + respond SKILL.md via references/ extraction
+- fix(skills): critical + warning fixes from deep verify
+- fix(skills): spec violations, weak skill upgrades, quality gaps
+- fix(agents): add 'You are [role]...' persona opening to all 20 agents missing it
+- fix(agents): resolve 2 critical + 8 warning issues from deep verification
+- fix(agents): rename '## Output' to '## Output Format' in commit-finalizer
+- feat(agents): spec compliance, safety guardrails, and intelligence improvements
 ## [1.3.0] — 2026-03-29
 
 ### feat(sdk): two-phase triage, per-phase cost visibility, reviewer calibration
