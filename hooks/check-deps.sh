@@ -45,5 +45,9 @@ fi
 # Optional: devflow-engine dependencies
 ENGINE_DIR="$(cd "$(dirname "$0")/.." && pwd)/devflow-engine"
 if [ -d "$ENGINE_DIR" ] && [ ! -d "$ENGINE_DIR/node_modules" ]; then
-  printf "\n## 💡 devflow-engine: Setup Required\n\n- \`devflow-engine\` dependencies not installed\n  Run: \`cd %s && bun install\`\n  Unlocks: SDK-accelerated review mode (resolve, falsify, plan-challenge)\n" "$ENGINE_DIR"
+  if ! command -v bun > /dev/null 2>&1; then
+    printf "\n## 💡 devflow-engine: Setup Required\n\n- \`bun\` not installed (required for devflow-engine)\n  Install: \`curl -fsSL https://bun.sh/install | bash\`\n- Then run: \`cd %s && bun install\`\n  Unlocks: SDK-accelerated review mode (resolve, falsify, plan-challenge)\n" "$ENGINE_DIR"
+  else
+    printf "\n## 💡 devflow-engine: Setup Required\n\n- \`devflow-engine\` dependencies not installed\n  Run: \`cd %s && bun install\`\n  Unlocks: SDK-accelerated review mode (resolve, falsify, plan-challenge)\n" "$ENGINE_DIR"
+  fi
 fi
