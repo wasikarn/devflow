@@ -118,6 +118,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/edit-write-failure-hint.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "StopFailure": [
