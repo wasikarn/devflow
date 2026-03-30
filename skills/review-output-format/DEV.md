@@ -5,7 +5,7 @@ Library skill defining the shared PR review output format templates — header, 
 ## Skill Architecture
 
 - `SKILL.md` only — this file IS the reference document
-- `user-invocable: false`, `disable-model-invocation: true` — never auto-triggers
+- `user-invocable: false` — hidden from `/` menu, auto-triggerable via description
 - Loaded by `skills/review/SKILL.md` and `skills/build/references/phase-6-review.md`
 - Output language is Thai mixed with English technical terms — templates in SKILL.md use English for readability only
 - Phase numbers in this file (Phase 1–4) are OUTPUT SECTIONS, not workflow phases

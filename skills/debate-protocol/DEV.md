@@ -5,7 +5,7 @@ Library skill defining adversarial debate rules for Devflow review workflows —
 ## Skill Architecture
 
 - `SKILL.md` only — this file IS the reference document
-- `user-invocable: false`, `disable-model-invocation: true` — never auto-triggers or appears in menu
+- `user-invocable: false` — hidden from `/` menu, auto-triggerable via description
 - Loaded via markdown link from `skills/review/SKILL.md` and `skills/build/references/phase-6-review.md`
 - Defines: pre-debate triage table, round-robin assignment, round limits, consensus rules, lead decision template, Hard Rule exception, new finding escalation, anti-patterns
 

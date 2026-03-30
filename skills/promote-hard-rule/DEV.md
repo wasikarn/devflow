@@ -8,7 +8,7 @@ Interactive review workflow for auto-detected Hard Rule candidates from `metrics
 - 5-step workflow: Locate → Parse → Review each candidate → Apply decisions → Summary
 - Reads `.claude/skills/review-rules/candidate-rules.md` in the current project (written by `metrics-analyst`)
 - Writes approved rules to `.claude/skills/review-rules/hard-rules.md` with evidence comments
-- `disable-model-invocation: true` with `allowed-tools: Read, Edit, Write, AskUserQuestion`
+- `allowed-tools: Read, Edit, Write, AskUserQuestion`
 
 ## Validate After Changes
 
@@ -23,4 +23,4 @@ npx markdownlint-cli2 "skills/promote-hard-rule/SKILL.md"
 - REJECTED entries are never deleted from `candidate-rules.md` — this is intentional for audit trail. Do not add cleanup logic.
 - If `hard-rules.md` does not exist, the skill creates it before appending — this is handled in Step 4 APPROVE. Do not assume the file exists in tests.
 - Evidence HTML comment format (`<!-- promoted: {date} | evidence: {count}/5 sessions ... -->`) is used by downstream tools to distinguish auto-promoted rules from manually written ones — keep the format stable.
-- `disable-model-invocation: true` is required here: this skill must not auto-trigger from description matching in builds or reviews.
+- This skill can auto-trigger from description matching — description is specific enough to avoid false positives in builds or reviews.

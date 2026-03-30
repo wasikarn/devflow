@@ -26,7 +26,7 @@ Read the target SKILL.md and check every criterion below.
 - [ ] `description` leans slightly pushy to counter Claude's undertrigger bias
 - [ ] `argument-hint` present if skill takes arguments
 - [ ] `compatibility` present if skill requires external tools
-- [ ] `disable-model-invocation: true` set for side-effect skills (deploy, review, send)
+- [ ] Side-effect skills (deploy, merge) have clear trigger conditions in description to avoid unintended auto-invocation
 - [ ] `context: fork` paired with `agent` field when used
 - [ ] `allowed-tools` set appropriately if skill needs auto-approved tool access
 
@@ -57,7 +57,7 @@ Read the target SKILL.md and check every criterion below.
 | Category | Weight | Criteria |
 | --- | --- | --- |
 | Required fields | 40 | name, description, description tone (third person), description triggers (keywords) |
-| Safety | 25 | disable-model-invocation for side-effect skills, compatibility for external tools, allowed-tools if needed |
+| Safety | 25 | Precise trigger conditions for side-effect skills, compatibility for external tools, allowed-tools if needed |
 | Structure | 20 | SKILL.md exists, body under 500 lines, refs loaded on-demand, ${CLAUDE_SKILL_DIR} used, consistent terminology |
 | Polish | 15 | argument-hint present, tables over prose, rules include "why", trigger near-miss tested |
 

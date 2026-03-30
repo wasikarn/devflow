@@ -28,7 +28,6 @@ SKILL.md loads reference files on-demand — only the relevant mode's file is lo
 
 ## Design Decisions
 
-- `disable-model-invocation: true` — merge/tag/delete are irreversible; user must explicitly invoke
 - `--admin` bypass on `gh pr merge` — bypasses required reviews/CI; CI failures warn but don't abort
 - fix_shas captured BEFORE version bump commit (step 2 in deploy workflow) — version bump SHA must not be cherry-picked into backport
 - Cherry-pick uses unquoted `$fix_shas` — shell word-splitting required to enumerate multiple SHAs

@@ -2,7 +2,6 @@
 name: jira-integration
 description: "Shared Jira context injection for build, review, debug, and respond — fetches AC, transitions cards, posts summaries."
 user-invocable: false
-disable-model-invocation: true
 ---
 
 # Jira Integration for Devflow Skills

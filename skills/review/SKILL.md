@@ -3,7 +3,6 @@ name: review
 description: "Adversarial PR review with 3-reviewer debate — Correctness, Architecture, DX reviewers challenge each other's findings before consolidation. Use when reviewing pull requests or code changes."
 argument-hint: "[pr-number] [jira-key?] [Author|Reviewer?]"
 compatibility: "Requires gh CLI, git, and CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 enabled in settings"
-disable-model-invocation: true
 effort: high
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *)
 ---

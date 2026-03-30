@@ -25,6 +25,8 @@ All fields are optional. Only `description` is recommended.
 
 ## disable-model-invocation vs user-invocable
 
+> **Note:** devflow no longer uses `disable-model-invocation: true` on any skill. All skills are auto-triggerable. This section is kept as platform reference only.
+
 | Setting | In context? | `/` menu | Auto-invoke |
 | --------- | ------------ | ---------- | ------------- |
 | (default) | ✅ | ✅ | ✅ |

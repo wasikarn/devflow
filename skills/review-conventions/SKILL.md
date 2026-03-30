@@ -2,7 +2,6 @@
 name: review-conventions
 description: "Shared review conventions — comment labels, dedup protocol, strengths, and PR size thresholds."
 user-invocable: false
-disable-model-invocation: true
 ---
 
 # Review Conventions

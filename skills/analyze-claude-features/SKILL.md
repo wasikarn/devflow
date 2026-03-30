@@ -226,7 +226,7 @@ For each existing configuration, verify it uses the right feature type:
 | "Always do X" rules | CLAUDE.md | skill |
 | Path-specific guidelines | `.claude/rules/` with `paths` | CLAUDE.md (bloat) |
 | Reference docs loaded sometimes | skill | CLAUDE.md (always loaded) |
-| Repeatable workflows | skill with `disable-model-invocation` | CLAUDE.md |
+| Repeatable workflows | skill | CLAUDE.md |
 | Deterministic automation | hook | skill or agent |
 
 Flag any misplacement found.

@@ -2,7 +2,6 @@
 name: review-rules
 description: "Core 12-point review framework used across code-reviewer, build, and review agents."
 user-invocable: false
-disable-model-invocation: true
 ---
 
 # Review Rules — 12-Point Canonical Definition

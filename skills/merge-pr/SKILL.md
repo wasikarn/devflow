@@ -2,7 +2,6 @@
 name: merge-pr
 description: "Automated git-flow merge and deploy — feature, hotfix, and release modes with pre-merge safety checks. Use to merge a branch to main/develop."
 argument-hint: "[pr-number?] [--hotfix?] [--release?] [jira-key?]"
-disable-model-invocation: true
 effort: medium
 compatibility: "Requires gh CLI (authenticated) and a git repository with a GitHub remote."
 allowed-tools: Bash(git *), Bash(gh *), Read, Edit, Grep, AskUserQuestion, mcp__mcp-atlassian__jira_add_comment

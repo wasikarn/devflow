@@ -2,7 +2,6 @@
 name: review-output-format
 description: "Shared PR review output format — header, ticket understanding, findings table, strengths, and summary sections."
 user-invocable: false
-disable-model-invocation: true
 ---
 
 # PR Review Output Format

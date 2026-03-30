@@ -5,7 +5,7 @@ Library skill providing shared Jira context injection — key detection, ticket 
 ## Skill Architecture
 
 - `SKILL.md` only — this file IS the reference document loaded by 4 consumer skills
-- `user-invocable: false`, `disable-model-invocation: true` — never auto-triggers
+- `user-invocable: false` — hidden from `/` menu, auto-triggerable via description
 - Four skill-specific sections: `review` (AC verification), `build` (scope & planning), `debug` (bug enrichment), `respond` (thread prioritization)
 - Fetch order: `issue-bootstrap` agent (atlassian-pm) → `mcp-atlassian` fallback → warn + skip
 - Non-blocking design: Jira unavailability never halts a consumer skill run

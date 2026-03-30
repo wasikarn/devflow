@@ -12,7 +12,7 @@ Library skill providing canonical TypeScript ❌/✅/⚠️ code examples for al
 
 - `SKILL.md` — compact pointer with one inline example; loads `references/examples.md` for full content
 - `references/examples.md` — complete 12-rule TypeScript examples with all three tiers per rule
-- `user-invocable: false`, `disable-model-invocation: true` — loaded by consumer agents, never invoked directly
+- `user-invocable: false` — hidden from `/` menu, loaded by consumer agents via `skills:` frontmatter
 - Consumers: `code-reviewer` agent, `build` Phase 6, `review` Phase 2
 
 ## Validate After Changes

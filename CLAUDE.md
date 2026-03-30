@@ -158,7 +158,6 @@ claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full step-by-step guide. Key rules for Claude when editing:
 
 - `description:` must be trigger-complete (what + when + keywords) — max 1024 chars
-- `disable-model-invocation: true` for side-effect skills (deploy, PR review, merge)
 - `compatibility:` recommended for skills with external tool dependencies (not required, but contributors need to know what to install)
 - Pre-commit hook auto-fixes staged `.md` files — no manual lint needed before commit
 
@@ -207,6 +206,6 @@ TypeScript SDK at `devflow-sdk/` — programmatic PR review pipeline (orchestrat
 
 - `context: fork` + `agent` field runs skills in isolated subagent — used by `env-heal` (haiku, general-purpose). Other skills avoid it for real-time streaming visibility and follow-up interaction
 - Pre-commit hook auto-fixes staged `.md` files — runs `scripts/fix-tables.sh` + `markdownlint-cli2 --fix`; no manual fix needed before commit
-- `disable-model-invocation: true` removes description from context entirely (skill never auto-triggers); `user-invocable: false` hides from menu but keeps context — different effects
+- `user-invocable: false` hides from `/` menu but keeps description in context — Claude can still auto-trigger these skills
 - Run `/optimize-claude-md` when this file feels stale
 </important>
