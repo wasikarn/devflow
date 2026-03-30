@@ -67,6 +67,7 @@ to:
 
 ```bash
 # All 6 skill files: SDK_DIR → ENGINE_DIR, devflow-sdk → devflow-engine, sdk- → engine-
+# Uses perl -pi -e for cross-platform compatibility (sed -i '' is macOS-only)
 for f in \
   skills/review/references/phase-3.md \
   skills/review/references/phase-5.md \
@@ -74,18 +75,14 @@ for f in \
   skills/build/references/phase-7-falsification.md \
   skills/build/references/phase-3-plan.md \
   skills/build/references/phase-6-review.md; do
-  sed -i '' \
-    -e 's/SDK_DIR/ENGINE_DIR/g' \
-    -e 's/devflow-sdk/devflow-engine/g' \
-    -e 's/\[sdk-/[engine-/g' \
-    "$f"
+  perl -pi -e 's/SDK_DIR/ENGINE_DIR/g; s/devflow-sdk/devflow-engine/g; s/\[sdk-/[engine-/g' "$f"
 done
 ```
 
 - [ ] **Step 4: Update CLAUDE.md references**
 
 ```bash
-sed -i '' 's/devflow-sdk/devflow-engine/g' CLAUDE.md
+perl -pi -e 's/devflow-sdk/devflow-engine/g' CLAUDE.md
 ```
 
 - [ ] **Step 5: Update devflow-sdk-rules.md path glob**
@@ -214,7 +211,7 @@ export function toBonus(n: number): Bonus {
 
 // ─── Engine: domain types ─────────────────────────────────────────────────────
 
-export type ReviewMode = 'micro' | 'quick' | 'full'
+export type ReviewMode = 'micro' | 'quick' | 'full' | 'focused'  // 'focused' = specialist-only mode
 export type LensCount = 'full' | 'reduced' | 'skip'
 
 export type Lens =
@@ -428,17 +425,19 @@ describe('mode thresholds', () => {
     expect(r.mode).toBe('quick')
   })
 
-  it('score=54 → quick', () => {
-    // loc=400(40) + CI/CD yml(25) - jira bonus... wait: 40+25=65 → full
-    // Use: loc=200(20) + controller(15) + SQL(20) - 1 dismissed(-10) = 45 → quick
+  it('score=54 → quick (boundary just below full threshold)', () => {
+    // loc=390 → locScore=Math.floor((390/400)*40)=39
+    // test file → fileType=5
+    // SQL → semantic=20
+    // dismissed match → bonus=-10
+    // total = 39+5+20-10 = 54 → quick (not full which requires ≥55)
     const r = computeScore(signals({
-      loc: 200,
-      files: ['src/controllers/user.ts'],
-      diff: '+ALTER TABLE users ADD COLUMN email text\n+const foo = bar',
-      dismissed: ['const foo = bar'],
+      loc: 390,
+      files: ['src/user.test.ts'],
+      diff: '+CREATE TABLE orders (id int)',
+      dismissed: ['CREATE TABLE orders (id int)'],
     }))
-    expect(r.total).toBeGreaterThanOrEqual(30)
-    expect(r.total).toBeLessThanOrEqual(54)
+    expect(r.total).toBe(54)
     expect(r.mode).toBe('quick')
   })
 
@@ -651,7 +650,14 @@ async function runScoreCommand(args: string[]): Promise<void> {
     process.exit(1)
   }
 
-  const files = readPrDiff(parsed.pr)
+  let files: ReturnType<typeof readPrDiff>
+  try {
+    files = readPrDiff(parsed.pr)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`[engine-score] failed to read diff: ${message}`)
+    process.exit(1)
+  }
   const loc = files.reduce((sum, f) => sum + f.diffLineCount, 0)
   const changedFiles = files.map(f => toFilePath(f.path))
   const diffContent = files.map(f => f.hunks).join('\n')
@@ -1021,7 +1027,7 @@ export type CLIFlags = {
 }
 
 export type ModeResolution = {
-  readonly mode: ReviewMode | 'focused'
+  readonly mode: ReviewMode          // 'focused' is now part of ReviewMode in types.ts
   readonly source: 'explicit-flag' | 'risk-score'
   readonly specialistTriggers: readonly SpecialistTrigger[]
   readonly lensCount: LensCount
@@ -1058,7 +1064,8 @@ function detectSpecialists(files: readonly string[], diffContent: string): reado
   }
 
   // P4–P5: independent
-  if (/\btry\s*\{|\.catch\s*\(|[\w\])\?\.|\?\?/.test(diffContent)) {
+  // Detect: try/catch, .catch(), optional chaining (?.), nullish coalescing (??)
+  if (/\btry\s*\{|\.catch\s*\(|\?\?|\?\./.test(diffContent)) {
     triggers.push({ type: 'silent-failure-hunter', priority: 4 })
   }
   if (files.some(f => /\.(interface|types?)\.[jt]sx?$/.test(f))) {
@@ -1188,7 +1195,14 @@ async function runResolveCommand(args: string[]): Promise<void> {
     process.exit(1)
   }
 
-  const files = readPrDiff(parsed.pr)
+  let files: ReturnType<typeof readPrDiff>
+  try {
+    files = readPrDiff(parsed.pr)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`[engine-resolve] failed to read diff: ${message}`)
+    process.exit(1)
+  }
   const loc = files.reduce((sum, f) => sum + f.diffLineCount, 0)
   const changedFiles = files.map(f => toFilePath(f.path))
   const diffContent = files.map(f => f.hunks).join('\n')
@@ -1272,8 +1286,8 @@ Replace the entire bash block (from `ENGINE_DIR=` through `fi`) and the prose au
 ENGINE_DIR="${CLAUDE_SKILL_DIR}/../../devflow-engine"
 
 if [ -d "$ENGINE_DIR" ] && [ -d "$ENGINE_DIR/node_modules" ]; then
-  # Build resolve args
-  RESOLVE_ARGS="--pr $0 --output json"
+  # Build resolve args — note: $0 is skill template substitution for PR number (not shell $0)
+  RESOLVE_ARGS="--pr $0"
   DISMISSED_FILE="$(bash "${CLAUDE_SKILL_DIR}/../../scripts/artifact-dir.sh" review)/review-dismissed.md"
   if [ -f "$DISMISSED_FILE" ]; then
     RESOLVE_ARGS="$RESOLVE_ARGS --dismissed $DISMISSED_FILE"
@@ -1284,10 +1298,12 @@ if [ -d "$ENGINE_DIR" ] && [ -d "$ENGINE_DIR/node_modules" ]; then
   echo "$ARGUMENTS" | grep -q '\-\-micro' && RESOLVE_ARGS="$RESOLVE_ARGS --micro"
   echo "$ARGUMENTS" | grep -q '\-\-quick' && RESOLVE_ARGS="$RESOLVE_ARGS --quick"
   echo "$ARGUMENTS" | grep -q '\-\-full'  && RESOLVE_ARGS="$RESOLVE_ARGS --full"
-  focused_area=$(echo "$ARGUMENTS" | grep -oP '(?<=--focused )\S+' || true)
+  # Extract --focused area using perl (portable; grep -oP is macOS-incompatible)
+  focused_area=$(echo "$ARGUMENTS" | perl -ne 'if (/--focused\s+(\S+)/) { print $1; exit }')
   [ -n "$focused_area" ] && RESOLVE_ARGS="$RESOLVE_ARGS --focused $focused_area"
 
-  resolve_result=$(cd "$ENGINE_DIR" && node_modules/.bin/tsx src/cli.ts resolve $RESOLVE_ARGS 2>&1)
+  # Capture stdout only; redirect stderr to /dev/null to prevent tsx warnings corrupting JSON
+  resolve_result=$(cd "$ENGINE_DIR" && node_modules/.bin/tsx src/cli.ts resolve $RESOLVE_ARGS 2>/dev/null)
   resolve_exit=$?
 
   _extract_mode() {
