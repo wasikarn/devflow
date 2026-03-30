@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] — 2026-03-30
+
+### Token optimization — reduce per-build cost by 30-35%
+
+- test: update skill_routing bats — bug keyword no longer emits hint (debug auto-invocable)
+- fix: add blank line before v1.3.0 heading in CHANGELOG
+- perf: reduce token consumption by ~30-35% per build cycle (#3)
 ## [1.3.1] — 2026-03-29
 
 ### token optimization & maintainability
