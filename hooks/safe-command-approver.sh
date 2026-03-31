@@ -22,7 +22,7 @@ IFS=$'\t' read -r TOOL_NAME COMMAND < <(jq_fields '.tool_name' '.tool_input.comm
 SAFE_PATTERNS=(
   '^git (status|log|diff|show|branch|remote|fetch|tag|describe|stash list)'
   '^gh (pr|issue|repo|run|release) (list|view|status|show|checks)'
-  '^(cat|ls|pwd|echo|which|type|command -v|wc|grep|find|head|tail|sed|awk) '
+  '^(ls|pwd|echo|which|type|command -v|wc|grep|sed|awk) '
   '^(curl|wget) .*(--silent|-s).*(GET|list|status)'
   '^(jq|yq|python3 -c|node -e) '
   '^bash scripts/(qa-check|artifact-dir|detect-project)\.sh'
