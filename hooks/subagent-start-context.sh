@@ -65,9 +65,14 @@ HARD_RULES_BLOCK=""
 if [ -f "$HARD_RULES_PATH" ]; then
   HARD_RULES_CONTENT=$(awk 'NR<=60' "$HARD_RULES_PATH" 2>/dev/null || true)
   if [ -n "$HARD_RULES_CONTENT" ]; then
+    TOTAL_LINES=$(wc -l < "$HARD_RULES_PATH" 2>/dev/null | tr -d ' ')
+    TRUNCATION_WARNING=""
+    if [ "${TOTAL_LINES:-0}" -gt 60 ]; then
+      TRUNCATION_WARNING=$(printf '\n<!-- WARNING: hard-rules.md has %s lines — only first 60 injected. Move highest-priority rules to the top. -->' "$TOTAL_LINES")
+    fi
     HARD_RULES_BLOCK="
 <project-hard-rules>
-$HARD_RULES_CONTENT
+$HARD_RULES_CONTENT${TRUNCATION_WARNING}
 </project-hard-rules>"
   fi
 fi

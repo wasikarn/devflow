@@ -43,7 +43,13 @@ git clone git@github.com:wasikarn/devflow.git
 cd devflow
 ```
 
-### Step 2 — Link skills, agents, hooks, and output styles
+### Step 2 — Install git hooks
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+### Step 3 — Link skills, agents, hooks, and output styles
 
 ```bash
 bash scripts/link-assets.sh
@@ -56,20 +62,20 @@ This symlinks all assets to `~/.claude/`:
 - `hooks/` → `~/.claude/hooks/`
 - `output-styles/` → `~/.claude/output-styles/`
 
-### Step 3 — Enable Agent Teams
+### Step 4 — Enable Agent Teams
 
 ```bash
 claude config set env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS 1
 ```
 
-### Step 4 — Verify symlinks
+### Step 5 — Verify symlinks
 
 ```bash
 bash scripts/link-assets.sh --list
 # Expected: all skills, agents, hooks, output-styles show as ✓ linked
 ```
 
-### Step 5 — Restart Claude Code
+### Step 6 — Restart Claude Code
 
 Changes to symlinked files take effect immediately. Restart only needed for settings changes.
 
@@ -102,6 +108,14 @@ agent: Explore                                                       # optional:
 All skills are auto-triggerable via `description` — Claude reads descriptions at startup and invokes matching skills automatically. Background skills (shared reference docs) use `user-invocable: false` to hide from the `/` menu while remaining auto-triggerable.
 
 See [`docs/references/skills-best-practices.md`](docs/references/skills-best-practices.md) for the full spec.
+
+---
+
+## Adding a New Agent
+
+Agents live at `agents/<name>.md` with YAML frontmatter. Key constraint: when distributed via the plugin, the `hooks:`, `mcpServers:`, and `permissionMode:` frontmatter fields are **silently ignored** — use `hooks/hooks.json` with `SubagentStart`/`SubagentStop` matchers for agent-specific hook behavior instead.
+
+See [`docs/references/agent-hook-pattern.md`](docs/references/agent-hook-pattern.md) for the full pattern, examples, and the contrast with inline skill hooks.
 
 ---
 
