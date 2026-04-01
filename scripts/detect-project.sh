@@ -28,6 +28,7 @@ HINTS=""
 if [ -z "$BASE_BRANCH" ]; then
   HARD_RULES=".claude/skills/review-rules/hard-rules.md"
   if [ -f "$HARD_RULES" ]; then
+    # shellcheck disable=SC2016
     BASE_BRANCH=$(grep -oE '\| Base branch \| `[^`]+`' "$HARD_RULES" 2>/dev/null | grep -oE '`[^`]+`' | tr -d '`' | head -1)
   fi
 fi
