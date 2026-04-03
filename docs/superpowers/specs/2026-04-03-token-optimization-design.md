@@ -1,12 +1,12 @@
 # Token Optimization for Devflow
 
 **Date:** 2026-04-03
-**Status:** Approved
+**Status:** Revised (post-review)
 **Author:** Claude (via brainstorming session)
 
 ## Executive Summary
 
-Reduce token usage in devflow skills by 30-60% through targeted optimizations: field filtering for bootstrap agents, token metrics tracking, and PR diff filters. A simplified token budget watchdog replaces the proposed 4-agent team.
+Reduce token usage in devflow skills by 15-40% through targeted optimizations: field filtering for bootstrap agents, token metrics tracking, and PR diff filters. The token budget watchdog is deferred to Phase 4 pending metrics validation.
 
 ## Problem Statement
 
@@ -27,15 +27,15 @@ Devflow skills consume significant tokens through:
         ┌───────────────┼───────────────┐
         ▼               ▼               ▼
 ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│  Bootstrap    │ │ Token Budget  │ │ Token Metrics │
-│  Agents       │ │ Watchdog      │ │ Tracking      │
-│  (--fields)   │ │ (1 agent)     │ │ (TypeScript)  │
+│  Bootstrap    │ │ Token Metrics │ │ PR Diff       │
+│  Agents       │ │ Tracking      │ │ Filters       │
+│  (--fields)   │ │ (TypeScript)  │ │ (--exclude)   │
 └───────┬───────┘ └───────┬───────┘ └───────┬───────┘
         │                 │                 │
         ▼                 ▼                 ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              devflow-metrics.jsonl                          │
-│  { "tokens": { "input", "output", "estimated", "phase" } }  │
+│  { "schema_version": "1.1", "tokens": { "input", "output" } }│
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -43,28 +43,33 @@ Devflow skills consume significant tokens through:
 
 ### 1. Bootstrap Agents (Field Filtering)
 
-**Verdict:** ✅ PROCEED
+**Verdict:** ✅ APPROVED (MCP field filtering verified)
 
-**What:** Add `--fields` parameter to `issue-bootstrap` agent for filtered MCP calls.
+**What:** Add `--fields` parameter to `jira-integration` skill for filtered MCP calls.
 
-**Why:** MCP calls return full issue content (~15K tokens). Field filtering reduces to essential fields only (~2-3K tokens).
+**Why:** MCP calls return full issue content (3-8K tokens typical). Field filtering reduces to essential fields only (1-2K tokens).
+
+**Verification:** `jira_get_issue` supports `fields` parameter per atlassian-pm plugin documentation.
 
 **Implementation:**
 
-```typescript
-// agents/issue-bootstrap.md (enhancement)
-// Add --fields parameter with presets:
+```markdown
+// skills/jira-integration/SKILL.md (enhancement)
+// Add field presets:
 
 // Presets (recommended):
 //   --preset=review    → fields=key,status,assignee,summary,description
-//   --preset=build     → fields=key,summary,acceptance_criteria,subtasks
-//   --preset=debug     → fields=key,summary,priority,linked_issues
+//   --preset=build     → fields=key,summary,customfield_10015,subtasks
+//   --preset=debug     → fields=key,summary,priority,issuelinks
 
 // Custom fields:
 //   --fields=key,status,summary
+
+// Fallback:
+//   If preset misses required data, agent can request additional fields
 ```
 
-**Token Savings:** 8,000-15,000 per skill invocation
+**Token Savings:** 2,000-6,000 per skill invocation (30-50% reduction)
 
 **Files Changed:**
 - `skills/jira-integration/SKILL.md` — Add preset detection logic
@@ -76,37 +81,41 @@ Devflow skills consume significant tokens through:
 
 ### 2. Token Metrics Tracking
 
-**Verdict:** ✅ PROCEED
+**Verdict:** ✏️ REVISE (create metrics.ts, remove speculative fields)
 
-**What:** Extend `devflow-metrics.jsonl` with token tracking fields.
+**What:** Create `devflow-engine/src/metrics.ts` with token tracking fields.
 
-**Why:** No visibility into per-skill/phase token costs. Foundation for budget enforcement.
+**Why:** No visibility into per-skill/phase token costs. Foundation for future optimization.
 
 **Implementation:**
 
-```jsonl
-// devflow-metrics.jsonl (extended schema)
-{
-  "timestamp": "2026-04-03T15:00:00Z",
-  "skill": "build",
-  "phase": "research",
-  "mode": "full",
-  "tokens": {
-    "input": 15000,
-    "output": 3000,
-    "estimated_mcp": 5000,
-    "cumulative_session": 45000
-  }
+```typescript
+// devflow-engine/src/metrics.ts (NEW FILE)
+// Schema v1.1 for devflow-metrics.jsonl
+
+interface MetricsEntry {
+  schema_version: "1.1";
+  timestamp: string;
+  skill: string;
+  phase: string;
+  mode: string;
+  tokens: {
+    input: number;      // From Claude Code API (if available)
+    output: number;     // From Claude Code API (if available)
+    cumulative_session: number;  // Running total
+  };
 }
+
+// Note: estimated_mcp removed — Claude Code API doesn't expose MCP overhead
 ```
 
 **Schema Versioning:**
-- Add `schema_version: "1.1"` field
-- Backward compatible — old entries remain readable
-- New entries include token fields
+- `schema_version: "1.1"` — New field for token tracking
+- Backward compatible — old entries without `tokens` field remain readable
+- metrics-analyst agent handles missing fields gracefully
 
 **Files Changed:**
-- `devflow-engine/src/metrics.ts` — Add token tracking
+- `devflow-engine/src/metrics.ts` — NEW FILE, create from scratch
 - `skills/metrics/SKILL.md` — Display token metrics
 - `skills/dashboard/SKILL.md` — Show token summary
 
@@ -116,49 +125,54 @@ Devflow skills consume significant tokens through:
 
 ### 3. PR Diff Filters
 
-**Verdict:** ✅ PROCEED
+**Verdict:** ✅ APPROVED (native `gh pr diff --exclude` verified)
 
-**What:** Extend existing `--focused` flag with file filtering.
+**What:** Add `--exclude` flag to review skill for file filtering.
 
 **Why:** Large PRs include lockfiles, generated files, vendored code that consume tokens without review value.
 
 **Implementation:**
 
 ```bash
-# Extend --focused in review skill
-rtk gh pr diff "$PR_NUM" --files "*.ts,*.tsx" --exclude "*.test.ts,*.spec.ts"
+# Add --exclude to review skill (native gh support)
+gh pr diff "$PR_NUM" --exclude 'package-lock.json' --exclude 'yarn.lock'
 
 # Threshold-based auto-filter
 if [[ $(git diff --numstat | wc -l) -gt 100 ]]; then
-  # Auto-exclude common noise
-  EXCLUDE="--exclude package-lock.json,*.min.js,yarn.lock"
+  EXCLUDE="--exclude 'package-lock.json' --exclude '*.min.js' --exclude 'yarn.lock'"
 fi
 ```
 
-**Token Savings:** 10,000-50,000 for large PRs
+**Note:** Native `gh pr diff` supports `--exclude` but not `--files`. Use `--exclude` for filtering.
+
+**Token Savings:** 10,000-30,000 for large PRs (40-60% reduction)
 
 **Files Changed:**
-- `skills/review/SKILL.md` — Add `--files` and `--exclude` parameters
+- `skills/review/SKILL.md` — Add `--exclude` parameter
 - `agents/pr-review-bootstrap.md` — Auto-filter logic
 
 ---
 
-### 4. Token Budget Watchdog (Simplified)
+### 4. Token Budget Watchdog
 
-**Verdict:** ✏️ REVISE (4 agents → 1 agent)
+**Verdict:** ❌ DEFERRED to Phase 4 (negative ROI for typical sessions)
 
 **What:** Single agent monitors token budget and warns when approaching threshold.
 
-**Why:** Prevent runaway token costs on expensive operations. Originally 4-agent team, simplified to 1 agent after review.
+**Why Deferred:**
+- Watchdog costs 800-1,500 tokens per check
+- Negative ROI for sessions under 50K tokens
+- No baseline data to validate threshold assumptions
+- Must prove ROI through metrics collection first
 
-**Implementation:**
+**Conditional Implementation (Phase 4 only if metrics validate):**
 
 ```markdown
 # agents/token-watchdog.md
 name: token-watchdog
 description: Monitor session token budget and warn when approaching threshold.
 model: haiku
-invocation: Spawned at named injection points (after_bootstrap, before_review)
+invocation: Opt-in via --budget-watchdog flag (default: off)
 
 ## Behavior
 1. Read cumulative tokens from devflow-metrics.jsonl
@@ -171,40 +185,22 @@ invocation: Spawned at named injection points (after_bootstrap, before_review)
 ## Threshold
 - Default: 50,000 tokens per session
 - Configurable via --budget-threshold flag
+- Only spawns if --budget-watchdog flag is set
 ```
-
-**Named Injection Points:**
-- `after_bootstrap` — After context gathering
-- `before_review` — Before spawning review agents
-- `before_plan` — Before planning phase
-
-**Token Overhead:** 500-800 tokens per check
-
-**Files Changed:**
-- `agents/token-watchdog.md` — New agent
-- `skills/build/SKILL.md` — Add injection point hooks
-- `skills/review/SKILL.md` — Add injection point hooks
 
 ---
 
 ### 5. Compact Scripts
 
-**Verdict:** ❌ BLOCK (Superseded by field filtering)
+**Verdict:** ❌ REMOVED (superseded by field filtering)
 
-**Reason:** Functionality covered by Bootstrap Agents `--fields` parameter. Adding Python scripts would:
-- Introduce new language stack
-- Duplicate atlassian-pm presets
-- Violate YAGNI principle
-
-**Action:** Remove from scope, redirect effort to Component 1.
+**Reason:** Functionality covered by Bootstrap Agents `--fields` parameter.
 
 ---
 
 ## Architecture Decisions
 
 ### Decision 1: TypeScript Only
-
-**Context:** Maintainability Expert flagged Python as new language stack.
 
 **Decision:** All new code uses TypeScript (devflow-engine) or Bash (scripts).
 
@@ -217,8 +213,6 @@ invocation: Spawned at named injection points (after_bootstrap, before_review)
 
 ### Decision 2: Named Injection Points
 
-**Context:** Integration Specialist flagged "Phase 0.5" as confusing.
-
 **Decision:** Use named injection points instead of numbered phases.
 
 **Rationale:**
@@ -226,7 +220,8 @@ invocation: Spawned at named injection points (after_bootstrap, before_review)
 - No renumbering of existing phases
 - Easier to add new injection points
 
-**Named Points:**
+**Mechanism:** Skill calls at phase boundaries (not background agents).
+
 ```
 before_bootstrap → bootstrap → after_bootstrap →
 before_plan → plan → after_plan →
@@ -237,20 +232,16 @@ before_review → review → after_review →
 
 ### Decision 3: Session-Level Budget
 
-**Context:** Token budget scope unclear (per-skill vs per-session).
-
 **Decision:** Budget applies per-session, not per-skill.
 
 **Rationale:**
 - Avoids coordination overhead between skills
 - Cumulative tracking is simpler
-- Matches user mental model ("this session cost X tokens")
+- Matches user mental model
 
 ---
 
 ### Decision 4: Warning-Only Budget Enforcement
-
-**Context:** Cost Analyst flagged negative ROI for blocking operations.
 
 **Decision:** Token Budget Watchdog warns but never blocks.
 
@@ -263,54 +254,75 @@ before_review → review → after_review →
 
 ## Implementation Phases
 
-### Phase 1 (Immediate)
+### Phase 0 (NEW — Verification)
 
-| Task | Effort | Files |
-|------|--------|-------|
-| Add `--fields` to issue-bootstrap | M | agents/issue-bootstrap.md |
-| Update jira-integration skill | M | skills/jira-integration/SKILL.md |
-| Update bootstrap agents | L | agents/devflow-*.md |
-| Add token tracking to metrics | L | devflow-engine/src/metrics.ts |
+| Task | Purpose | Prerequisites |
+|------|---------|---------------|
+| Create `devflow-engine/src/metrics.ts` | Foundation for all tracking | None |
+| Define JSONL schema v1.1 | Include `schema_version`, `tokens.input`, `tokens.output` | metrics.ts created |
+| Collect 10 baseline sessions | Measure actual token costs per skill/phase | metrics.ts operational |
+| Document injection point mechanism | Choose: skill call at phase boundaries | Design review |
 
-**Success Metric:** Track token savings in devflow-metrics.jsonl
+**Success Metric:** metrics.ts writes valid JSONL, backward compatible
 
 ---
 
-### Phase 2 (Next Sprint)
+### Phase 1 (Revised — Field Filtering)
 
-| Task | Effort | Files |
-|------|--------|-------|
-| Extend `--focused` with filters | M | skills/review/SKILL.md |
-| Add auto-filter logic | M | agents/pr-review-bootstrap.md |
-| Update dashboard skill | L | skills/dashboard/SKILL.md |
+| Task | Effort | Prerequisites |
+|------|--------|---------------|
+| Add `--fields` presets to jira-integration | M | Phase 0 complete |
+| Update bootstrap agents with presets | L | Phase 0 complete |
+| Add fallback for missing fields | M | — |
+
+**Success Metric:** Track token savings in devflow-metrics.jsonl, 2-6K savings per Jira call
+
+---
+
+### Phase 2 (Revised — Diff Filters)
+
+| Task | Effort | Prerequisites |
+|------|--------|---------------|
+| Add `--exclude` to review skill | M | Phase 0 complete |
+| Add auto-filter for large PRs | M | Phase 0 complete |
+| Update dashboard skill | L | — |
 
 **Success Metric:** Measure diff filtering effectiveness on PRs >30 files
 
 ---
 
-### Phase 3 (After Metrics Validation)
+### Phase 3 (Revised — Metrics Rollout)
 
-| Task | Effort | Files |
-|------|--------|-------|
-| Create token-watchdog agent | M | agents/token-watchdog.md |
-| Add injection points to build | M | skills/build/SKILL.md |
-| Add injection points to review | L | skills/review/SKILL.md |
-| Add budget-threshold flag | L | skills/*/SKILL.md |
+| Task | Effort | Prerequisites |
+|------|--------|---------------|
+| Enable token tracking by default | M | Phase 0 metrics.ts created |
+| Add token summary to `/metrics` skill | L | Phase 0 complete |
+| Validate savings claims | M | 10+ baseline sessions |
 
-**Success Metric:** Validate threshold assumptions before full rollout
+**Success Metric:** Token metrics visible in dashboard, baseline established
+
+---
+
+### Phase 4 (NEW — Watchdog, Conditional)
+
+| Task | Condition |
+|------|-----------|
+| Create token-watchdog agent | Only if Phase 0-3 show ROI |
+| Add injection points | Only if ROI validated |
+| Enable opt-in by default | Only if ROI > 0 |
+
+**Success Metric:** Watchdog cost < 20% of tokens saved per session
 
 ---
 
 ## Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Jira fetch tokens | ~15,000 | ~3,000 | 80% reduction |
-| Large PR diff tokens | ~50,000 | ~10,000 | 80% reduction |
-| Session visibility | None | Full tracking | New capability |
-| Budget awareness | None | Warning system | New capability |
-
-**Overall:** 30-60% token reduction per session
+| Metric | Original Claim | Revised Estimate | Rationale |
+|--------|----------------|-------------------|-----------|
+| Jira fetch savings | 12K (80%) | 2-6K (30-50%) | Typical issues 3-8K; filtered 1-2K |
+| Large PR diff savings | 40K (80%) | 10-30K (40-60%) | Varies by PR composition |
+| Watchdog ROI | Assumed positive | NEGATIVE (<50K sessions) | Costs 800-1500 tokens per check |
+| **Overall session savings** | 30-60% | **15-40%** | Conservative estimate after expert review |
 
 ---
 
@@ -318,10 +330,23 @@ before_review → review → after_review →
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
-| Field filtering misses needed data | Low | Medium | Default to full context, explicit opt-in for filtering |
-| Metrics overhead | Low | Low | Append-only, minimal fields |
+| Field filtering misses needed data | Low | Medium | Fallback to request additional fields |
+| Metrics file write failure | Low | Low | Append-only, defensive parsing |
 | Watchdog false positives | Medium | Low | Warning-only, user decides |
+| No baseline measurements | High | Medium | Phase 0 collects 10 baseline sessions |
 | Breaking existing behavior | Low | High | Feature flags, gradual rollout |
+
+---
+
+## Critical Blockers Resolved
+
+| Blocker | Status | Resolution |
+|---------|--------|------------|
+| MCP field filtering | ✅ VERIFIED | `jira_get_issue` supports `fields` parameter |
+| metrics.ts doesn't exist | ✅ RESOLVED | CREATE new file, not modify |
+| Token estimation speculative | ✅ RESOLVED | Remove `estimated_mcp` field |
+| Injection points undefined | ✅ RESOLVED | Skill call at phase boundaries |
+| No baseline measurements | ✅ RESOLVED | Add Phase 0 baseline collection |
 
 ---
 
@@ -338,4 +363,4 @@ before_review → review → after_review →
 - [skills-best-practices.md](../../references/skills-best-practices.md) — Skill authoring guidelines
 - [agent-hook-pattern.md](../../references/agent-hook-pattern.md) — Agent architecture
 - [jira-integration/SKILL.md](../../skills/jira-integration/SKILL.md) — Current Jira integration
-- [devflow-metrics.jsonl](../../devflow-metrics.jsonl) — Metrics schema
+- [atlassian-pm plugin docs](https://github.com/wasikarn/atlassian-pm) — MCP field filtering verification
