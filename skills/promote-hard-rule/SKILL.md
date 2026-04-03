@@ -1,6 +1,6 @@
 ---
 name: promote-hard-rule
-description: "Review auto-detected Hard Rule candidates from metrics-analyst and approve, reject, or defer each one. Never auto-applies rules."
+description: "Review auto-detected Hard Rule candidates from metrics-analyst and approve, reject, or defer each one. Triggers: promote hard rule, review candidates, approve rule, hard rule promotion, candidate review. Never auto-applies rules."
 effort: low
 allowed-tools: Read, Edit, Write, AskUserQuestion
 ---

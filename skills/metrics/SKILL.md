@@ -1,6 +1,6 @@
 ---
 name: metrics
-description: "Retrospective report from devflow-metrics.jsonl — iteration counts, finding categories, recurrent issues, Hard Rule candidates. Use after multiple build or review sessions."
+description: "Retrospective report from devflow-metrics.jsonl — iteration counts, finding categories, recurrent issues, Hard Rule candidates. Triggers: metrics, retrospective, iteration count, session summary, workflow health, metrics report. Use after multiple build or review sessions."
 context: fork
 agent: metrics-analyst
 ---

@@ -1,6 +1,7 @@
 ---
 name: careful
 description: "Activate safe-mode for the current session — blocks destructive bash commands and requires confirmation for risky operations."
+effort: low
 hooks:
   PreToolUse:
     - matcher: Bash

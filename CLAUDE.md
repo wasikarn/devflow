@@ -33,27 +33,28 @@ Prefer reading source before editing — key references:
 
 | Skill | Purpose |
 | --- | --- |
-| `optimize-claude-md` | Audit and optimize CLAUDE.md files |
-| `env-heal` | Scan and fix environment variable mismatches |
-| `merge-pr` | Git-flow merge and deploy (feature/hotfix/release modes) |
 | `build` | Full development loop (Research → Plan → Implement → Review → Ship) |
 | `review` | Adversarial PR review with 3-reviewer debate |
 | `debug` | Parallel root cause analysis + DX hardening |
-| `metrics` | Run retrospective report from devflow-metrics.jsonl — iteration counts, finding categories, recurrent issues |
-| `onboard` | Bootstrap a new project into the devflow ecosystem — scaffold hard-rules.md and build directories |
 | `respond` | Address PR review comments as author |
+| `merge-pr` | Git-flow merge and deploy (feature/hotfix/release modes) |
+| `refactor` | Safe refactoring — runs tests before/after; modes: `--simplify`, `--extract`, `--restructure` |
+| `generate-tests` | Framework-aware test generation (vitest/jest/bun/japa); self-reviews via test-quality-reviewer |
+| `generate-docs` | API, README, and inline JSDoc/TSDoc documentation generation |
+| `audit` | Security + dependency audit; `--deps`, `--security`, `--all` |
+| `metrics` | Retrospective report from devflow-metrics.jsonl — iteration counts, finding categories, Hard Rule candidates |
+| `dashboard` | Terminal-friendly metrics summary from all devflow tracking files; anomaly alerts |
+| `status` | Show active Devflow session artifacts and current phase |
+| `onboard` | Bootstrap a new project into the devflow ecosystem — scaffold hard-rules.md and build directories |
+| `plugin-qa` | Run QA check suite to verify all hooks, skills, and plugin structure |
+| `optimize-claude-md` | Audit and optimize CLAUDE.md files |
+| `analyze-claude-features` | Audit project against official Claude Code features and score adoption coverage |
+| `promote-hard-rule` | Review auto-detected Hard Rule candidates and approve/reject/defer each one |
 | `systems-thinking` | Causal Loop Diagram analysis for architecture decisions |
+| `env-heal` | Scan and fix environment variable mismatches |
 | `careful` | Enter careful mode — elevated confirmation threshold for destructive operations |
 | `freeze` | Freeze a file or pattern from being edited for the session |
-| `status` | Show active Devflow session artifacts and current phase |
-| `plugin-qa` | Run QA check suite to verify all hooks, skills, and plugin structure |
-| `analyze-claude-features` | Audit project against official Claude Code features and score adoption coverage |
-| `promote-hard-rule` | Review auto-detected Hard Rule candidates (from metrics-analyst) and approve/reject/defer each one — never auto-applies |
-| `generate-tests` | Framework-aware test generation (vitest/jest/bun/japa); self-reviews via test-quality-reviewer |
-| `refactor` | Safe refactoring — runs tests before/after; modes: `--simplify`, `--extract`, `--restructure` |
-| `audit` | Security + dependency audit; `--deps` (npm audit), `--security` (OWASP via security-reviewer), `--all` |
-| `generate-docs` | API, README, and inline JSDoc/TSDoc documentation generation |
-| `dashboard` | Terminal-friendly metrics summary from all devflow tracking files; anomaly alerts |
+| `test-patterns` | Test quality patterns for frontend and backend testing |
 | `review-rules` | _(background)_ 12-point review framework — preloaded into reviewer agents |
 | `review-conventions` | _(background)_ Comment labels, dedup protocol, PR size thresholds — preloaded into reviewer agents |
 | `review-output-format` | _(background)_ PR review output format templates — preloaded into reviewer agents |
@@ -68,18 +69,17 @@ Custom subagents live at `agents/<name>.md` with YAML frontmatter. Distributed a
 Key fields: `description` (include "proactively" to auto-trigger), `memory` (`user`/`project`/`local` for cross-session persistence), `skills` (preload into agent context). All fields: `name`, `tools`/`disallowedTools`, `model`, `hooks`, `permissionMode`, `maxTurns`, `background`, `isolation`.
 
 > **Plugin limitation:** `hooks`, `mcpServers`, and `permissionMode` are silently ignored when agents are loaded from a plugin. To use these fields, copy the agent to `.claude/agents/` instead.
-Current agents (27):
 
 | Agent | Model | Purpose |
 | --- | --- | --- |
 | `commit-finalizer` | haiku | Fast git commit with conventional commits format |
 | `review-consolidator` | haiku | Dedup/sort multi-reviewer findings into single ranked table |
-| `falsification-agent` | sonnet | Challenges review findings before consolidation — outputs SUSTAINED/DOWNGRADED/REJECTED per finding |
-| `plan-challenger` | sonnet | Challenges build Phase 3 plan for YAGNI/scope/ordering issues before implementation |
-| `test-quality-reviewer` | sonnet | Dedicated test quality reviewer (T1–T9): behavior vs implementation, mock fidelity, edge cases, assertion presence (Hard Rule), boundary operators, stale contracts, test isolation |
-| `silent-failure-hunter` | sonnet | Hunts for silent failures — swallowed exceptions, empty catch blocks, optional chain fallbacks (CRITICAL/HIGH/MEDIUM) |
+| `falsification-agent` | sonnet | Challenges review findings before consolidation |
+| `plan-challenger` | sonnet | Challenges build Phase 3 plan for YAGNI/scope/ordering issues |
+| `test-quality-reviewer` | sonnet | Test quality reviewer (T1–T9): behavior, mock fidelity, edge cases |
+| `silent-failure-hunter` | sonnet | Hunts for silent failures — swallowed exceptions, empty catch blocks |
 | `code-reviewer` | sonnet | General-purpose code reviewer with cross-session persistent memory |
-| `type-design-analyzer` | sonnet | TypeScript type design quality — 4 dimensions rated 1-10 (Encapsulation, Invariant Expression, Invariant Usefulness, Invariant Enforcement) |
+| `type-design-analyzer` | sonnet | TypeScript type design quality — 4 dimensions rated 1-10 |
 
 > Full agent list: see [agents/](agents/) — 27 agents total.
 
@@ -103,11 +103,14 @@ Hooks live at `hooks/`. All hooks are registered in `hooks/hooks.json` and distr
 
 ## Output Styles
 
-Custom output styles live at `output-styles/<name>.md` with frontmatter (`name`, `description`, `keep-coding-instructions`). Distributed automatically via plugin.
+Custom output styles at `output-styles/<name>.md` with frontmatter (`name`, `description`, `keep-coding-instructions`). Replace default coding instructions unless `keep-coding-instructions: true`.
 
-Output styles replace the default system prompt's coding instructions unless `keep-coding-instructions: true`. Use for consistent formatting/tone across sessions.
-
-Current styles: `senior-software-engineer` + `senior-software-engineer-en` (Thai/English, pragmatic senior engineer tone with trade-off focus), `coding-mentor` + `coding-mentor-en` (Thai/English, teaches through doing — adds "Why" explanations after significant changes, good for onboarding)
+| Style | Description |
+| --- | --- |
+| `senior-software-engineer` | Thai, pragmatic senior engineer tone with trade-off focus |
+| `senior-software-engineer-en` | English version of above |
+| `coding-mentor` | Thai, teaches through doing — adds "Why" explanations |
+| `coding-mentor-en` | English version of above |
 
 ## Plugin
 

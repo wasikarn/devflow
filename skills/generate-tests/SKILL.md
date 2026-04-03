@@ -10,6 +10,24 @@ allowed-tools: Read, Grep, Glob, Bash, Write, Agent
 
 **Target:** $ARGUMENTS | **Branch:** !`git branch --show-current 2>/dev/null || echo "unknown"`
 
+## Test Quality Rules
+
+Generated tests follow the T1-T9 hard rules from `devflow:test-patterns`:
+
+| Rule | Focus |
+|------|-------|
+| T1 | Behavior over implementation |
+| T2 | Mock fidelity — match real types |
+| T3 | Edge case coverage (empty, null, boundary) |
+| T4 | No `not.toThrow()` without reason |
+| T5 | Zero assertion check |
+| T6 | Boundary operator coverage |
+| T7 | Stale mock contracts |
+| T8 | No external state in unit tests |
+| T9 | Test isolation |
+
+See `devflow:test-patterns` for detailed patterns and examples.
+
 ## Step 1 — Identify Target Files
 
 If `--changes` is in `$ARGUMENTS` or no file paths are given:

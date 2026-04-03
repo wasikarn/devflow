@@ -1,6 +1,7 @@
 ---
 name: freeze
 description: "Lock edits to a specific directory or file for this session — blocks Edit and Write tools on matching paths."
+effort: low
 argument-hint: "[directory-path]"
 hooks:
   PreToolUse:

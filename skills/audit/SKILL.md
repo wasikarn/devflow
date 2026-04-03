@@ -89,6 +89,19 @@ Run `--deps` first, then `--security`. Present both reports in sequence with cle
 Critical issues requiring immediate action: N
 ```
 
+## Security Checklist
+
+The security-reviewer agent checks OWASP Top 10 vulnerabilities and common patterns:
+
+- **Authentication**: Password storage, session tokens, JWT secrets
+- **Input Validation**: SQL injection, XSS, file uploads
+- **Data Protection**: Encryption, secrets in code, logs
+- **API Security**: Rate limiting, CORS, status codes
+- **Infrastructure**: Dependency CVEs, security headers, HTTPS
+- **Business Logic**: Rate limits, idempotency, state validation
+
+See [references/security-checklist.md](references/security-checklist.md) for the full checklist.
+
 ## After Audit
 
 If any CRITICAL or HIGH findings:

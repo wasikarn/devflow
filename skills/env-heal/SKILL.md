@@ -1,6 +1,7 @@
 ---
 name: env-heal
 description: "Scan codebase for environment variable references, cross-reference with validation schema, and fix mismatches. Use when env var errors occur or adding new environment variables."
+effort: medium
 context: fork
 agent: general-purpose
 argument-hint: "[--quick?]"

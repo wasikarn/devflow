@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: "Bootstrap current project into devflow ecosystem — scaffold hard-rules.md and build directories. Use once per new project."
+effort: low
 context: fork
 agent: project-onboarder
 ---

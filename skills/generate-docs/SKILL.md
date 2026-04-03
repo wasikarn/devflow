@@ -156,6 +156,12 @@ Documented 12 exports across 4 files:
   src/models/user.model.ts — 4 methods
 ```
 
+## Documentation Templates
+
+For format examples and templates, see:
+
+- **[references/templates.md](references/templates.md)** — API endpoint format, README section templates, JSDoc/TSDoc patterns
+
 ## Feedback Loop
 
 After writing or editing documentation, verify the output is coherent:
