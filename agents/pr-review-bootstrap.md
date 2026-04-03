@@ -22,7 +22,19 @@ Gather all context needed for a PR review in one pass. Output a structured block
 
 ```bash
 gh pr view --json number,title,body,headRefName,baseRefName,url
-rtk gh pr diff
+
+# Detect file count for auto-filter
+FILE_COUNT=$(gh pr diff --name-only | wc -l)
+
+# Build exclude flags for large PRs
+EXCLUDE_FLAGS=""
+if [[ $FILE_COUNT -gt 100 ]]; then
+  # Auto-filter common noise for large PRs
+  EXCLUDE_FLAGS="--exclude 'package-lock.json' --exclude 'yarn.lock' --exclude '*.min.js'"
+fi
+
+# Get diff with filters applied
+rtk gh pr diff $EXCLUDE_FLAGS
 git diff --name-only origin/main...HEAD
 ```
 
@@ -38,14 +50,12 @@ If found, fetch ticket using fallback order:
 
 **Jira Context:**
 
-
 - Key: extract from $ARGUMENTS
 - Preset: --preset=review
 - Invoke issue-bootstrap agent with key and preset
 - Capture {bootstrap_context} for injection into reviewer prompts
 
 If issue-bootstrap not available, fall back to MCP with fields:
-
 
 **MCP Fallback:**
 
@@ -86,6 +96,8 @@ Return this exact block — nothing else:
 [AC list, verbatim from Jira]
 
 ### Changed Files ([count] files)
+**File count:** [count]
+**Auto-filtered:** yes/no
 **Business Logic:** [files]
 **Infrastructure:** [files]
 **Tests:** [files]

@@ -55,7 +55,7 @@ Invoke as `/review [pr-number] [jira-key?] [--micro|--quick|--full|--focused are
 **PR title:** !`gh pr view $0 --json title,body,labels,author --jq '{title,body,labels: [.labels[].name],author: .author.login}' 2>/dev/null || true`
 **Changed files:** !`gh pr diff $0 --name-only 2>/dev/null || true`
 
-**Args:** `$0`=PR# (required) · `$1`=Jira key or Author/Reviewer · `$2`=Author/Reviewer · `--micro`=engine-only fast path · `--quick`=2 reviewers no debate · `--full`=force 3-reviewer debate · `--focused [area]`=specialist only. Flags (`--micro`/`--quick`/`--full`/`--focused`) are detected by pattern matching — position-independent.
+**Args:** `$0`=PR# (required) · `$1`=Jira key or Author/Reviewer · `$2`=Author/Reviewer · `--micro`=engine-only fast path · `--quick`=2 reviewers no debate · `--full`=force 3-reviewer debate · `--focused [area]`=specialist only · `--exclude pattern`=exclude files from diff (can repeat). Flags (`--micro`/`--quick`/`--full`/`--focused`/`--exclude`) are detected by pattern matching — position-independent.
 **Modes:** Author = fix code · Reviewer = comment only (in Thai) · --micro = engine-only, no Agent Teams · --quick = 2 reviewers, no debate · --focused [area] = specialist only (errors/types/tests/api/migrations)
 **Role:** Tech Lead — improve code health via architecture, mentoring, team standards.
 **Output format:** Follow [review-output-format](../review-output-format/SKILL.md) with debate additions described in phase files.
@@ -81,3 +81,34 @@ In Reviewer mode: `git worktree remove /tmp/review-pr-$0`.
 - Hard Rules cannot be dropped via debate (only reclassified with evidence)
 
 See [references/operational.md](references/operational.md) for degradation levels, recovery, and gotchas.
+
+## Diff Filtering
+
+Use `--exclude` to filter out files from PR diff. Reduces token cost by 40-60% for large PRs.
+
+### Usage
+
+```bash
+/review 123 --exclude 'package-lock.json' --exclude 'yarn.lock'
+/review 123 --exclude '*.min.js' --exclude 'dist/*'
+```
+
+### Auto-Filter
+
+For PRs with >100 files, auto-exclude common noise:
+
+**Auto-Filter Threshold:**
+
+- If `git diff --numstat | wc -l` > 100
+- Auto-add: `--exclude 'package-lock.json' --exclude 'yarn.lock' --exclude '*.min.js'`
+
+### Implementation
+
+In Phase 1, after getting PR number:
+
+**Phase 1: Diff Retrieval**
+
+- Get PR number from $0
+- Detect file count: `gh pr diff $0 --name-only | wc -l`
+- If >100 files AND no --exclude flags: add auto-filter
+- Build diff command: `gh pr diff $0 $EXCLUDE_FLAGS`
