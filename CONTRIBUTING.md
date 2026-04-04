@@ -107,6 +107,8 @@ agent: Explore                                                       # optional:
 
 All skills are auto-triggerable via `description` — Claude reads descriptions at startup and invokes matching skills automatically. Background skills (shared reference docs) use `user-invocable: false` to hide from the `/` menu while remaining auto-triggerable.
 
+> **Note:** The `hooks:` frontmatter field in skills is **silently ignored** when loaded from a plugin marketplace install. Use `hooks/hooks.json` with appropriate event matchers instead. See [`docs/references/agent-hook-pattern.md`](docs/references/agent-hook-pattern.md) for the hook pattern and alternatives.
+
 See [`docs/references/skills-best-practices.md`](docs/references/skills-best-practices.md) for the full spec.
 
 ---
