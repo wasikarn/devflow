@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.4] — 2026-04-06
+
+### Rename setup to devflow-setup
+
+- refactor: rename setup skill to devflow-setup — avoids name collision with other plugins
+
 ## [1.7.3] — 2026-04-06
 
 ### Hook cleanup and skill rename
