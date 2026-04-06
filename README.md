@@ -593,12 +593,12 @@ Runs the full QA check suite to verify hooks, skills, and plugin structure are h
 
 ---
 
-#### `setup` — Post-Install Setup
+#### `devflow-setup` — Post-Install Setup
 
 Installs `devflow-engine` dependencies via `bun install` and runs a smoke test. Idempotent — detects what is already configured and skips those steps.
 
 ```bash
-/devflow:setup
+/devflow:devflow-setup
 ```
 
 **When to use:** After installing or reinstalling the plugin. Not for project onboarding (use `/devflow:onboard` instead).

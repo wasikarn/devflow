@@ -47,7 +47,7 @@ Prefer reading source before editing — key references:
 | `status` | Show active Devflow session artifacts and current phase |
 | `onboard` | Bootstrap a new project into the devflow ecosystem — scaffold hard-rules.md and build directories |
 | `plugin-qa` | Run QA check suite to verify all hooks, skills, and plugin structure |
-| `setup` | Post-install setup — installs devflow-engine dependencies and runs smoke test |
+| `devflow-setup` | Post-install setup — installs devflow-engine dependencies and runs smoke test |
 | `optimize-claude-md` | Audit and optimize CLAUDE.md files |
 | `analyze-claude-features` | Audit project against official Claude Code features and score adoption coverage |
 | `promote-hard-rule` | Review auto-detected Hard Rule candidates and approve/reject/defer each one |
