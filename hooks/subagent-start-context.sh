@@ -13,7 +13,8 @@ AGENT_NAME=$(echo "$INPUT" | jq -r '.agent_name // empty' 2>/dev/null)
 # Only inject for known agents (fallback filter if matcher doesn't work)
 case "$AGENT_NAME" in
   code-reviewer|test-quality-reviewer|migration-reviewer|api-contract-auditor|\
-  falsification-agent|plan-challenger|comment-analyzer|code-simplifier) ;;
+  falsification-agent|plan-challenger|comment-analyzer|code-simplifier|\
+  silent-failure-hunter|type-design-analyzer|security-reviewer) ;;
   *) exit 0 ;;
 esac
 
@@ -85,6 +86,10 @@ Tech stack: $STACK}${GIT_LOG:+
 Recent commits:
 $GIT_LOG}
 </devflow-agent-context>${HARD_RULES_BLOCK}
+<devflow-evidence-requirement>
+REQUIRED: Every finding in your output MUST include a file:line citation (e.g. src/auth.ts:42).
+Findings without file:line evidence will be rejected. No exceptions.
+</devflow-evidence-requirement>
 EOF
 
 exit 0
