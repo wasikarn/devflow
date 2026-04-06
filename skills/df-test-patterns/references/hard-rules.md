@@ -207,4 +207,4 @@ it('test A', () => {
 
 ## Enforcement
 
-These rules are checked by `devflow:review` and `devflow:generate-tests`. Violations block merge.
+These rules are checked by `devflow:df-review` and `devflow:df-generate-tests`. Violations block merge.

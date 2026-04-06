@@ -18,8 +18,8 @@ Prefer reading source before editing — key references:
 | [`docs/references/skill-creation-guide.md`](docs/references/skill-creation-guide.md) | 5 golden rules, creation workflow, skill brief template, anti-patterns |
 | `skills/<name>/references/checklist.md` | Per-skill review criteria with severity markers (review-pr skills) |
 | `skills/<name>/references/examples.md` | Per-skill ✅/❌ code examples for all 12 rules (review-pr skills) |
-| [`skills/review-conventions/SKILL.md`](skills/review-conventions/SKILL.md) | Comment labels, dedup protocol, strengths, PR size thresholds |
-| [`skills/build/references/review-lenses/`](skills/build/references/review-lenses/) | 8 domain lenses injected into reviewers at Phase 6 — `frontend`, `security`, `database`, `performance`, `typescript`, `error-handling`, `api-design`, `observability`. Shared by both `build` and `review`. |
+| [`skills/df-review-conventions/SKILL.md`](skills/df-review-conventions/SKILL.md) | Comment labels, dedup protocol, strengths, PR size thresholds |
+| [`skills/df-build/references/review-lenses/`](skills/df-build/references/review-lenses/) | 8 domain lenses injected into reviewers at Phase 6 — `frontend`, `security`, `database`, `performance`, `typescript`, `error-handling`, `api-design`, `observability`. Shared by both `build` and `review`. |
 
 <important if="editing or creating skills">
 
@@ -94,7 +94,6 @@ Hooks live at `hooks/`. All hooks are registered in `hooks/hooks.json` and distr
 | --- | --- | --- |
 | `SessionStart` | `startup` | `check-deps.sh`, `session-start-context.sh` |
 | `PreToolUse` | `Edit\|Write` | `protect-files.sh` |
-| `PreToolUse` | `Skill` | `skill-usage-tracker.sh` |
 | `PreToolUse` | `Bash` | `safe-command-approver.sh` |
 | `PostToolUseFailure` | `Bash` | `bash-failure-hint.sh` |
 | `PostToolUseFailure` | `Edit\|Write` | `edit-write-failure-hint.sh` |
@@ -109,7 +108,7 @@ Hooks live at `hooks/`. All hooks are registered in `hooks/hooks.json` and distr
 | `TeammateIdle` | `respond` | `idle-nudge.sh` |
 | `TeammateIdle` | `debug-` | `idle-nudge.sh` |
 
-> Full hook list: see [hooks/hooks.json](hooks/hooks.json) — 17 hooks total.
+> Full hook list: see [hooks/hooks.json](hooks/hooks.json) — 16 hooks total.
 
 </important>
 

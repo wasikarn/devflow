@@ -53,13 +53,13 @@ RE_JIRA_CREATE='create story|write ticket|create ticket|write story|jira ticket|
 # --- finish-feature (priority 1) ---
 if [[ $PROMPT_LOWER =~ $RE_FINISH_EN ]] \
    || [[ $PROMPT =~ พร้อม|ส่ง\ PR|ทำเสร็จ ]]; then
-  add_hint "[skill-hint:finish-feature] /build done? → verification-before-completion → requesting-code-review → finishing-a-development-branch"
+  add_hint "[skill-hint:finish-feature] /df-build done? → verification-before-completion → requesting-code-review → finishing-a-development-branch"
 fi
 
 # --- review-pr (priority 2) ---
 if [[ $PROMPT_LOWER =~ $RE_REVIEW_EN ]] \
    || [[ $PROMPT =~ ดู\ PR|ดู\ code|ตรวจ\ code|ตรวจ\ PR ]]; then
-  add_hint "[skill-hint:review-pr] /review — adversarial 3-reviewer debate (or run in parallel: review + pr-review-toolkit plugins)"
+  add_hint "[skill-hint:review-pr] /df-review — adversarial 3-reviewer debate (or run in parallel: review + pr-review-toolkit plugins)"
 fi
 
 # --- what-changed / release-notes ---
@@ -71,12 +71,12 @@ fi
 if [[ $PROMPT =~ $RE_JIRA_KEY ]]; then
   JIRA_KEY="${BASH_REMATCH[0]}"
   if [[ $PROMPT_LOWER =~ $RE_JIRA_INTENT ]]; then
-    add_hint "[skill-hint:jira-workflow] Detected ${JIRA_KEY} — use /build ${JIRA_KEY} to implement with AC auto-extracted"
+    add_hint "[skill-hint:jira-workflow] Detected ${JIRA_KEY} — use /df-build ${JIRA_KEY} to implement with AC auto-extracted"
   fi
 fi
 
 if [[ $PROMPT_LOWER =~ $RE_JIRA_CREATE ]]; then
-  add_hint "[skill-hint:jira-story-creation] story-writer agent (atlassian-pm plugin) — or describe requirements and use /build"
+  add_hint "[skill-hint:jira-story-creation] story-writer agent (atlassian-pm plugin) — or describe requirements and use /df-build"
 fi
 
 # --- start-feature (priority 3) ---
@@ -85,7 +85,7 @@ if [[ $PROMPT_LOWER =~ $RE_FEATURE_EN ]] \
    || [[ $PROMPT_LOWER =~ $RE_FEATURE_BUILD ]] \
    || [[ $PROMPT_LOWER =~ $RE_FEATURE_CREATE ]] \
    || [[ $PROMPT =~ สร้าง|เพิ่ม\ feature|ทำ\ feature|อยากทำ ]]; then
-  add_hint "[skill-hint:start-feature] brainstorm→plan→worktree→TDD; /build for full loop; skip brainstorm if design clear"
+  add_hint "[skill-hint:start-feature] brainstorm→plan→worktree→TDD; /df-build for full loop; skip brainstorm if design clear"
 fi
 
 # --- emit all accumulated hints (empty = no match = no output) ---

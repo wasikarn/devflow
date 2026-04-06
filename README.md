@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-29-blue?style=flat-square)](#skills)
 [![Agents](https://img.shields.io/badge/agents-27-purple?style=flat-square)](#agents)
-[![Hooks](https://img.shields.io/badge/hooks-17-orange?style=flat-square)](#hooks)
+[![Hooks](https://img.shields.io/badge/hooks-16-orange?style=flat-square)](#hooks)
 
 <p>
   <a href="#installation">Installation</a> •

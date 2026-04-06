@@ -128,6 +128,6 @@ For comprehensive patterns, examples, and best practices:
 
 ## Related Skills
 
-- `devflow:generate-tests` — Generate tests from source code
+- `devflow:df-generate-tests` — Generate tests from source code
 
-- `devflow:review` — Review includes test quality checks (T1-T9)
+- `devflow:df-review` — Review includes test quality checks (T1-T9)

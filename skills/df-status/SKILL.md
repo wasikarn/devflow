@@ -52,7 +52,7 @@ fi
 ## Report Format
 
 ```text
-📁 Active Session: ~/.claude/artifacts/build-2024-01-15-abc123/
+📁 Active Session: ~/.claude/artifacts/df-build-2024-01-15-abc123/
 
 📄 Artifacts:
 ├─ devflow-context.md (2 hours ago)
@@ -64,7 +64,7 @@ fi
 ⏭️  Next Steps:
 ├─ Review research.md for context
 ├─ Check plan.md for remaining tasks
-└─ Continue implementation or run /devflow:build to resume
+└─ Continue implementation or run /devflow:df-build to resume
 ```
 
 ## Use Cases
@@ -76,6 +76,6 @@ fi
 
 ## Gotchas
 
-- Artifacts are session-scoped (one per build/review/debug session)
+- Artifacts are session-scoped (one per build/df-review/debug session)
 - Directory naming: `~/.claude/artifacts/{workflow}-{date}-{id}/`
-- If no artifacts found, suggest starting a new session with `/devflow:build`
+- If no artifacts found, suggest starting a new session with `/devflow:df-build`

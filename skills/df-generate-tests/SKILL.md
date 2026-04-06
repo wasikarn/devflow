@@ -12,7 +12,7 @@ allowed-tools: Read, Grep, Glob, Bash, Write, Agent
 
 ## Test Quality Rules
 
-Generated tests follow the T1-T9 hard rules from `devflow:test-patterns`:
+Generated tests follow the T1-T9 hard rules from `devflow:df-test-patterns`:
 
 | Rule | Focus |
 |------|-------|
@@ -26,7 +26,7 @@ Generated tests follow the T1-T9 hard rules from `devflow:test-patterns`:
 | T8 | No external state in unit tests |
 | T9 | Test isolation |
 
-See `devflow:test-patterns` for detailed patterns and examples.
+See `devflow:df-test-patterns` for detailed patterns and examples.
 
 ## Step 1 — Identify Target Files
 
