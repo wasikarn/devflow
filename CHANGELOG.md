@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] — 2026-04-14
+
+### Advisor Strategy mode for df-review
+
+- feat: add `--advisor` flag for cost-intelligent PR review
+- feat: new `advisor-consultant` agent (Opus) for deep analysis of uncertain findings
+- feat: executor reviewers (Sonnet/Haiku) with confidence scoring
+- feat: confidence gate with configurable thresholds (fast/balanced/conservative modes)
+- feat: auto-escalation for security and architecture patterns
+- docs: new `phase-advisor.md` reference documentation
+- docs: update `code-reviewer` agent with confidence scoring instructions
+- cost savings: 35-80% vs standard 3×Opus review
+
 ## [1.8.1] — 2026-04-07
 
 ### devflow-engine resilience improvements
