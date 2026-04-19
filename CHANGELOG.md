@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.11.0] — 2026-04-19
+
+### Macro Skills + Quality Improvements
+
+- feat: add `df-start` — quick onboard + build entry point
+- feat: add `df-code` — rapid build + test iteration loop
+- feat: add `df-ship` — review + merge completion macro
+- feat: add `df-adr` — architecture decision record skill
+- feat: add `docs/getting-started.md` for new users
+- feat: add `docs/references/skills-catalog.md`
+- refactor: compress CLAUDE.md from 269 to 103 lines
+- refactor: rename `df-generate-tests` → `df-tests` (match frontmatter)
+- refactor: rename `df-generate-docs` → `df-docs` (match frontmatter)
+- fix: correct `df-merge-pr` frontmatter name (was `df-merge`)
+
 ## [1.10.0] — 2026-04-17
 
 ### df-merge-pr auto-confirm + docs
